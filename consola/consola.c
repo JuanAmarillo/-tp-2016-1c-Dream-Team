@@ -34,5 +34,7 @@ void leerArchivoConfig() {
 	infoConfig.ip = config_get_string_value(config, "IP");
 	infoConfig.puerto = config_get_string_value(config, "PUERTO");
 
-	config_destroy(config);
+	// No uso config_destroy(config) porque bugea
+	free(config->path);
+	free(config);
 }
