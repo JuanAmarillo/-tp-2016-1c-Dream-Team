@@ -1,0 +1,22 @@
+/*
+ * consola.h
+ *
+ *  Created on: 16/4/2016
+ *      Author: utnso
+ */
+
+#ifndef CONSOLA_H_
+#define CONSOLA_H_
+
+// Estructuras de datos
+typedef struct{
+	char * puerto;
+	char * ip;
+} t_infoConfig;
+
+// Variables Globales
+t_infoConfig * infoConfig;
+
+void leerArchivoConfig();
+
+#endif /* CONSOLA_H_ */

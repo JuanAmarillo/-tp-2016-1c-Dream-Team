@@ -1,0 +1,5 @@
+# IP
+IP_SERVER=127.0.0.1
+
+# Puerto
+PORT_SERVER=8080

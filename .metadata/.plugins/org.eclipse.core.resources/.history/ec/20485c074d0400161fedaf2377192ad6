@@ -1,0 +1,25 @@
+#ifndef CONSOLA_H_
+#define CONSOLA_H_
+
+/*
+ * Estructuras de datos
+ */
+typedef struct{
+	char * ip;
+	char * puerto;
+} t_infoConfig;
+
+/*
+ * Variables Globales
+ */
+t_infoConfig infoConfig;
+#define PACKAGESIZE 1024
+
+
+/*
+ * Funciones / Procedimientos
+ */
+void leerArchivoConfig();
+void pruebaSocket();
+
+#endif

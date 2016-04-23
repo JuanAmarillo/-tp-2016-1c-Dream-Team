@@ -1,0 +1,30 @@
+#include <commons/config.h>
+#include <commons/string.h>
+#include <stdlib.h>
+#include <string.h>
+#include "consola.h"
+
+int main(int argc, char** argv){
+
+	// Leer archivo config.conf
+	leerArchivoConfig();
+	puts("Hola");
+	//free(infoConfig);
+	return EXIT_SUCCESS;
+}
+
+void leerArchivoConfig() {
+	infoConfig = malloc(sizeof(t_infoConfig));
+	t_config *config = config_create("config.conf");
+
+	if (config == NULL) {
+		// No se pudo cargar el archivo config.conf
+		config_destroy(config);
+		abort();
+	}
+
+	infoConfig->ip = config_get_string_value(config, "IP");
+	infoConfig->puerto = config_get_string_value(config, "PUERTO");
+
+	config_destroy(config);
+}

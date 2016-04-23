@@ -1,0 +1,38 @@
+/*
+ * analizador.c
+ *
+ *  Created on: 23/4/2016
+ *      Author: utnso
+ */
+
+
+/*
+ * Funciones del Analizador
+ */
+
+t_puntero analizador_definirVariable(t_nombre_variable variable) {
+	printf("definir la variable %c\n", variable);
+	return POSICION_MEMORIA;
+}
+
+t_puntero analizador_obtenerPosicionVariable(t_nombre_variable variable) {
+	printf("Obtener posicion de %c\n", variable);
+	return POSICION_MEMORIA;
+}
+
+t_valor_variable analizador_dereferenciar(t_puntero puntero) {
+	printf("Dereferenciar %d y su valor es: %d\n", puntero, CONTENIDO_VARIABLE);
+	return CONTENIDO_VARIABLE;
+}
+
+void analizador_asignar(t_puntero puntero, t_valor_variable variable) {
+	printf("Asignando en %d el valor %d\n", puntero, variable);
+}
+
+void analizador_imprimir(t_valor_variable valor) {
+	printf("Imprimir %d\n", valor);
+}
+
+void analizador_imprimirTexto(char* texto) {
+	printf("ImprimirTexto: %s", texto);
+}

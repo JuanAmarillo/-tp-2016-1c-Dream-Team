@@ -1,0 +1,15 @@
+#include <commons/config.h>
+#include <commons/string.h>
+#include <cspecs/cspec.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Variables Globales */
+
+
+
+int main(int argc, char** argv){
+	// Leer archivo config.conf
+	leerArchivoConfig();
+	return EXIT_SUCCESS;
+}
