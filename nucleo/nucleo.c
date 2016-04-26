@@ -61,12 +61,21 @@ int main(void)
 				}
 				else//Hay datos entrantes
 				{
-					nbytes = recv(i, buffer, 100, 0);
-					if(nbytes == 0)
+					nbytes = recv(fd_explorer, buffer, 100, 0);
+					if(nbytes <= 0)//falló ó se desconectó el cliente
 					{
-						printf("Un cliente se ha desconectado\n");
-						FD_CLR(fd_explorer, &master_fds);
-						close(fd_explorer);
+						if(nbytes < 0) 
+						{
+							perror("Error recv()\n");
+							FD_CLR(fd_explorer, &master_fds);
+							close(fd_explorer);	
+						}
+						if(nbytes == 0)//se desconectó
+						{
+							printf("Un cliente se ha desconectado\n");
+							FD_CLR(fd_explorer, &master_fds);
+							close(fd_explorer);	
+						}
 					}
 					else
 						printf("Mensaje recibido: %s\n", buffer);
