@@ -10,7 +10,8 @@
 
 //Cuántas conexiones se aceptarán
 #define BACKLOG 100
-
+//Puerto de el pripio núcleo
+#define PUERTO 9090
 /*
  * Estructuras de datos
  */
