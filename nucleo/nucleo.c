@@ -18,6 +18,27 @@ int main(void)
 	FD_ZERO(&master_fds);
 	FD_ZERO(&read_fds);
 	
+	if( fd_listener = socket(PF_INET, SOCK_STREAM, 0) == -1 )
+	{
+		perror("Error Socket Listener\n");
+		exit(1);
+	}
+	
+	if( setsockopt(fd_listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1 )
+	{
+		perror("Error setsockpt()\n");
+		exit(1);
+	}
+	if( bind(fd_listener, (struct sockaddr*) &miDireccion, sizeof(struct sockaddr)) == -1 )
+	{
+		perror("Error setsockpt()\n");
+		exit(1);	
+	}
+	listen(fd_listener, BACKLOG);
+
+	maxfd = fd_listener;//Por ahora el max es el listener
+	FD_SET(fd_listener, &master_fds);
+	
 	return EXIT_SUCCESS;
 }
 
