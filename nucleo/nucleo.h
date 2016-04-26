@@ -24,7 +24,7 @@
 //Cuántas conexiones se aceptarán
 #define BACKLOG 100
 //Puerto de el propio núcleo
-#define PUERTO 9090
+#define MIPUERTO 9090
 /*
  * Estructuras de datos
  */
@@ -34,11 +34,17 @@ typedef struct{
 	char *puerto_umc;
 } t_infoConfig;
 
-/*
- * Variables Globales
- */
-t_infoConfig infoConfig;
 
+/*Variables Globales*/
+/*----------------------------------------------------------*/
+t_infoConfig infoConfig; //archivo de configuración
+
+struct sockaddr_in miDireccion; //Dirección propia
+miDireccion.sin_family = AF_INET;
+miDireccion.sin_port = htons(MIPUERTO);
+miDireccion.sin_addr.s_addr = INADDR_ANY;
+memset(miDireccion.sin_zero, '\0', sizeof(miDireccion.sin_zero));
+/*--------------------------------------------------------*/
 
 /*
  * Funciones / Procedimientos
