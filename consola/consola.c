@@ -3,13 +3,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "consola.h"
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
+
+struct sockadrr_in direccionNucleo;
 
 int main(int argc, char** argv){
 
 	// Leer archivo config.conf
 	leerArchivoConfig();
-
+	//inicializar estructura de socket
+	inicializarSocket();
+	int miSocket = socket(PF_INET, SOCK_STREAM, 0);
+	if (connect (miSocket, (sockaddr*) &miSocket, sizeof(sockaddr_in)) == -1) {
+		printf("Error de connect\n");
+		exit(1);
+	}
+	char mensaje[5] = "Hola";
+	send (miSocket, mensaje, 5, 0); //para mensaje también se podíra usar strlen(mensaje)+1
+	printf ("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
+	int enviar = 1;
+	while (enviar) {
+		fgets (mensaje, 5, stdin);
+		if (!strcmp (mensaje, "exit\n")) enviar = 0;
+		if (enviar) send (miSocket, mensaje, strlen(mensaje) +1, 0);
+	}
+	close (miSocket);
 	return EXIT_SUCCESS;
 }
 
@@ -35,4 +56,19 @@ void leerArchivoConfig() {
 	// No uso config_destroy(config) porque bugea
 	free(config->path);
 	free(config);
+}
+
+/*
+ * inicializarSocket();
+ *Parámetros: -
+ *Descripción: Procedimiento que inicializa la estructura sockaddr_in con los valores levantados de config.conf
+ *Return: -
+ */
+void inicializarEstructuraSocket (){
+
+	direccionNucleo.sin_family = AF_INET;
+	direccionNucleo.sin_port = htons (atoi(infoConfig.puerto));
+	direccionNucleo.sin_addr.s_addr = inet_addr(infoConfig.ip);
+	direccionNucleo.sin_zero = memset (direccionNucleo.sin_zero, '\0', sizeof (direccionNucleo.sin_zero));
+
 }
