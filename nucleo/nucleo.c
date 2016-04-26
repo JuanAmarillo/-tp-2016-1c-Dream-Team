@@ -8,7 +8,7 @@ int main(void)
 	//file descriptor para escuchar (listener), para una nueva conexión (new) y para explorar conexiones (explorer)
 	int fd_listener, fd_new, fd_explorer;
 	
-	fd_set master_fds, read_fds;//conjuntos de fd's total(master) y para los que tienen datos para lectura(read)
+	fd_set conj_master, conj_read;//conjuntos de fd's total(master) y para los que tienen datos para lectura(read)
 	struct direccionCliente;//direccion del cliente
 	
 	int maxfd/*cima del conjunto "master_fds" */, yes = 1/*para setsockopt()*/, nbytes/*número de bytes recibidos del cliente*/;
@@ -20,7 +20,7 @@ int main(void)
 	
 	if( fd_listener = socket(PF_INET, SOCK_STREAM, 0) == -1 )
 	{
-		perror("Error Socket Listener\n");
+		perror("Error Socket Escucha\n");
 		exit(1);
 	}
 	
@@ -34,10 +34,47 @@ int main(void)
 		perror("Error setsockpt()\n");
 		exit(1);	
 	}
-	listen(fd_listener, BACKLOG);
-
+	if( listen(fd_listener, BACKLOG) == -1 )
+	{
+		perror("Error listen()\n");
+		exit(1);
+	}
+	
 	maxfd = fd_listener;//Por ahora el max es el listener
-	FD_SET(fd_listener, &master_fds);
+	FD_SET(fd_listener, &conj_master);
+	
+	while(1)
+	{
+		conj_read = conj_master;
+		select(maxfd+1, &conj_read, NULL, NULL, NULL);
+		for(fd_explorer = 0; fd_explorer <= maxfd; fd_explorer++)
+		{
+			if(FD_ISSET(fd_explorer, &conj_read))//hay datos!
+			{
+
+				if(fd_explorer == fd_listener)//Hay una conexión nueva
+				{
+					fd_new = accept(fd_listener, (struct sockaddr*) &direccionCliente, &tam);
+					FD_SET(fd_new, &master_fds);
+					printf("Se acepto una conexion\n");
+					if(fd_new > maxfd) maxfd = fd_new;
+				}
+				else//Hay datos entrantes
+				{
+					nbytes = recv(i, buffer, 100, 0);
+					if(nbytes == 0)
+					{
+						printf("Un cliente se ha desconectado\n");
+						FD_CLR(fd_explorer, &master_fds);
+						close(fd_explorer);
+					}
+					else
+						printf("Mensaje recibido: %s\n", buffer);
+				}
+			}
+
+		}
+	}
 	
 	return EXIT_SUCCESS;
 }
