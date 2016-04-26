@@ -1,15 +1,22 @@
-#include <commons/config.h>
-#include <commons/string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "nucleo.h"
 
-int main(int argc, char** argv){
+int main(void){
 
 	// Leer archivo config.conf
 	leerArchivoConfig();
+	
+	int fd_listener, fd_new;
+	fd_set master_fds, read_fds;
+	struct sockaddr_in miDireccion, direccionCliente;
+	int i, maxfd, yes = 1, nbytes;
+	char buffer[100];
+	miDireccion.sin_family = AF_INET;
+	miDireccion.sin_port = htons(MIPUERTO);
+	miDireccion.sin_addr.s_addr = INADDR_ANY;
+	memset(miDireccion.sin_zero, '\0', sizeof(miDireccion.sin_zero));
+	unsigned int tam = sizeof(struct sockaddr_in);
 
+	
 	return EXIT_SUCCESS;
 }
 
