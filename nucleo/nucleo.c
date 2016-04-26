@@ -77,8 +77,7 @@ int main(void)
 							close(fd_explorer);	
 						}
 					}
-					else
-						printf("Mensaje recibido: %s\n", buffer);
+					else printf("Mensaje recibido: %s\n", buffer);
 				}
 			}
 
