@@ -1,4 +1,6 @@
 #include <commons/config.h>
+#include <commons/collections/list.h>
+#include <commons/collections/dictionary.h>
 #include <commons/string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,8 +35,10 @@ void leerArchivoConfig() {
 		abort();
 	}
 	// Guardo los datos en una variable global
-	infoConfig.ip = config_get_string_value(config, "IP");
-	infoConfig.puerto = config_get_string_value(config, "PUERTO");
+	infoConfig.ip_nucleo = config_get_string_value(config, "IP_NUCLEO");
+	infoConfig.puerto_nucleo = config_get_string_value(config, "PUERTO_NUCLEO");
+	infoConfig.ip_umc = config_get_string_value(config, "IP_UMC");
+	infoConfig.puerto_umc = config_get_string_value(config, "IP_UMC");
 
 	// No uso config_destroy(config) porque bugea
 	free(config->path);
