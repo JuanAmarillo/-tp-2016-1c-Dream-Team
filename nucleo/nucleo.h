@@ -8,6 +8,9 @@
 #ifndef NUCLEO_H_
 #define NUCLEO_H_
 
+//Cuántas conexiones se aceptarán
+#define BACKLOG 100
+
 /*
  * Estructuras de datos
  */
