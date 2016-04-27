@@ -13,18 +13,32 @@
 #include "analizador.h"
 #include "cpu.h"
 
+#define IP "127.0.0.1"
+#define PUERTO "6667"
+#define PACKAGESIZE 1024
+
 int main(int argc, char** argv){
-	int socketUMC, socketNucleo;
+
 	// Leer archivo config.conf
 	leerArchivoConfig();
 
-	// Conecto a la UMC
+	// Me conecto a la UMC
 	socketUMC = conectarseUMC();
 	if(socketUMC == -1) abort();
 
-	// Conecto a el Nucleo
-	socketNucleo = conectarseNucleo();
-	if(socketNucleo == -1) abort();
+	// Me conecto a el Nucleo
+	//socketNucleo = conectarseNucleo();
+	//if(socketNucleo == -1) abort();
+
+	int enviar = 1;
+	char message[PACKAGESIZE];
+	printf("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
+	while(enviar){
+		fgets(message, PACKAGESIZE, stdin);
+		if (!strcmp(message,"exit\n")) enviar = 0;
+		if (enviar) send(socketUMC, message, strlen(message) + 1, 0);
+	}
+	close(socketUMC);
 
 
 	testParser();
@@ -52,7 +66,7 @@ void leerArchivoConfig() {
 	infoConfig.ip_nucleo = config_get_string_value(config, "IP_NUCLEO");
 	infoConfig.puerto_nucleo = config_get_string_value(config, "PUERTO_NUCLEO");
 	infoConfig.ip_umc = config_get_string_value(config, "IP_UMC");
-	infoConfig.puerto_umc = config_get_string_value(config, "IP_UMC");
+	infoConfig.puerto_umc = config_get_string_value(config, "PUERTO_UMC");
 
 	// No uso config_destroy(config) porque bugea
 	free(config->path);

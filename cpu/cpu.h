@@ -54,6 +54,7 @@ typedef struct{
 /*
  * Variables Globales
  */
+int socketUMC, socketNucleo;
 t_infoConfig infoConfig;
 
 
@@ -63,8 +64,11 @@ t_infoConfig infoConfig;
 void leerArchivoConfig();
 int conectarseUMC();
 int conectarseNucleo();
+//int enviarMensajeUMC();
+//int enviarMensajeNucleo();
 void testParser();
 int crearConexion(const char *ip, const char *puerto);
+//int enviarMensaje(int serverSocket, );
 
 
 #endif /* CPU_H_ */
