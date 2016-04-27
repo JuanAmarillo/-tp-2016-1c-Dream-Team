@@ -13,8 +13,6 @@
 #include "analizador.h"
 #include "cpu.h"
 
-#define IP "127.0.0.1"
-#define PUERTO "6667"
 #define PACKAGESIZE 1024
 
 int main(int argc, char** argv){
