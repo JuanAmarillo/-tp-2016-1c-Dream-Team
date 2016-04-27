@@ -17,8 +17,7 @@ int main(int argc, char** argv){
 	//inicializar estructura de socket con los datos del nucleo
 	inicializarDireccionNucleo();
 	int miSocket = socket(PF_INET, SOCK_STREAM, 0);
-	if (connect (miSocket, (sockaddr*) &direccionNucleo, sizeof(sockaddr_in)) == -1) {  //el segundo parámetro de connect es a 
-                                                                                            //donde se conecta 
+	if (connect (miSocket, (sockaddr*) &direccionNucleo, sizeof(sockaddr_in)) == -1) { 
 		printf("Error de connect\n");
 		exit(1);
 	}
