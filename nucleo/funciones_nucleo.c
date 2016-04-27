@@ -44,9 +44,9 @@ void inicializarMiDireccion(void)
  */
 int reconocerCliente(struct sockaddr_in* dir)
 {
-	if(dir->sin_addr.s_addr == htons(atoi(infoConfig.puerto_prog))) return 1;//Es la Consola
-	if(dir->sin_addr.s_addr == htons(atoi(infoConfig.puerto_cpu) )) return 2;//Es la CPU
-	if(dir->sin_addr.s_addr == htons(atoi(infoConfig.puerto_umc) )) return 3;//Es la UMC
+	if(dir->sin_port == htons(atoi(infoConfig.puerto_prog))) return 1;//Es la Consola
+	if(dir->sin_port == htons(atoi(infoConfig.puerto_cpu) )) return 2;//Es la CPU
+	if(dir->sin_port == htons(atoi(infoConfig.puerto_umc) )) return 3;//Es la UMC
 
 	return 0;//No coincide con ninguno
 }
