@@ -60,8 +60,26 @@ int main(void)
 				{
 					fd_new = accept(fd_listener, (struct sockaddr*) &direccionCliente, &tam);
 					FD_SET(fd_new, &conj_master);
-					printf("Se acepto una conexion\n");
-					if(fd_new > maxfd) maxfd = fd_new;
+					switch(reconocerCliente(&direccionCliente))
+					{
+					case 0:
+						FD_CLR(fd_explorer, &conj_master);
+						close(fd_explorer);
+						printf("Proceso desconocido ha sido desconectado\n");
+						break;
+					case 1:
+						printf("Se acepto una conexion de la Consola\n");
+						if(fd_new > maxfd) maxfd = fd_new;
+						break;
+					case 2:
+						printf("Se acepto una conexion de la CPU\n");
+						if(fd_new > maxfd) maxfd = fd_new;
+						break;
+					case 3:
+						printf("Se acepto una conexion de la UMC\n");
+						if(fd_new > maxfd) maxfd = fd_new;
+						break;
+					}
 				}
 				else//Hay datos entrantes
 				{
@@ -81,8 +99,7 @@ int main(void)
 							close(fd_explorer);
 						}
 					}
-					else
-						printf("Mensaje recibido: %s\n", buffer);
+					else printf("Mensaje recibido: %s\n", buffer);
 				}
 			}
 
