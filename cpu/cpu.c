@@ -5,14 +5,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
 #include <parser/parser.h>
 #include "analizador.h"
 #include "cpu.h"
 
 int main(int argc, char** argv){
-
+	int socketUMC, socketNucleo;
 	// Leer archivo config.conf
 	leerArchivoConfig();
+
+	// Conecto a la UMC
+	socketUMC = conectarseUMC();
+	if(socketUMC == -1) abort();
+
+	// Conecto a el Nucleo
+	socketNucleo = conectarseNucleo();
+	if(socketNucleo == -1) abort();
+
+
 	testParser();
 
 
@@ -46,6 +60,40 @@ void leerArchivoConfig() {
 }
 
 /*
+ * conectarseUMC();
+ * Parametros: -
+ * Descripcion: Procedimiento que establece conexion con la UMC
+ * Return:
+ * 		-> -1 :: Error
+ * 		->  Other :: ID del socket
+ */
+int conectarseUMC() {
+	int serverSocket = crearConexion(infoConfig.ip_umc, infoConfig.puerto_umc);
+	if(serverSocket == -1){
+		perror("Error al conectarse con UMC");
+		return -1;
+	}
+	return serverSocket;
+}
+
+/*
+ * conectarseNucleo();
+ * Parametros: -
+ * Descripcion: Procedimiento que establece conexion con el Nucleo
+ * Return: -
+ * 		-> -1 :: Error
+ * 		->  Other :: ID del socket
+ */
+int conectarseNucleo() {
+	int serverSocket = crearConexion(infoConfig.ip_nucleo, infoConfig.puerto_nucleo);
+	if(serverSocket == -1){
+		perror("Error al conectarse con Nucleo");
+		return -1;
+	}
+	return serverSocket;
+}
+
+/*
  * testParser();
  * Parametros: -
  * Descripcion: Procedimiento que simula ejecutar un codigo ansisop
@@ -69,6 +117,30 @@ void testParser() {
 	analizadorLinea(strdup(IMPRIMIR_TEXTO), &functions, &kernel_functions);
 	printf("================\n");
 }
+
+/*
+ * crearConexion(const char *ip, int puerto);
+ * Parametros: ip, puerto
+ * Descripcion: Procedimiento que establece conexion con el Nucleo
+ * Return:
+ * 		-> -1 :: Error
+ * 		->  serverSocket :: ID del socket
+ */
+int crearConexion(const char *ip, const char *puerto) {
+	struct addrinfo hints;
+	struct addrinfo *serverInfo;
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	getaddrinfo(ip, puerto, &hints, &serverInfo);
+	int serverSocket = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
+	if ((connect(serverSocket, serverInfo->ai_addr, serverInfo->ai_addrlen)) != 0) {
+		return -1;
+	}
+	freeaddrinfo(serverInfo);
+	return serverSocket;
+}
+
 
 /*
  * FUNCIONES ANALIZADOR

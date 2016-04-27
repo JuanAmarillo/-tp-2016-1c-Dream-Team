@@ -61,7 +61,10 @@ t_infoConfig infoConfig;
  * Funciones / Procedimientos
  */
 void leerArchivoConfig();
+int conectarseUMC();
+int conectarseNucleo();
 void testParser();
+int crearConexion(const char *ip, const char *puerto);
 
 
 #endif /* CPU_H_ */
