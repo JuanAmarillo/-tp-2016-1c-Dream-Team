@@ -1,10 +1,3 @@
-/*
- * nucleo.h
- *
- *  Created on: 17/4/2016
- *      Author: utnso
- */
-
 #ifndef NUCLEO_H_
 #define NUCLEO_H_
 
@@ -24,7 +17,7 @@
 //Cuántas conexiones se aceptarán
 #define BACKLOG 100
 //Puerto de el propio núcleo
-#define MIPUERTO 9090
+#define MIPUERTO 8080
 /*
  * Estructuras de datos
  */
@@ -40,15 +33,12 @@ typedef struct{
 t_infoConfig infoConfig; //archivo de configuración
 
 struct sockaddr_in miDireccion; //Dirección propia
-miDireccion.sin_family = AF_INET;
-miDireccion.sin_port = htons(MIPUERTO);
-miDireccion.sin_addr.s_addr = INADDR_ANY;
-memset(miDireccion.sin_zero, '\0', sizeof(miDireccion.sin_zero));
-/*--------------------------------------------------------*/
 
 /*
  * Funciones / Procedimientos
  */
 void leerArchivoConfig();
+void inicializarMiDireccion(void);
 
 #endif /* NUCLEO_H_ */
+
