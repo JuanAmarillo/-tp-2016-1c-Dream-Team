@@ -24,7 +24,7 @@ void leerArchivoConfig() {
 	free(config);
 }
 /*
- * leerArchivoConfig();
+ * inicializarMiDireccion();
  * Parametros: -
  * Descripcion: Procedimiento que inicializa la estructura de dirección del propio núcleo
  * Return: -
