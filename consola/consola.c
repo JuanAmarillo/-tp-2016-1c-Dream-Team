@@ -14,15 +14,16 @@ int main(int argc, char** argv){
 
 	// Leer archivo config.conf
 	leerArchivoConfig();
-	//inicializar estructura de socket
-	inicializarSocket();
+	//inicializar estructura de socket con los datos del nucleo
+	inicializarDireccionNucleo();
 	int miSocket = socket(PF_INET, SOCK_STREAM, 0);
-	if (connect (miSocket, (sockaddr*) &miSocket, sizeof(sockaddr_in)) == -1) {
+	if (connect (miSocket, (sockaddr*) &direccionNucleo, sizeof(sockaddr_in)) == -1) {  //el segundo parámetro de connect es a 
+                                                                                            //donde se conecta 
 		printf("Error de connect\n");
 		exit(1);
 	}
 	char mensaje[5] = "Hola";
-	send (miSocket, mensaje, 5, 0); //para mensaje también se podíra usar strlen(mensaje)+1
+	send (miSocket, mensaje, 5, 0); //para mensaje también se podría usar strlen(mensaje)+1
 	printf ("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
 	int enviar = 1;
 	while (enviar) {
@@ -59,12 +60,12 @@ void leerArchivoConfig() {
 }
 
 /*
- * inicializarSocket();
+ * inicializarDireccionNucleo();
  *Parámetros: -
  *Descripción: Procedimiento que inicializa la estructura sockaddr_in con los valores levantados de config.conf
  *Return: -
- */
-void inicializarEstructuraSocket (){
+*/
+void inicializarDireccionNucleo (){
 
 	direccionNucleo.sin_family = AF_INET;
 	direccionNucleo.sin_port = htons (atoi(infoConfig.puerto));
