@@ -1,3 +1,5 @@
+#include "nucleo.h"
+
 /*
  * leerArchivoConfig();
  * Parametros: -
@@ -20,4 +22,17 @@ void leerArchivoConfig() {
 	// No uso config_destroy(config) porque bugea
 	free(config->path);
 	free(config);
+}
+/*
+ * leerArchivoConfig();
+ * Parametros: -
+ * Descripcion: Procedimiento que inicializa la estructura de dirección del propio núcleo
+ * Return: -
+ */
+void inicializarMiDireccion(void)
+{
+	miDireccion.sin_family = AF_INET;
+	miDireccion.sin_port = htons(MIPUERTO);
+	miDireccion.sin_addr.s_addr = INADDR_ANY;
+	memset(miDireccion.sin_zero, '\0', sizeof(miDireccion.sin_zero));
 }

@@ -10,11 +10,22 @@
 
 typedef struct{
 	char *ip_umc;
-	char *puerto_umc;
-} t_infoConfigUMC;
+	char *port_umc;
+	char *self_port;
+} t_infoConfig;
 
-t_infoConfigUMC dirUMC;
+//VARIABLES GLOBALES
+t_infoConfig infoConfig;
+struct addrinfo hintsClient, hintsServ, *infoAsClient, *infoAsServer;
+int mi_fd;
+int listeningSocket;
+int SELFPORT;
 
 
+//PROTOTIPOS DE FUNCIONES
+void startUp();
+void setUMCAdress();
+void setSocketsAsClient();
+void setSocketsAsServer();
 
 #endif /* SWAP_H_ */
