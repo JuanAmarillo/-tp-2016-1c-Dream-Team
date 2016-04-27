@@ -39,6 +39,7 @@ struct sockaddr_in miDireccion; //Dirección propia
  */
 void leerArchivoConfig();
 void inicializarMiDireccion(void);
+int reconocerCliente(struct sockaddr_in*);
 
 #endif /* NUCLEO_H_ */
 

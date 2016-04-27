@@ -36,3 +36,17 @@ void inicializarMiDireccion(void)
 	miDireccion.sin_addr.s_addr = INADDR_ANY;
 	memset(miDireccion.sin_zero, '\0', sizeof(miDireccion.sin_zero));
 }
+/*
+ * inicializarMiDireccion();
+ * Parametros: Estructura de dirección de internet de el cliente
+ * Descripcion: Función que reconoce de qué cliente se trata comparando su puerto con los puertos guardados
+ * Return: Entero que identifica a un cliente, o cero en caso de que no se halla identificado a ninguno
+ */
+int reconocerCliente(struct sockaddr_in* dir)
+{
+	if(dir->sin_addr.s_addr == htons(atoi(infoConfig.puerto_prog))) return 1;//Es la Consola
+	if(dir->sin_addr.s_addr == htons(atoi(infoConfig.puerto_cpu) )) return 2;//Es la CPU
+	if(dir->sin_addr.s_addr == htons(atoi(infoConfig.puerto_umc) )) return 3;//Es la UMC
+
+	return 0;//No coincide con ninguno
+}
