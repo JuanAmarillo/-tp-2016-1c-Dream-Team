@@ -15,7 +15,7 @@ int main(void)
 	fd_set conj_master, conj_read;//conjuntos de fd's total(master) y para los que tienen datos para lectura(read)
 	struct sockaddr_in direccionCliente;//direccion del cliente
 
-	int maxfd/*cima del conjunto "master_fds" */, yes = 1/*para setsockopt()*/, nbytes/*número de bytes recibidos del cliente*/;
+	int maxfd/*cima del conjunto "conj_master" */, yes = 1/*para setsockopt()*/, nbytes/*número de bytes recibidos del cliente*/;
 	char buffer[100];//buffer para datos recibidos del cliente
 	unsigned int tam = sizeof(struct sockaddr_in);//tamaño de datos pedido por accept()
 
