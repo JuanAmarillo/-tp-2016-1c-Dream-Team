@@ -23,13 +23,13 @@ int main(int argc, char** argv){
 	if(socketUMC == -1) abort();
 
 	// Me conecto a el Nucleo
-	//socketNucleo = conectarseNucleo();
-	//if(socketNucleo == -1) abort();
+	socketNucleo = conectarseNucleo();
+	if(socketNucleo == -1) abort();
 
 
 	char *mensaje;
 
-	if(recibirMensajeUMC(mensaje) == -1) abort();
+	if(recibirMensajeNucleo(mensaje) == -1) abort();
 
 	printf("Se recibio un mensaje del Nucleo: ");
 	printf("%s \n",mensaje);
@@ -71,7 +71,7 @@ void leerArchivoConfig() {
 /*
  * conectarseUMC();
  * Parametros: -
- * Descripcion: Procedimiento que establece conexion con la UMC
+ * Descripcion: Establece la conexion con la UMC
  * Return:
  * 		-> -1 :: Error
  * 		->  Other :: ID del socket
@@ -88,7 +88,7 @@ int conectarseUMC() {
 /*
  * conectarseNucleo();
  * Parametros: -
- * Descripcion: Procedimiento que establece conexion con el Nucleo
+ * Descripcion: Establece la conexion con el Nucleo
  * Return: -
  * 		-> -1 :: Error
  * 		->  Other :: ID del socket
@@ -103,10 +103,11 @@ int conectarseNucleo() {
 }
 
 /*
- * enviarMensajeUMC();
- * Parametros: mensaje
- * Descripcion: Envia un mensaje al UMC
- * Return: -
+ * enviarMensajeUMC(char *mensaje);
+ * Parametros:
+ * 		-> mensaje: El mensaje a enviar
+ * Descripcion: Envia un mensaje a la UMC
+ * Return:
  * 		-> -1 :: Error
  * 		->  Other :: -
  */
@@ -120,10 +121,11 @@ int enviarMensajeUMC(char *mensaje) {
 }
 
 /*
- * enviarMensajeNucleo();
- * Parametros: mensaje
+ * enviarMensajeNucleo(char *mensaje);
+ * Parametros:
+ * 		-> mensaje: El mensaje a enviar
  * Descripcion: Envia un mensaje al Nucleo
- * Return: -
+ * Return:
  * 		-> -1 :: Error
  * 		->  Other :: -
  */
@@ -138,9 +140,10 @@ int enviarMensajeNucleo(char *mensaje) {
 
 /*
  * recibirMensajeNucleo();
- * Parametros: mensaje
+ * Parametros:
+ * 		-> mensaje :: Donde se va a guardar el mensaje
  * Descripcion: Recibe un mensaje del Nucleo
- * Return: -
+ * Return:
  * 		-> -1 :: Error
  * 		->  Other :: -
  */
@@ -155,9 +158,10 @@ int recibirMensajeNucleo(char *mensaje) {
 
 /*
  * recibirMensajeUMC();
- * Parametros: mensaje
+ * Parametros:
+ * 		-> mensaje :: Donde se va a guardar el mensaje
  * Descripcion: Recibe un mensaje de la UMC
- * Return: -
+ * Return:
  * 		-> -1 :: Error
  * 		->  Other :: -
  */
@@ -196,9 +200,11 @@ void testParser() {
 }
 
 /*
- * crearConexion(const char *ip, int puerto);
- * Parametros: ip, puerto
- * Descripcion: Establece conexion con la ip y puerto dado
+ * crearConexion();
+ * Parametros:
+ * 		-> ip :: Direccion IP donde nos vamos a conectar
+ * 		-> puerto :: Puerto donde nos vamos a conetar
+ * Descripcion: Crea una conxion con la IP y el Puerto dado
  * Return:
  * 		-> -1 :: Error
  * 		->  serverSocket :: ID del socket
@@ -219,9 +225,11 @@ int crearConexion(const char *ip, const char *puerto) {
 }
 
 /*
- * enviarMensaje(int serverSocket, char *mensaje);
- * Parametros: serverSocket, mensaje
- * Descripcion: Envia mensaje al socket pasado por parametro
+ * enviarMensaje();
+ * Parametros:
+ * 	-> serverSocket :: ID del socket donde voy a enviar el mensaje
+ * 	-> mensaje	:: Mensaje a enviar
+ * Descripcion: Envia un mensaje a traves serverSocket
  * Return:
  * 		-> -1 :: Error
  * 		->  other :: -
@@ -232,9 +240,11 @@ int enviarMensaje(int serverSocket, char *mensaje){
 }
 
 /*
- * recibirMensaje(int serverSocket, char *mensaje, unsigned tamano);
+ * recibirMensaje();
  * Parametros: serverSocket
+ * 		-> serverSocket :: ID del socket desde donde voy a recibir el mensaje
  * 		-> mensaje :: Donde voy a guardar el mensaje
+ * 		-> tamano :: Tamaño que ocupa el mensaje
  * Descripcion: Recibe un mensaje del serverSocket y lo guarda en mensaje
  * Return:
  * 		-> -1 :: Error
