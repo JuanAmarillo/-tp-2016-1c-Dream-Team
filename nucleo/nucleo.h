@@ -32,14 +32,24 @@ typedef struct{
 /*----------------------------------------------------------*/
 t_infoConfig infoConfig; //archivo de configuración
 
-struct sockaddr_in miDireccion; //Dirección propia
+struct sockaddr_in direccionParaConsola, direccionParaCPU, direccionUMC; //Dirección propia
+struct sockaddr_in direccionCliente;//direccion del cliente
+
+//file descriptor para escuchar (listener), para una nueva conexión (new) y para explorar conexiones (explorer)
+int fd_umc, fd_listener_consola, fd_listener_cpu, fd_new, fd_explorer;
+
+
+
+char bufferConsola[100], bufferCPU[100];//buffers para datos recibidos de los clientes
 
 /*
  * Funciones / Procedimientos
  */
-void leerArchivoConfig();
-void inicializarMiDireccion(void);
-int reconocerCliente(struct sockaddr_in*);
-
+void leerArchivoConfig(void);
+void inicializarDirecciones(void);
+void conectar_a_umc(void);
+void abrirPuertos(void);
+int maximofd(int, int);
+void administrarConexiones(void);
 #endif /* NUCLEO_H_ */
 
