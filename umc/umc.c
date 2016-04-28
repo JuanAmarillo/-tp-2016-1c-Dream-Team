@@ -61,29 +61,42 @@ void aceptarConexion() //Por ahora del CPU
 
 int recibirDatos()
 {
-	char* buffer = malloc(100);
+	buffer = malloc(100);
 	int bytesRecibidos = recv(clienteCPU, buffer, 100, 0);
 	if (bytesRecibidos <= 0) {
 		perror("El CPU se desconecto");
 		return 0;
 	}
 	printf("El mensaje recibido es: %s\n", buffer);
-	free(buffer);
 	return 1;
 }
 
 int conectarAlSWAP()
 {
 	direccionServidorSWAP = setDireccion(infoConfig.puertoSWAP);
-	int cliente = socket(AF_INET, SOCK_STREAM, 0);
-		if (connect(cliente, (void*) &direccionServidorSWAP, sizeof(direccionServidorSWAP)) != 0) {
+	clienteSWAP = socket(AF_INET, SOCK_STREAM, 0);
+		if (connect(clienteSWAP, (void*) &direccionServidorSWAP, sizeof(direccionServidorSWAP)) != 0) {
 			perror("No se pudo conectar");
 			return 0;
 		}
 		return 1;
 }
+void enviarDatos() // Por ahora al swap
+{
+	send(clienteSWAP, buffer, strlen(buffer), 0);
+	free(buffer);
+	return;
+}
 
-int main(){
+int main(){ // es feo pero es para probar
+	if(recibirConexiones() != 0)
+		aceptarConexion();
+	else return -1;
+
+	if(recibirDatos() != 0)
+		if(conectarAlSWAP() != 0)
+			enviarDatos();
+	else return -2; else return -3;
 
 	return 0;
 }

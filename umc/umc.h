@@ -33,8 +33,9 @@ typedef struct{
  * Variables Globales
  */
 t_infoConfig infoConfig;
-int servidorUMC,clienteCPU;
+int servidorUMC,clienteCPU,clienteSWAP;
 struct sockaddr_in direccionServidorUMC;
 struct sockaddr_in direccionServidorSWAP;
+char* buffer; // problablemente lo termine sacando
 
 #endif /* UMC_H_ */
