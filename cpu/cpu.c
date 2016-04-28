@@ -22,10 +22,13 @@ int main(int argc, char** argv){
 	socketUMC = conectarseUMC();
 	if(socketUMC == -1) abort();
 
+	printf("Me conecte a la UMC\n");
+
 	// Me conecto a el Nucleo
 	socketNucleo = conectarseNucleo();
 	if(socketNucleo == -1) abort();
 
+	printf("Me conecte a el Nucleo\n");
 
 	char *mensaje;
 
