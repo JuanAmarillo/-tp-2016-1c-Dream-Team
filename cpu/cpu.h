@@ -18,39 +18,6 @@ typedef struct{
 	char *puerto_umc;
 } t_infoConfig;
 
-typedef struct{
-	int page;
-	int offset;
-	int size;
-} t_posicionMemoria;
-
-typedef struct{
-	char *id;
-	t_posicionMemoria localizacion;
-} t_vars;
-
-typedef int t_indiceCodigo[2];
-
-typedef struct{
-	char *id;
-	int pc;
-} t_indiceEtiquetas;
-
-typedef struct{
-	t_list *args; 						// Lista del tipo t_posicionMemoria
-	t_list *vars; 						// Lista del tipo t_vars
-	int retPos;
-	t_posicionMemoria retVar;
-} t_indiceStack;
-
-typedef struct{
-	int id;
-	int pc;
-	t_list *indiceCodigo; 				// Lista del tipo t_indiceCodigo
-	t_dictionary *indiceEtiquetas; 		// Diccionario del tipo t_indiceEtiquetas
-	t_list *indiceStack; 				// Lista del tipo t_indiceStack
-} t_pcbData;
-
 /*
  * Variables Globales
  */
@@ -64,11 +31,14 @@ t_infoConfig infoConfig;
 void leerArchivoConfig();
 int conectarseUMC();
 int conectarseNucleo();
-//int enviarMensajeUMC();
-//int enviarMensajeNucleo();
+int enviarMensajeUMC(char *mensaje);
+int enviarMensajeNucleo(char *mensaje);
+int recibirMensajeUMC(char *mensaje);
+int recibirMensajeNucleo(char *mensaje);
 void testParser();
 int crearConexion(const char *ip, const char *puerto);
-//int enviarMensaje(int serverSocket, );
+int enviarMensaje(int serverSocket, char *mensaje);
+int recibirMensaje(int serverSocket, char *mensaje, unsigned tamano);
 
 
 #endif /* CPU_H_ */
