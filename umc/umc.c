@@ -34,6 +34,10 @@ struct sockaddr_in setDireccion(const char *puerto)
 
 int recibirConexiones() // por ahora del cpu
 {
+	printf("IP: %s",infoConfig.ip);
+	printf("PUERTO UMC: %s",infoConfig.puertoUMC);
+	printf("PUERTO_SWAP: %s",infoConfig.puertoSWAP);
+
 	direccionServidorUMC = setDireccion(infoConfig.puertoUMC);
 
 	servidorUMC = socket(AF_INET, SOCK_STREAM, 0);
@@ -67,7 +71,7 @@ int recibirDatos()
 		perror("El CPU se desconecto");
 		return 0;
 	}
-	printf("El mensaje recibido es: %s\n", buffer);
+	printf("UMC: El mensaje recibido es: %s\n", buffer);
 	return 1;
 }
 
