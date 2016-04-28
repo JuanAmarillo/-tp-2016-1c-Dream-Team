@@ -10,31 +10,31 @@ void leerArchivoConfig()
 		free(config);
 		abort();
 	}
-	// Guardo los datos en una variable global
-	infoConfig.ip = config_get_string_value(config, "IP");
-	infoConfig.puerto = config_get_string_value(config, "PUERTO");
 
-	// No uso config_destroy(config) porque bugea
+	infoConfig.ip = config_get_string_value(config, "IP");
+	infoConfig.puertoUMC = config_get_string_value(config, "PUERTO_UMC");
+	infoConfig.puertoSWAP = config_get_string_value(config, "PUERTO_SWAP");
+
 	free(config->path);
 	free(config);
 	return;
 }
 
-struct sockaddr_in setDireccion()
+struct sockaddr_in setDireccion(const char *puerto)
 {
 	struct sockaddr_in direccion;
 	direccion.sin_family = AF_INET;
 	direccion.sin_addr.s_addr = inet_addr(infoConfig.ip);
-	direccion.sin_port = htons (atoi(infoConfig.puerto));
+	direccion.sin_port = htons (atoi(puerto));
 	memset(&(direccion.sin_zero), '\0', 8);
 
 	return direccion;
 }
 
 
-int buscarConexiones()
+int recibirConexiones() // por ahora del cpu
 {
-	direccionServidorUMC = setDireccion();
+	direccionServidorUMC = setDireccion(infoConfig.puertoUMC);
 
 	servidorUMC = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -70,6 +70,22 @@ int recibirDatos()
 	printf("El mensaje recibido es: %s\n", buffer);
 	free(buffer);
 	return 1;
+}
+
+int conectarAlSWAP()
+{
+	direccionServidorSWAP = setDireccion(infoConfig.puertoSWAP);
+	int cliente = socket(AF_INET, SOCK_STREAM, 0);
+		if (connect(cliente, (void*) &direccionServidorSWAP, sizeof(direccionServidorSWAP)) != 0) {
+			perror("No se pudo conectar");
+			return 0;
+		}
+		return 1;
+}
+
+int main(){
+
+	return 0;
 }
 
 

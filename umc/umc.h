@@ -25,7 +25,8 @@
  */
 typedef struct{
 	char *ip;
-	char *puerto;
+	char *puertoUMC;
+	char *puertoSWAP;
 } t_infoConfig;
 
 /*
@@ -34,5 +35,6 @@ typedef struct{
 t_infoConfig infoConfig;
 int servidorUMC,clienteCPU;
 struct sockaddr_in direccionServidorUMC;
+struct sockaddr_in direccionServidorSWAP;
 
 #endif /* UMC_H_ */
