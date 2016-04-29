@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include "consola.h"
 
-struct sockadrr_in direccionNucleo;
+struct sockaddr_in direccionNucleo;
 
 int main(int argc, char** argv){
 
@@ -72,6 +72,6 @@ void inicializarDireccionNucleo (){
 	direccionNucleo.sin_family = AF_INET;
 	direccionNucleo.sin_port = htons (atoi(infoConfig.puerto));
 	direccionNucleo.sin_addr.s_addr = inet_addr(infoConfig.ip);
-	direccionNucleo.sin_zero = memset (direccionNucleo.sin_zero, '\0', sizeof (direccionNucleo.sin_zero));
+	memset (direccionNucleo.sin_zero, '\0', sizeof (direccionNucleo.sin_zero));
 
 }
