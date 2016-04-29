@@ -11,7 +11,7 @@
 typedef struct{
 	char *ip_umc;
 	char *port_umc;
-	char *self_port;
+	char *self_for_port;
 } t_infoConfig;
 
 //VARIABLES GLOBALES
