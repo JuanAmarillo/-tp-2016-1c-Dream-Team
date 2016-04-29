@@ -92,14 +92,13 @@ void enviarDatos() // Por ahora al swap
 int main(){
 	//Config
 	leerArchivoConfig();
-
+	conectarAlSWAP();
 	//servidor
 	recibirConexiones();
 	aceptarConexion();
 	recibirDatos();
 
 	//cliente
-	conectarAlSWAP();
 	enviarDatos();
 
 	return 0;
