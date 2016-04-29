@@ -16,8 +16,6 @@
 
 //Cuántas conexiones se aceptarán
 #define BACKLOG 100
-//Puerto de el propio núcleo
-#define MIPUERTO 8080
 /*
  * Estructuras de datos
  */
