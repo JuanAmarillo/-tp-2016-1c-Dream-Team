@@ -10,7 +10,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include "consola.h"
-
+#define MSG_SIZE 50+1
 struct sockaddr_in direccionNucleo;
 
 int main(int argc, char** argv){
@@ -24,12 +24,11 @@ int main(int argc, char** argv){
 		printf("Error de connect\n");
 		exit(1);
 	}
-	char mensaje[5] = "Hola";
-	send (miSocket, mensaje, 5, 0); //para mensaje también se podría usar strlen(mensaje)+1
+	char mensaje[MSG_SIZE];
 	printf ("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
 	int enviar = 1;
 	while (enviar) {
-		fgets (mensaje, 5, stdin);
+		fgets (mensaje, MSG_SIZE, stdin);
 		if (!strcmp (mensaje, "exit\n")) enviar = 0;
 		if (enviar) send (miSocket, mensaje, strlen(mensaje) +1, 0);
 	}
@@ -44,6 +43,7 @@ int main(int argc, char** argv){
  * Descripcion: Procedimiento que lee el archivo config.conf y lo carga en la variable infoConfig
  * Return: -
  */
+
 void leerArchivoConfig() {
 
 	t_config *config = config_create("config.conf");
@@ -55,7 +55,6 @@ void leerArchivoConfig() {
 	// Guardo los datos en una variable global
 	infoConfig.ip = config_get_string_value(config, "IP");
 	infoConfig.puerto = config_get_string_value(config, "PUERTO");
-
 	// No uso config_destroy(config) porque bugea
 	free(config->path);
 	free(config);
