@@ -14,6 +14,7 @@ void leerArchivoConfig()
 	infoConfig.ip = config_get_string_value(config, "IP");
 	infoConfig.puertoUMC = config_get_string_value(config, "PUERTO");
 	infoConfig.puertoSWAP = config_get_string_value(config, "PUERTO_SWAP");
+	infoConfig.puertoNucleo = config_get_string_value(config, "PUERTO_NUCLEO");
 
 	free(config->path);
 	free(config);
@@ -52,18 +53,28 @@ void recibirConexiones()
 	return;
 }
 
-void aceptarConexion()
+void aceptarConexionDelCPU()
 {
 	struct sockaddr_in direccionCPU;
 	unsigned int tamanioDireccion;
-	clienteUMC = accept(servidorUMC, (void*) &direccionCPU, &tamanioDireccion);
+	clienteCPU = accept(servidorUMC, (void*) &direccionCPU, &tamanioDireccion);
+	puts("CPU Conectado");
+	return ;
+}
+
+void aceptarConexionDelNucleo()
+{
+	struct sockaddr_in direccionNucleo;
+	unsigned int tamanioDireccion;
+	clienteNucleo = accept(servidorUMC, (void*) &direccionNucleo, &tamanioDireccion);
+	puts("Nucleo Conectado");
 	return ;
 }
 
 void recibirDatos()
 {
 	buffer = malloc(100);
-	int bytesRecibidos = recv(clienteUMC, buffer, 100, 0);
+	int bytesRecibidos = recv(clienteCPU, buffer, 100, 0);
 	if (bytesRecibidos <= 0) {
 		perror("El cliente se desconecto\n");
 		abort();
@@ -95,7 +106,9 @@ int main(){
 	conectarAlSWAP();
 	//servidor
 	recibirConexiones();
-	aceptarConexion();
+	aceptarConexionDelNucleo();
+
+	aceptarConexionDelCPU();
 	recibirDatos();
 
 	//cliente
