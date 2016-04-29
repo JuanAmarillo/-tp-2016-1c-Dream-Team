@@ -38,4 +38,17 @@ struct sockaddr_in direccionServidorUMC;
 struct sockaddr_in direccionServidorSWAP;
 char* buffer; // problablemente lo termine sacando
 
+/*
+ * Funciones
+ */
+struct sockaddr_in setDireccion(const char *puerto);
+void leerArchivoConfig();
+void recibirConexiones();
+void aceptarConexion();
+void recibirDatos();
+void conectarAlSWAP();
+void enviarDatos();
+
+
+
 #endif /* UMC_H_ */

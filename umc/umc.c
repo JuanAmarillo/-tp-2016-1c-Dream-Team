@@ -43,7 +43,7 @@ void recibirConexiones()
 	setsockopt(servidorUMC, SOL_SOCKET, SO_REUSEADDR, &activado, sizeof(activado)); //para reutilizar dirreciones
 
 	if (bind(servidorUMC, (void*) &direccionServidorUMC, sizeof(direccionServidorUMC)) != 0) {
-		perror("Falló asociando el puerto");
+		perror("Falló asociando el puerto\n");
 		abort();
 	}
 
@@ -65,7 +65,7 @@ void recibirDatos()
 	buffer = malloc(100);
 	int bytesRecibidos = recv(clienteUMC, buffer, 100, 0);
 	if (bytesRecibidos <= 0) {
-		perror("El cliente se desconecto");
+		perror("El cliente se desconecto\n");
 		abort();
 	}
 	printf("UMC: El mensaje recibido es: %s\n", buffer);
@@ -90,6 +90,8 @@ void enviarDatos() // Por ahora al swap
 }
 
 int main(){
+	//Config
+	leerArchivoConfig();
 
 	//servidor
 	recibirConexiones();
