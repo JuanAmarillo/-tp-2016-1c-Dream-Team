@@ -12,7 +12,7 @@ void leerArchivoConfig()
 	}
 
 	infoConfig.ip = config_get_string_value(config, "IP");
-	infoConfig.puertoUMC = config_get_string_value(config, "PUERTO_UMC");
+	infoConfig.puertoUMC = config_get_string_value(config, "PUERTO");
 	infoConfig.puertoSWAP = config_get_string_value(config, "PUERTO_SWAP");
 
 	free(config->path);
@@ -32,11 +32,8 @@ struct sockaddr_in setDireccion(const char *puerto)
 }
 
 
-int recibirConexiones() // por ahora del cpu
+int recibirConexiones()
 {
-	printf("IP: %s",infoConfig.ip);
-	printf("PUERTO UMC: %s",infoConfig.puertoUMC);
-	printf("PUERTO_SWAP: %s",infoConfig.puertoSWAP);
 
 	direccionServidorUMC = setDireccion(infoConfig.puertoUMC);
 
@@ -55,20 +52,20 @@ int recibirConexiones() // por ahora del cpu
 	return 1;
 }
 
-void aceptarConexion() //Por ahora del CPU
+void aceptarConexion()
 {
 	struct sockaddr_in direccionCPU;
 	unsigned int tamanioDireccion;
-	clienteCPU = accept(servidorUMC, (void*) &direccionCPU, &tamanioDireccion);
+	clienteUMC = accept(servidorUMC, (void*) &direccionCPU, &tamanioDireccion);
 	return ;
 }
 
 int recibirDatos()
 {
 	buffer = malloc(100);
-	int bytesRecibidos = recv(clienteCPU, buffer, 100, 0);
+	int bytesRecibidos = recv(clienteUMC, buffer, 100, 0);
 	if (bytesRecibidos <= 0) {
-		perror("El CPU se desconecto");
+		perror("El cliente se desconecto");
 		return 0;
 	}
 	printf("UMC: El mensaje recibido es: %s\n", buffer);
@@ -92,7 +89,7 @@ void enviarDatos() // Por ahora al swap
 	return;
 }
 
-int main(){ // es feo pero es para probar
+int main(){
 	if(recibirConexiones() != 0)
 		aceptarConexion();
 	else return -1;
