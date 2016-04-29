@@ -3,10 +3,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
+#include "consola.h"
 
 struct sockadrr_in direccionNucleo;
 
@@ -17,7 +20,7 @@ int main(int argc, char** argv){
 	//inicializar estructura de socket con los datos del nucleo
 	inicializarDireccionNucleo();
 	int miSocket = socket(PF_INET, SOCK_STREAM, 0);
-	if (connect (miSocket, (sockaddr*) &direccionNucleo, sizeof(sockaddr_in)) == -1) { 
+	if (connect (miSocket, (struct sockaddr*) &direccionNucleo, sizeof(struct sockaddr_in)) == -1) {
 		printf("Error de connect\n");
 		exit(1);
 	}

@@ -19,5 +19,6 @@ t_infoConfig infoConfig;
  * Funciones / Procedimientos
  */
 void leerArchivoConfig();
+void inicializarDireccionNucleo();
 
 #endif
