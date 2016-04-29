@@ -32,7 +32,7 @@ struct sockaddr_in setDireccion(const char *puerto)
 }
 
 
-int recibirConexiones()
+void recibirConexiones()
 {
 
 	direccionServidorUMC = setDireccion(infoConfig.puertoUMC);
@@ -44,12 +44,12 @@ int recibirConexiones()
 
 	if (bind(servidorUMC, (void*) &direccionServidorUMC, sizeof(direccionServidorUMC)) != 0) {
 		perror("Falló asociando el puerto");
-		return 0;
+		abort();
 	}
 
 	printf("Estoy escuchando\n");
 	listen(servidorUMC, 100);
-	return 1;
+	return;
 }
 
 void aceptarConexion()
@@ -60,27 +60,27 @@ void aceptarConexion()
 	return ;
 }
 
-int recibirDatos()
+void recibirDatos()
 {
 	buffer = malloc(100);
 	int bytesRecibidos = recv(clienteUMC, buffer, 100, 0);
 	if (bytesRecibidos <= 0) {
 		perror("El cliente se desconecto");
-		return 0;
+		abort();
 	}
 	printf("UMC: El mensaje recibido es: %s\n", buffer);
-	return 1;
+	return;
 }
 
-int conectarAlSWAP()
+void conectarAlSWAP()
 {
 	direccionServidorSWAP = setDireccion(infoConfig.puertoSWAP);
 	clienteSWAP = socket(AF_INET, SOCK_STREAM, 0);
 		if (connect(clienteSWAP, (void*) &direccionServidorSWAP, sizeof(direccionServidorSWAP)) != 0) {
 			perror("No se pudo conectar");
-			return 0;
+			abort();
 		}
-		return 1;
+		return ;
 }
 void enviarDatos() // Por ahora al swap
 {
@@ -90,14 +90,15 @@ void enviarDatos() // Por ahora al swap
 }
 
 int main(){
-	if(recibirConexiones() != 0)
-		aceptarConexion();
-	else return -1;
 
-	if(recibirDatos() != 0)
-		if(conectarAlSWAP() != 0)
-			enviarDatos();
-	else return -2; else return -3;
+	//servidor
+	recibirConexiones();
+	aceptarConexion();
+	recibirDatos();
+
+	//cliente
+	conectarAlSWAP();
+	enviarDatos();
 
 	return 0;
 }
