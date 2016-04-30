@@ -151,7 +151,7 @@ int enviarMensajeNucleo(char *mensaje) {
  * 		->  Other :: -
  */
 int recibirMensajeNucleo(char *mensaje) {
-	int recibir = recibirMensaje(socketNucleo,mensaje,20);
+	int recibir = recibirMensaje(socketNucleo,mensaje,100);
 	if(recibir == -1){
 		perror("Error al recibir mensaje del Nucleo");
 		return -1;
@@ -169,7 +169,7 @@ int recibirMensajeNucleo(char *mensaje) {
  * 		->  Other :: -
  */
 int recibirMensajeUMC(char *mensaje) {
-	int recibir = recibirMensaje(socketUMC,mensaje,20);
+	int recibir = recibirMensaje(socketUMC,mensaje,100);
 	if(recibir == -1){
 		perror("Error al recibir mensaje de la UMC");
 		return -1;
