@@ -28,7 +28,7 @@ int main(){
 void startUp(){
 		addressForUMC.sin_family = AF_INET;
 		puts("Holi");
-		addressForUMC.sin_port = htons(atoi(infoConfig.port_for_umc));
+		addressForUMC.sin_port = htons(atoi(infoConfig.port_umc));
 		puts("Holi");
 		addressForUMC.sin_addr.s_addr = INADDR_ANY;
 		memset(addressForUMC.sin_zero, '\0', sizeof(addressForUMC.sin_zero));
@@ -41,7 +41,7 @@ void readConfigFile(){
 			abort();
 		}
 	infoConfig.ip_umc = config_get_string_value(config, "IP_UMC");
-	infoConfig.port_for_umc = config_get_string_value(config, "PORT_FOR_UMC");
+	infoConfig.port_umc = config_get_string_value(config, "PORT_UMC");
 }
 
 /*
