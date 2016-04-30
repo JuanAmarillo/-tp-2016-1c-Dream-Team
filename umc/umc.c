@@ -14,7 +14,6 @@ void leerArchivoConfig()
 	infoConfig.ip = config_get_string_value(config, "IP");
 	infoConfig.puertoUMC = config_get_string_value(config, "PUERTO");
 	infoConfig.puertoSWAP = config_get_string_value(config, "PUERTO_SWAP");
-	infoConfig.puertoNucleo = config_get_string_value(config, "PUERTO_NUCLEO");
 
 	free(config->path);
 	free(config);
