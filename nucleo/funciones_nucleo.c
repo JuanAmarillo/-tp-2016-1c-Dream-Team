@@ -112,7 +112,7 @@ void administrarConexiones(void)
 {
 	int maxfd/*cima del conjunto "master_fds" */, nbytes/*número de bytes recibidos del cliente*/;
 	unsigned int tam = sizeof(struct sockaddr_in);//tamaño de datos pedido por accept()
-	char mensajeParaConsola[100] = "Nucleo dice: Conectado a CPU\n";
+	char mensajeParaCPU[100] = "Nucleo dice: Conectado a CPU\n";
 	fd_set conj_master, conj_read;//conjuntos de fd's total(master) y para los que tienen datos para lectura(read)
 
 	fd_set conj_consola, conj_cpu;
@@ -167,7 +167,6 @@ void administrarConexiones(void)
 						FD_SET(fd_new, &conj_master);
 						FD_SET(fd_new, &conj_cpu);
 						printf("Se acaba de aceptar una conexion de una nueva CPU\n");
-						send(fd_new, mensajeParaConsola, 100, 0);
 						if(fd_new > maxfd) maxfd = fd_new;
 					}
 				}
@@ -194,7 +193,10 @@ void administrarConexiones(void)
 							}
 						}
 						else//No hubo error ni desconexion
-							printf("Mensaje recibido de una Consola: %s\n", bufferConsola);
+							{
+								printf("Mensaje recibido de una Consola: %s\n", bufferConsola);
+								send(fd_new, mensajeParaCPU, 100, 0);
+							}
 					}
 
 					if(FD_ISSET(fd_explorer, &conj_cpu))//Los datos vienen de una CPU
