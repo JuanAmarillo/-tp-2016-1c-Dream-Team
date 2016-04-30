@@ -27,7 +27,6 @@ typedef struct{
 	char *ip;
 	char *puertoUMC;
 	char *puertoSWAP;
-	char *puertoNucleo;
 } t_infoConfig;
 
 /*
