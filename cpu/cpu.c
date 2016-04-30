@@ -34,10 +34,9 @@ int main(int argc, char** argv){
 
 	if(recibirMensajeNucleo(mensaje) == -1) abort();
 
-	printf("Se recibio un mensaje del Nucleo: ");
-	printf("%s \n",mensaje);
+	printf("Se recibio un mensaje del Nucleo: %s \n", mensaje);
 
-	if(enviarMensajeUMC("Hola") == -1) abort();
+	if(enviarMensajeUMC("Mensaje enviado desde la CPU a UMC") == -1) abort();
 
 	printf("Se envio un mensaje al UMC\n");
 
