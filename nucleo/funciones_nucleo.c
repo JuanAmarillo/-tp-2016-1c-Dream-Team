@@ -113,6 +113,7 @@ void administrarConexiones(void)
 	int maxfd/*cima del conjunto "master_fds" */, nbytes/*número de bytes recibidos del cliente*/;
 	unsigned int tam = sizeof(struct sockaddr_in);//tamaño de datos pedido por accept()
 	char mensajeParaCPU[100] = "Nucleo dice: Conectado a CPU\n";
+	int encontrarCPU;//file descriptor para encontrar una cpu en caso de que la consola envie un mensaje
 	fd_set conj_master, conj_read;//conjuntos de fd's total(master) y para los que tienen datos para lectura(read)
 
 	fd_set conj_consola, conj_cpu;
@@ -195,7 +196,9 @@ void administrarConexiones(void)
 						else//No hubo error ni desconexion
 							{
 								printf("Mensaje recibido de una Consola: %s\n", bufferConsola);
-								send(fd_new, mensajeParaCPU, 100, 0);
+								for(encontrarCPU = 0; !FD_ISSET(encontrarCPU, &conj_cpu) && encontrarCPU <= maxfd; encontrarCPU++);
+								if(encontrarCPU > maxfd) send(fd_explorer, "No hay ninguna CPU cponectada aun\n", 100, 0);
+								else send(encontrarCPU, mensajeParaCPU, 100, 0);
 							}
 					}
 
