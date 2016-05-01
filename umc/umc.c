@@ -52,28 +52,18 @@ void recibirConexiones()
 	return;
 }
 
-void aceptarConexionDelCPU()
+void aceptarConexion()
 {
 	struct sockaddr_in direccionCPU;
 	unsigned int tamanioDireccion;
-	clienteCPU = accept(servidorUMC, (void*) &direccionCPU, &tamanioDireccion);
-	puts("CPU Conectado");
-	return ;
-}
-
-void aceptarConexionDelNucleo()
-{
-	struct sockaddr_in direccionNucleo;
-	unsigned int tamanioDireccion;
-	clienteNucleo = accept(servidorUMC, (void*) &direccionNucleo, &tamanioDireccion);
-	puts("Nucleo Conectado");
+	clienteUMC = accept(servidorUMC, (void*) &direccionCPU, &tamanioDireccion);
 	return ;
 }
 
 void recibirDatos()
 {
 	buffer = malloc(100);
-	int bytesRecibidos = recv(clienteCPU, buffer, 100, 0);
+	int bytesRecibidos = recv(clienteUMC, buffer, 100, 0);
 	if (bytesRecibidos <= 0) {
 		perror("El cliente se desconecto\n");
 		abort();
@@ -102,12 +92,12 @@ void enviarDatos() // Por ahora al swap
 int main(){
 	//Config
 	leerArchivoConfig();
+
 	conectarAlSWAP();
+
 	//servidor
 	recibirConexiones();
-	aceptarConexionDelNucleo();
-
-	aceptarConexionDelCPU();
+	aceptarConexion();
 	recibirDatos();
 
 	//cliente
