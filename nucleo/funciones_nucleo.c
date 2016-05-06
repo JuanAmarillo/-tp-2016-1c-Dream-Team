@@ -197,7 +197,7 @@ void administrarConexiones(void)
 							{
 								printf("Mensaje recibido de una Consola: %s\n", bufferConsola);
 								for(encontrarCPU = 0; !FD_ISSET(encontrarCPU, &conj_cpu) && encontrarCPU <= maxfd; encontrarCPU++);
-								if(encontrarCPU > maxfd) send(fd_explorer, "No hay ninguna CPU cponectada aun\n", 100, 0);
+								if(encontrarCPU > maxfd) printf("No hay ninguna CPU conectada aun\n");
 								else send(encontrarCPU, mensajeParaCPU, 100, 0);
 							}
 					}
