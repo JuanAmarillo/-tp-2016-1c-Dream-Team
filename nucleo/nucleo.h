@@ -19,12 +19,21 @@
 /*
  * Estructuras de datos
  */
-typedef struct{
+typedef struct t_infoConfig t_infoConfig;
+struct t_infoConfig
+{
 	char *puerto_prog;
 	char *puerto_cpu;
 	char *puerto_umc;
-} t_infoConfig;
+};
 
+typedef struct PCB PCB;
+struct PCB//Process Control Block
+{
+	unsigned int pid;//Process ID
+	unsigned int pc; //Program Counter
+	unsigned int sp; //Stack Pointer
+};
 
 /*Variables Globales*/
 /*----------------------------------------------------------*/
