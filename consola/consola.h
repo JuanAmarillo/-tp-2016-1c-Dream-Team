@@ -25,10 +25,14 @@ t_infoConfig infoConfig;
  * Descripcion: Procedimiento que lee el archivo config.conf y lo carga en la variable infoConfig
  * Return: -
  */
-
 void leerArchivoConfig();
 
-
+ -/*
+- * inicializarDireccionNucleo();
+- *Parámetros: -
+- *Descripción: Procedimiento que inicializa la estructura sockaddr_in con los valores levantados de config.conf
+- *Return: -
+-*/
 void inicializarDireccionNucleo();
 
 #endif
