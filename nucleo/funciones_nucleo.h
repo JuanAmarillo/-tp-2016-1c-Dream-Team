@@ -33,6 +33,7 @@ struct PCB//Process Control Block
 	unsigned int pid;//Process ID
 	unsigned int pc; //Program Counter
 	unsigned int sp; //Stack Pointer
+	int state;//Estado del proceso
 };
 
 /*Variables Globales*/
