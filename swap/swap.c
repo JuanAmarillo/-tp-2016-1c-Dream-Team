@@ -19,7 +19,6 @@
 int main(){
 	readConfigFile();
 	crearArchivoSWAP();
-	crearArchivoSWAP();
 	setSocket();
 	bindSocket();
 	acceptSocket();
