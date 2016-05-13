@@ -27,14 +27,91 @@ struct t_infoConfig
 	char *puerto_umc;
 };
 
+/*****************************************************************************************/
+//__________________________________INICIO PCB___________________________________________//
 typedef struct PCB PCB;
+typedef struct t_variable t_variable;
+typedef t_posicionDeMemoria t_posicionDeMemoria;
+typedef Nodo_argumento Nodo_argumento;
+typedef Nodo_variable Nodo_variable;
+typedef t_indiceInstruccion t_indiceInstruccion
+
+
+//Indice de Stack//
+//----------------------------------------------------------------
+struct t_posicionDeMemoria
+{
+	unsigned int numeroPagina;
+	unsigned int offset;
+	size_t size;
+};
+
+struct t_variable
+{
+	char *identificador;
+	t_posicionDeMemoria posicionMemoria;
+};
+
+struct Nodo_argumento//Nodo para hacer una lista de argumentos
+{
+	t_posicionDeMemoria argumento;//El argumento se representa con su direccion de memoria
+	Nodo_argumento *sgte;
+};
+
+struct Nodo_variable//Nodo para hacer una lista de variables
+{
+	t_variable variable;
+	Nodo_variable *sgte;
+};
+
+struct t_indice_stack//Esto va al PCB
+{
+	Nodo_argumento *args;
+	Nodo_variable *vars;
+	unsigned int retPos;
+	t_posicionDeMemoria retVar;
+};
+//-----------------------------------------------------------------
+
+//Indice de Instruccion
+//-----------------------------------------------------------------
+struct t_indiceInstruccion
+{
+	unsigned int offset_inicio;
+	unsigned int offset_fin;
+};
+
+struct Nodo_indiceInstruccion//Nodo para hacer una lista de indices de instruccion
+{
+	t_indiceInstruccion indice_instruccion;
+	Nodo_indiceInstruccion *sgte;
+};
+typedef t_indiceCodigo Nodo_indiceInstruccion*;//Esto va al PCB (lista de Nodos de "indices de instruccion", formando el "indice de codigo")
+//------------------------------------------------------------------
+
+//Indice de Etiquetas
+//------------------------------------------------------------------
+struct t_indiceEtiquetas
+{
+	//serializacion... (por favor apruebeme xD)
+};
+//------------------------------------------------------------------
+
+
+//PCB
+//------------------------------------------------------------------
 struct PCB//Process Control Block
 {
 	unsigned int pid;//Process ID
 	unsigned int pc; //Program Counter
 	unsigned int sp; //Stack Pointer
 	int state;//Estado del proceso
+	t_indiceCodigo indice_codigo;
+	t_indiceEtiquetas indice_etiquetas;
+	t_indiceStack indice_stack;
 };
+//___________________________________FIN PCB_____________________________________________//
+/*****************************************************************************************/
 
 /*Variables Globales*/
 /*----------------------------------------------------------*/
