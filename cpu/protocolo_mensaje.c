@@ -1,10 +1,4 @@
 /*
- * protocolo_mensaje.c
- *
- *  Created on: 13/5/2016
- *      Author: utnso
- */
-/*
  * Hipotesis: Al trabajar todos con la misma maquina virtual, no tenemos en cuenta la variacion de tamaño de los tipo de datos segun las arquitecturas.
  */
 
