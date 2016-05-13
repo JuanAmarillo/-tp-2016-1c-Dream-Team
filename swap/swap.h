@@ -20,24 +20,26 @@
 #include <netdb.h>
 #include <unistd.h>
 
-typedef struct{
-	char* PUERTO_ESCUCHA;
-	char* NOMBRE_SWAP;
-	char* CANTIDAD_PAGINAS;
-	char* TAMANIO_PAGINA;
-	char* RETARDO_COMPACTACION
-} t_infoConfig;
+//VARIABLES DEL ARCHIVO DE CONFIGURACION
+int PUERTO_ESCUCHA;
+char* NOMBRE_SWAP;
+int CANTIDAD_PAGINAS;
+int TAMANIO_PAGINA;
+int RETARDO_COMPACTACION;
+
 
 //VARIABLES GLOBALES
-t_infoConfig infoConfig;
 int listeningSocket;
 struct sockaddr_in myAddress;
+FILE* SWAPFILE;
 
 //PROTOTIPOS DE FUNCIONES
 void readConfigFile();
+void crearArchivoSWAP();
 void setSocket();
 void bindSocket();
 void acceptSocket();
+void configArchivoSWAP();
 
 
 #endif /* SWAP_H_ */

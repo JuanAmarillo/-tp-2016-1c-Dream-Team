@@ -10,6 +10,8 @@
 
 int main(){
 	readConfigFile();
+	crearArchivoSWAP();
+	configArchivoSWAP();
 	setSocket();
 	bindSocket();
 	acceptSocket();
@@ -22,16 +24,30 @@ void readConfigFile(){
 			free(config);
 			abort();
 		}
-		infoConfig.PUERTO_ESCUCHA = config_get_string_value(config, "PUERTO_ESCUCHA");
-		infoConfig.NOMBRE_SWAP = config_get_string_value(config, "NOMBRE_SWAP");
-		infoConfig.CANTIDAD_PAGINAS= config_get_string_value(config, "CANTIDAD_PAGINAS");
-		infoConfig.TAMANIO_PAGINA= config_get_string_value(config, "TAMANIO_PAGINA");
-		infoConfig.RETARDO_COMPACTACION= config_get_string_value(config, "RETARDO_COMPACTACION");
+	PUERTO_ESCUCHA = atoi(config_get_string_value(config, "PUERTO_ESCUCHA"));
+	NOMBRE_SWAP = config_get_string_value(config, "NOMBRE_SWAP");
+	CANTIDAD_PAGINAS= atoi(config_get_string_value(config, "CANTIDAD_PAGINAS"));
+	TAMANIO_PAGINA= atoi(config_get_string_value(config, "TAMANIO_PAGINA"));
+	RETARDO_COMPACTACION= atoi(config_get_string_value(config, "RETARDO_COMPACTACION"));
+}
+
+void crearArchivoSWAP(){
+	char* comandoCreacion;
+	strcpy(comandoCreacion, "dd of=%s bs=%d count=%d", NOMBRE_SWAP, TAMANIO_PAGINA, CANTIDAD_PAGINAS);
+	if (system(comandoCreacion)){
+		printf("No se pudo crear el archivo %s", NOMBRE_SWAP);
+		exit(1);
+	}
+}
+
+void configArchivoSWAP(){
+	SWAPFILE= fopen(NOMBRE_SWAP, "r+");
+	fwrite('\0', 1, (CANTIDAD_PAGINAS*TAMANIO_PAGINA),SWAPFILE);
 }
 
 void setSocket(){
 		myAddress.sin_family = AF_INET;
-		myAddress.sin_port = htons(atoi(infoConfig.PUERTO_ESCUCHA));
+		myAddress.sin_port = htons(PUERTO_ESCUCHA);
 		myAddress.sin_addr.s_addr = INADDR_ANY;
 		memset(myAddress.sin_zero, '\0', sizeof(myAddress.sin_zero));
 }
