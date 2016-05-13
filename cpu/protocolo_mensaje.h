@@ -26,5 +26,6 @@ int enviarMensaje(int, t_mensaje);
 int recibirMensaje(int, t_mensaje *);
 int recibirBytes(int, void *, unsigned);
 void testMensajeProtocolo();
+void freeMensaje(t_mensaje *mensaje);
 
 #endif /* PROTOCOLO_MENSAJE_H_ */

@@ -186,6 +186,19 @@ int recibirBytes(int serverSocket, void *buffer, unsigned tamano){
 	return recibir;
 }
 
+/*
+ * freeMensaje();
+ * Parametros:
+ * 		-> mensaje :: Puntero a mensaje a destruir
+ * Descripcion: Procedimiento que libera memoria de un mensaje
+ * Return: -
+ */
+
+void freeMensaje(t_mensaje *mensaje) {
+  free(mensaje->parametros);
+  free(mensaje->mensaje_extra);
+}
+
 void testMensajeProtocolo(){
 	// Declaro variables usadas
 	t_mensaje mensaje;
