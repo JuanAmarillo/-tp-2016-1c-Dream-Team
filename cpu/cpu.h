@@ -32,14 +32,12 @@ t_infoConfig infoConfig;
 void leerArchivoConfig();
 int conectarseUMC();
 int conectarseNucleo();
-int enviarMensajeUMC(char *);
-int enviarMensajeNucleo(char *);
-int recibirMensajeUMC(char *);
-int recibirMensajeNucleo(char *);
+int enviarMensajeUMC(mensaje_t);
+int enviarMensajeNucleo(mensaje_t);
+int recibirMensajeUMC(mensaje_t *);
+int recibirMensajeNucleo(mensaje_t *);
 void testParser();
 int crearConexion(const char *, const char *);
-int enviarMensaje(int, char *);
-int recibirMensaje(int, char *, unsigned);
 
 
 #endif /* CPU_H_ */
