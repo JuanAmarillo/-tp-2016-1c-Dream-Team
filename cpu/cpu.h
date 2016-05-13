@@ -18,11 +18,23 @@ typedef struct {
 	char *puerto_umc;
 } t_infoConfig;
 
+typedef struct {
+	unsigned pid;
+	unsigned segmento_codigo;
+	unsigned segmento_stack
+	unsigned pointer_stack;
+	unsigned indice_codigo;
+	unsigned indice_etiquetas;
+	unsigned pc;
+	unsigned tam_contexto_actual;
+	unsigned tam_indice_etiquetas;
+} t_pcb;
 
 /*
  * Variables Globales
  */
 int socketUMC, socketNucleo;
+int notificacion_signal_sigusr1 = 0; // Bandera de señal SIGUSR1
 t_infoConfig infoConfig;
 
 
@@ -32,12 +44,13 @@ t_infoConfig infoConfig;
 void leerArchivoConfig();
 int conectarseUMC();
 int conectarseNucleo();
-int enviarMensajeUMC(mensaje_t);
-int enviarMensajeNucleo(mensaje_t);
-int recibirMensajeUMC(mensaje_t *);
-int recibirMensajeNucleo(mensaje_t *);
+int enviarMensajeUMC(t_mensaje);
+int enviarMensajeNucleo(t_mensaje);
+int recibirMensajeUMC(t_mensaje *);
+int recibirMensajeNucleo(t_mensaje *);
 void testParser();
 int crearConexion(const char *, const char *);
+void signal_sigusr1(int);
 
 
 #endif /* CPU_H_ */

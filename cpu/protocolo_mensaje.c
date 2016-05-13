@@ -9,14 +9,14 @@
  * Descripcion: Dado un mensaje, lo empaqueta para enviarlo
  * Return: *mensaje_empaquetado
  */
-void *empaquetar_mensaje(mensaje_t mensaje) {
+void *empaquetar_mensaje(t_mensaje mensaje) {
 
 	// Variables usadas
 	unsigned desplazamiento = 0;
 	unsigned i_parametro;
 
 	// Creo un bloque en memoria con la tamaño del Head + Payload
-	void *mensaje_empaquetado = malloc(sizeof(mensajeHead_t) + sizeof(unsigned) * mensaje.head.cantidad_parametros + mensaje.head.tam_extra);
+	void *mensaje_empaquetado = malloc(sizeof(t_mensajeHead) + sizeof(unsigned) * mensaje.head.cantidad_parametros + mensaje.head.tam_extra);
 
 	// Copio el head en el bloque de memoria creado
 	memcpy(mensaje_empaquetado + desplazamiento, &mensaje.head.codigo, sizeof(unsigned));
@@ -44,14 +44,14 @@ void *empaquetar_mensaje(mensaje_t mensaje) {
  * Parametros:
  *		-> buffer: Bytes a desempaquetar
  * Descripcion: Dado un buffer, desempaqueta el HEAD
- * Return: mensajeHead_t mensaje_head
+ * Return: t_mensajeHead mensaje_head
  */
 
-mensajeHead_t desempaquetar_head(const void *buffer) {
+t_mensajeHead desempaquetar_head(const void *buffer) {
 
 	// Declaro variables usadas
 	unsigned desplazamiento = 0;
-	mensajeHead_t mensaje_head;
+	t_mensajeHead mensaje_head;
 
 	// Desempaqueto el head
 	memcpy(&mensaje_head.codigo, buffer, sizeof(unsigned));
@@ -68,18 +68,18 @@ mensajeHead_t desempaquetar_head(const void *buffer) {
  * Parametros:
  *		-> buffer: Bytes a desempaquetar
  * Descripcion: Dado un buffer, lo desempaqueta
- * Return: mensaje_t mensaje_desempaquetado
+ * Return: t_mensaje mensaje_desempaquetado
  */
-mensaje_t desempaquetar_mensaje(const void *buffer) {
+t_mensaje desempaquetar_mensaje(const void *buffer) {
 
 	// Declaro variables usadas
 	unsigned i_parametro;
 	unsigned desplazamiento = 0;
-	mensaje_t mensaje_desempaquetado;
+	t_mensaje mensaje_desempaquetado;
 
 	// Desempaqueto el HEAD
 	mensaje_desempaquetado.head = desempaquetar_head(buffer);
-	desplazamiento = sizeof(mensajeHead_t);
+	desplazamiento = sizeof(t_mensajeHead);
 
 	// Creo memoria para los parametros
 	mensaje_desempaquetado.parametros = malloc(sizeof(unsigned) * mensaje_desempaquetado.head.cantidad_parametros);
@@ -107,7 +107,7 @@ mensaje_t desempaquetar_mensaje(const void *buffer) {
  * 		-> -1 :: Error
  * 		->  other :: -
  */
-int enviarMensaje(int serverSocket, mensaje_t mensaje){
+int enviarMensaje(int serverSocket, t_mensaje mensaje){
 
 	void *mensaje_empaquetado = empaquetar_mensaje(mensaje);
 	unsigned tamano_mensaje = sizeof(unsigned)*3 + sizeof(unsigned) * mensaje.head.cantidad_parametros + mensaje.head.tam_extra;
@@ -131,10 +131,10 @@ int enviarMensaje(int serverSocket, mensaje_t mensaje){
  * 		-> -1 :: Error
  * 		->  other :: -
  */
-int recibirMensaje(int serverSocket, mensaje_t *mensaje){
+int recibirMensaje(int serverSocket, t_mensaje *mensaje){
 
 	// Declaro variables
-	mensajeHead_t mensaje_head;
+	t_mensajeHead mensaje_head;
 	unsigned desplazamiento = 0;
 	int recibir;
 
@@ -148,15 +148,15 @@ int recibirMensaje(int serverSocket, mensaje_t *mensaje){
 
 	// Obtengo los valores del HEAD
 	mensaje_head = desempaquetar_head(buffer_head);
-	desplazamiento = sizeof(mensajeHead_t);
+	desplazamiento = sizeof(t_mensajeHead);
 
 	// Me preparo para recibir el Payload
 	unsigned faltan_recibir = sizeof(unsigned) * mensaje_head.cantidad_parametros + mensaje_head.tam_extra;
-	void *bufferTotal = malloc(sizeof(mensajeHead_t) + faltan_recibir);
-	memcpy(bufferTotal, buffer_head, sizeof(mensajeHead_t));
+	void *bufferTotal = malloc(sizeof(t_mensajeHead) + faltan_recibir);
+	memcpy(bufferTotal, buffer_head, sizeof(t_mensajeHead));
 
 	// Recibo el Payload
-	recibir = recibirBytes(serverSocket, bufferTotal + sizeof(mensajeHead_t), faltan_recibir);
+	recibir = recibirBytes(serverSocket, bufferTotal + sizeof(t_mensajeHead), faltan_recibir);
 
 	// Desempaqueto el mensaje
 	*mensaje = desempaquetar_mensaje(bufferTotal);
@@ -188,8 +188,8 @@ int recibirBytes(int serverSocket, void *buffer, unsigned tamano){
 
 void testMensajeProtocolo(){
 	// Declaro variables usadas
-	mensaje_t mensaje;
-	mensaje_t mensaje_new;
+	t_mensaje mensaje;
+	t_mensaje mensaje_new;
 	unsigned parametros[2];
 
 	// Defino el mensaje a empaquetar

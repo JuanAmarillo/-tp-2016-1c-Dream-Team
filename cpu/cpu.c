@@ -13,14 +13,21 @@
 #include "analizador.h"
 #include "protocolo_mensaje.h"
 #include "cpu.h"
+#include "codigos_operacion.h"
 
 int main(int argc, char** argv){
 
+	// Declaro variables
+	t_mensaje mensaje_recibido;
+
 	// Leer archivo config.conf
 	leerArchivoConfig();
-	testMensajeProtocolo();
 
-	/*
+	// Asigno una funcion a la señal SIGUSR1
+	signal(SIGUSR1, signal_sigusr1);
+
+	//testMensajeProtocolo();
+
 
 	// Me conecto a la UMC
 	socketUMC = conectarseUMC();
@@ -30,9 +37,17 @@ int main(int argc, char** argv){
 	socketNucleo = conectarseNucleo();
 	if(socketNucleo == -1) abort();
 
-	//testParser();
+	while(recibirMensajeNucleo(&mensaje_recibido) > 0){
 
-	*/
+		// Si recibo señal para desconectarme, me desconecto
+		if(notificacion_signal_sigusr1 == 1){
+			close(socketUMC);
+			close(socketNucleo);
+			break;
+		}
+	}
+
+	//testParser();
 
 	return EXIT_SUCCESS;
 }
@@ -105,7 +120,7 @@ int conectarseNucleo() {
  * 		-> -1 :: Error
  * 		->  Other :: -
  */
-int enviarMensajeUMC(mensaje_t mensaje) {
+int enviarMensajeUMC(t_mensaje mensaje) {
 	int enviar = enviarMensaje(socketUMC,mensaje);
 	if(enviar == -1){
 		perror("Error al enviar mensaje a la UMC");
@@ -123,7 +138,7 @@ int enviarMensajeUMC(mensaje_t mensaje) {
  * 		-> -1 :: Error
  * 		->  Other :: -
  */
-int enviarMensajeNucleo(mensaje_t mensaje) {
+int enviarMensajeNucleo(t_mensaje mensaje) {
 	int enviar = enviarMensaje(socketNucleo,mensaje);
 	if(enviar == -1){
 		perror("Error al enviar mensaje al Nucleo");
@@ -141,7 +156,7 @@ int enviarMensajeNucleo(mensaje_t mensaje) {
  * 		-> -1 :: Error
  * 		->  Other :: -
  */
-int recibirMensajeNucleo(mensaje_t *mensaje) {
+int recibirMensajeNucleo(t_mensaje *mensaje) {
 	int recibir = recibirMensaje(socketNucleo,mensaje);
 	if(recibir == -1){
 		perror("Error al recibir mensaje del Nucleo");
@@ -159,7 +174,7 @@ int recibirMensajeNucleo(mensaje_t *mensaje) {
  * 		-> -1 :: Error
  * 		->  Other :: -
  */
-int recibirMensajeUMC(mensaje_t *mensaje) {
+int recibirMensajeUMC(t_mensaje *mensaje) {
 	int recibir = recibirMensaje(socketUMC,mensaje);
 	if(recibir == -1){
 		perror("Error al recibir mensaje de la UMC");
@@ -216,6 +231,18 @@ int crearConexion(const char *ip, const char *puerto) {
 	}
 	freeaddrinfo(serverInfo);
 	return serverSocket;
+}
+
+/*
+ * signal_sigusr1();
+ * Parametros:
+ * 		-> signal :: Identificador de Señal
+ * Descripcion: Procedimiento que activa la bandera notificacion_signal_sigusr1 = 1;
+ * Return: -
+ */
+void signal_sigusr1(int signal){
+  printf("Recibida señal SIGUSR1.\n");
+  notificacion_signal_sigusr1 = 1;
 }
 
 /*
