@@ -4,7 +4,15 @@
  *  Created on: 26/4/2016
  *      Author: utnso
  */
-
+#include <commons/config.h>
+#include <commons/string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
 #include "swap.h"
 
 
@@ -32,8 +40,8 @@ void readConfigFile(){
 }
 
 void crearArchivoSWAP(){
-	char* comandoCreacion;
-	strcpy(comandoCreacion, "dd of=%s bs=%d count=%d", NOMBRE_SWAP, TAMANIO_PAGINA, CANTIDAD_PAGINAS);
+	char comandoCreacion[100];
+	sprintf(comandoCreacion, "dd of=%s bs=%i count=%i", NOMBRE_SWAP, TAMANIO_PAGINA, CANTIDAD_PAGINAS);
 	if (system(comandoCreacion)){
 		printf("No se pudo crear el archivo %s", NOMBRE_SWAP);
 		exit(1);
@@ -42,7 +50,8 @@ void crearArchivoSWAP(){
 
 void configArchivoSWAP(){
 	SWAPFILE= fopen(NOMBRE_SWAP, "r+");
-	fwrite('\0', 1, (CANTIDAD_PAGINAS*TAMANIO_PAGINA),SWAPFILE);
+	char vacio= '\0';
+	fwrite(&vacio, 1, (CANTIDAD_PAGINAS*TAMANIO_PAGINA),SWAPFILE);
 }
 
 void setSocket(){
@@ -60,8 +69,6 @@ void bindSocket(){
 }
 
 void acceptSocket() {
-	int status = 1;
-	char mensaje[MSG_SIZE];
 	struct sockaddr_in addr;	// Esta estructura contendra los datos de la conexion del cliente. IP, puerto, etc.
 	socklen_t addrlen = sizeof(addr);
 	listen(listeningSocket,10);
