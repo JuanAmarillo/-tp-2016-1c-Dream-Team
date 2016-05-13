@@ -22,11 +22,16 @@ void readConfigFile(){
 			free(config);
 			abort();
 		}
+		infoConfig.PUERTO_ESCUCHA = config_get_string_value(config, "PUERTO_ESCUCHA");
+		infoConfig.NOMBRE_SWAP = config_get_string_value(config, "NOMBRE_SWAP");
+		infoConfig.CANTIDAD_PAGINAS= config_get_string_value(config, "CANTIDAD_PAGINAS");
+		infoConfig.TAMANIO_PAGINA= config_get_string_value(config, "TAMANIO_PAGINA");
+		infoConfig.RETARDO_COMPACTACION= config_get_string_value(config, "RETARDO_COMPACTACION");
 }
 
 void setSocket(){
 		myAddress.sin_family = AF_INET;
-		myAddress.sin_port = htons(atoi(myPort));
+		myAddress.sin_port = htons(atoi(infoConfig.PUERTO_ESCUCHA));
 		myAddress.sin_addr.s_addr = INADDR_ANY;
 		memset(myAddress.sin_zero, '\0', sizeof(myAddress.sin_zero));
 }

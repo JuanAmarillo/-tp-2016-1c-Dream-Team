@@ -21,8 +21,11 @@
 #include <unistd.h>
 
 typedef struct{
-	char *ip_umc;
-	char *port_umc;
+	char* PUERTO_ESCUCHA;
+	char* NOMBRE_SWAP;
+	char* CANTIDAD_PAGINAS;
+	char* TAMANIO_PAGINA;
+	char* RETARDO_COMPACTACION
 } t_infoConfig;
 
 //VARIABLES GLOBALES
