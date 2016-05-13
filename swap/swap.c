@@ -19,10 +19,11 @@
 int main(){
 	readConfigFile();
 	crearArchivoSWAP();
-	configArchivoSWAP();
+	crearArchivoSWAP();
 	setSocket();
 	bindSocket();
 	acceptSocket();
+	fclose(SWAPFILE);
 	return 0;
 }
 
@@ -30,6 +31,7 @@ void readConfigFile(){
 	t_config *config = config_create("config.conf");
 		if (config == NULL) {
 			free(config);
+			printf("1");
 			abort();
 		}
 	PUERTO_ESCUCHA = atoi(config_get_string_value(config, "PUERTO_ESCUCHA"));
@@ -41,18 +43,15 @@ void readConfigFile(){
 
 void crearArchivoSWAP(){
 	char comandoCreacion[100];
-	sprintf(comandoCreacion, "dd of=%s bs=%i count=%i", NOMBRE_SWAP, TAMANIO_PAGINA, CANTIDAD_PAGINAS);
+	sprintf(comandoCreacion, "dd if=/dev/zero of=%s bs=%i count=%i", NOMBRE_SWAP, TAMANIO_PAGINA, CANTIDAD_PAGINAS);
 	if (system(comandoCreacion)){
-		printf("No se pudo crear el archivo %s", NOMBRE_SWAP);
+		printf("No se pudo crear el archivo %s\n", NOMBRE_SWAP);
 		exit(1);
 	}
+	SWAPFILE= fopen(NOMBRE_SWAP, "r+");
 }
 
-void configArchivoSWAP(){
-	SWAPFILE= fopen(NOMBRE_SWAP, "r+");
-	char vacio= '\0';
-	fwrite(&vacio, 1, (CANTIDAD_PAGINAS*TAMANIO_PAGINA),SWAPFILE);
-}
+
 
 void setSocket(){
 		myAddress.sin_family = AF_INET;
