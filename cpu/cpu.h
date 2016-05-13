@@ -36,6 +36,7 @@ typedef struct {
 int socketUMC, socketNucleo;
 int notificacion_signal_sigusr1 = 0; // Bandera de señal SIGUSR1
 t_infoConfig infoConfig;
+t_pcb pcb_data;
 
 
 /*

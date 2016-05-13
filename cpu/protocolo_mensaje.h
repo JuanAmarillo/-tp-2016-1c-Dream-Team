@@ -11,7 +11,7 @@ typedef struct {
 } t_mensajeHead;
 
 typedef struct {
-  mensajeHead_t head;
+  t_mensajeHead head;
   unsigned *parametros;
   char *mensaje_extra;
 } t_mensaje;
