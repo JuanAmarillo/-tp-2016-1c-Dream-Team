@@ -11,12 +11,13 @@
 /*
  * Estructuras de datos
  */
-typedef struct{
+typedef struct {
 	char *ip_nucleo;
 	char *puerto_nucleo;
 	char *ip_umc;
 	char *puerto_umc;
 } t_infoConfig;
+
 
 /*
  * Variables Globales
@@ -31,14 +32,14 @@ t_infoConfig infoConfig;
 void leerArchivoConfig();
 int conectarseUMC();
 int conectarseNucleo();
-int enviarMensajeUMC(char *mensaje);
-int enviarMensajeNucleo(char *mensaje);
-int recibirMensajeUMC(char *mensaje);
-int recibirMensajeNucleo(char *mensaje);
+int enviarMensajeUMC(char *);
+int enviarMensajeNucleo(char *);
+int recibirMensajeUMC(char *);
+int recibirMensajeNucleo(char *);
 void testParser();
-int crearConexion(const char *ip, const char *puerto);
-int enviarMensaje(int serverSocket, char *mensaje);
-int recibirMensaje(int serverSocket, char *mensaje, unsigned tamano);
+int crearConexion(const char *, const char *);
+int enviarMensaje(int, char *);
+int recibirMensaje(int, char *, unsigned);
 
 
 #endif /* CPU_H_ */

@@ -12,13 +12,14 @@
 #include <parser/parser.h>
 #include "analizador.h"
 #include "cpu.h"
+#include "protocolo_mensaje.h"
 
 int main(int argc, char** argv){
 
 	// Leer archivo config.conf
 	leerArchivoConfig();
-
-	// Me conecto a la UMC
+	testMensajeProtocolo();
+	/*// Me conecto a la UMC
 	socketUMC = conectarseUMC();
 	if(socketUMC == -1) abort();
 
@@ -40,7 +41,7 @@ int main(int argc, char** argv){
 
 	printf("Se envio un mensaje al UMC\n");
 
-	//testParser();
+	//testParser();*/
 
 	return EXIT_SUCCESS;
 }
