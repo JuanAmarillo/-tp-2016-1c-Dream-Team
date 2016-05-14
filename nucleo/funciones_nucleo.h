@@ -31,11 +31,12 @@ struct t_infoConfig
 //__________________________________INICIO PCB___________________________________________//
 typedef struct PCB PCB;
 typedef struct t_variable t_variable;
-typedef t_posicionDeMemoria t_posicionDeMemoria;
-typedef Nodo_argumento Nodo_argumento;
-typedef Nodo_variable Nodo_variable;
-typedef t_indiceInstruccion t_indiceInstruccion
-
+typedef struct t_posicionDeMemoria t_posicionDeMemoria;
+typedef struct Nodo_argumento Nodo_argumento;
+typedef struct Nodo_variable Nodo_variable;
+typedef struct t_indice_stack t_indice_stack;
+typedef struct t_indiceInstruccion t_indiceInstruccion;
+typedef struct Nodo_indiceInstruccion Nodo_indiceInstruccion
 
 //Indice de Stack//
 //----------------------------------------------------------------
