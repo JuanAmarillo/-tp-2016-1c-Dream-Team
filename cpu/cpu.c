@@ -10,6 +10,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <parser/parser.h>
+#include <signal.h>
 #include "analizador.h"
 #include "protocolo_mensaje.h"
 #include "cpu.h"
@@ -38,6 +39,14 @@ int main(int argc, char** argv){
 	if(socketNucleo == -1) abort();
 
 	while(recibirMensajeNucleo(&mensaje_recibido) > 0){
+
+		// Recibo el PCB
+
+		// Obtener siguiente instruccion
+
+		// analizadorLinea (parser)
+
+		// Notificar al Nucleo
 
 		// Si recibo señal para desconectarme, me desconecto
 		if(notificacion_signal_sigusr1 == 1){

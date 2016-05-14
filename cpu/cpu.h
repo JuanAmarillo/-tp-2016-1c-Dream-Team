@@ -18,17 +18,6 @@ typedef struct {
 	char *puerto_umc;
 } t_infoConfig;
 
-typedef struct {
-	unsigned pid;
-	unsigned segmento_codigo;
-	unsigned segmento_stack
-	unsigned pointer_stack;
-	unsigned indice_codigo;
-	unsigned indice_etiquetas;
-	unsigned pc;
-	unsigned tam_contexto_actual;
-	unsigned tam_indice_etiquetas;
-} t_pcb;
 
 /*
  * Variables Globales
@@ -36,7 +25,6 @@ typedef struct {
 int socketUMC, socketNucleo;
 int notificacion_signal_sigusr1 = 0; // Bandera de señal SIGUSR1
 t_infoConfig infoConfig;
-t_pcb pcb_data;
 
 
 /*
