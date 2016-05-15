@@ -107,6 +107,7 @@ struct PCB//Process Control Block
 	unsigned int pid;//Process ID
 	unsigned int pc; //Program Counter
 	unsigned int sp; //Stack Pointer
+	unsigned int paginas_codigo;
 	int state;//Estado del proceso
 	t_indiceCodigo indice_codigo;
 	t_indiceEtiquetas indice_etiquetas;
