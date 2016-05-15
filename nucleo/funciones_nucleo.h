@@ -29,90 +29,45 @@ struct t_infoConfig
 
 /*****************************************************************************************/
 //__________________________________INICIO PCB___________________________________________//
-typedef struct PCB PCB;
-typedef struct t_variable t_variable;
-typedef struct t_posicionDeMemoria t_posicionDeMemoria;
-typedef struct Nodo_argumento Nodo_argumento;
-typedef struct Nodo_variable Nodo_variable;
-typedef struct t_indice_stack t_indice_stack;
-typedef struct t_indiceInstruccion t_indiceInstruccion;
-typedef struct Nodo_indiceInstruccion Nodo_indiceInstruccion
 
-//Indice de Stack//
-//----------------------------------------------------------------
-struct t_posicionDeMemoria
-{
-	unsigned int numeroPagina;
-	unsigned int offset;
+typedef struct {
+	unsigned numeroPagina;
+	unsigned offset;
 	size_t size;
-};
+} t_posicionDeMemoria;
 
-struct t_variable
-{
+typedef struct {
 	char *identificador;
 	t_posicionDeMemoria posicionMemoria;
-};
+} t_variable;
 
-struct Nodo_argumento//Nodo para hacer una lista de argumentos
-{
-	t_posicionDeMemoria argumento;//El argumento se representa con su direccion de memoria
-	Nodo_argumento *sgte;
-};
-
-struct Nodo_variable//Nodo para hacer una lista de variables
-{
-	t_variable variable;
-	Nodo_variable *sgte;
-};
-
-struct t_indice_stack//Esto va al PCB
-{
-	Nodo_argumento *args;
-	Nodo_variable *vars;
-	unsigned int retPos;
+typedef struct {
+	t_list *args;
+	t_list *vars;
+	unsigned retPos;
 	t_posicionDeMemoria retVar;
-};
-//-----------------------------------------------------------------
+} t_indice_stack;
 
-//Indice de Instruccion
-//-----------------------------------------------------------------
-struct t_indiceInstruccion
-{
-	unsigned int offset_inicio;
-	unsigned int offset_fin;
-};
-
-struct Nodo_indiceInstruccion//Nodo para hacer una lista de indices de instruccion
-{
-	t_indiceInstruccion indice_instruccion;
-	Nodo_indiceInstruccion *sgte;
-};
-typedef t_indiceCodigo Nodo_indiceInstruccion*;//Esto va al PCB (lista de Nodos de "indices de instruccion", formando el "indice de codigo")
-//------------------------------------------------------------------
-
-//Indice de Etiquetas
-//------------------------------------------------------------------
-struct t_indiceEtiquetas
-{
+typedef struct {
 	char *etiqueta;
 	unsigned int pc_instruccion;
-};
-//------------------------------------------------------------------
+} t_indiceEtiqueta;
 
+typedef struct {
+	unsigned offset_inicio;
+	unsigned offset_fin;
+} t_indiceCodigo;
 
-//PCB
-//------------------------------------------------------------------
-struct PCB//Process Control Block
-{
-	unsigned int pid;//Process ID
-	unsigned int pc; //Program Counter
-	unsigned int sp; //Stack Pointer
-	unsigned int paginas_codigo;
-	int state;//Estado del proceso
-	t_indiceCodigo indice_codigo;
-	t_indiceEtiquetas indice_etiquetas;
-	t_indiceStack indice_stack;
-};
+typedef {
+	unsigned pid;
+	unsigned pc;
+	unsigned sp;
+	unsigned paginas_codigo;
+	unsigned estado;
+	t_indiceCodigo *indice_codigo;
+	t_dictionary *indice_etiquetas;
+	t_list *indice_stack;
+} struct t_PCB;
 //___________________________________FIN PCB_____________________________________________//
 /*****************************************************************************************/
 
