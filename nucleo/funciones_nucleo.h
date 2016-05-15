@@ -94,7 +94,8 @@ typedef t_indiceCodigo Nodo_indiceInstruccion*;//Esto va al PCB (lista de Nodos 
 //------------------------------------------------------------------
 struct t_indiceEtiquetas
 {
-	//serializacion... (por favor apruebeme xD)
+	char *etiqueta;
+	unsigned int pc_instruccion;
 };
 //------------------------------------------------------------------
 
