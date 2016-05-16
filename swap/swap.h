@@ -50,7 +50,14 @@ void acceptSocket();
 //PROTOTIPO DE FUNCIONES DE MANEJO DE PAGINAS
 void assignPage(unsigned nroPag, estructuraAGuardar* str);
 void unAssignPage(unsigned nroPag);
-estructuraAGuardar* getPage(unsigned nroPag);
+estructuraAGuardar* getPage(unsigned nroPag); // TENGO QUE DEFINIR QUE ESTRUCTURA VOY A UTILIZAR PARA REPRESENTAR A UNA PAGINA
+/*
+ *	La funcion busca los espacios disponibles en el archivo SWAP para asignar un proyecto.
+ *	Si la funcion devuelve 0, o un numero positivo, este es el numero de pagina donde inicia el segmento de paginas vacias para asignar el proyecto.
+ *	Si la funcion devuelve -1, se debe realizar una compactacion para asignar el proyecto.
+ *	Si la funcion devuelve -2, no hay memoria disponible en el SWAP y se debe avisar a la UMC para rechazar el programa.
+ **/
+unsigned searchSpaceToFill(unsigned size);
 //PROTOTIPO DE FUNCIONES FINALES
 void accionesDeFinalizacion();
 

@@ -98,10 +98,9 @@ void accionesDeFinalizacion() {
 	free(INFO_PROG);
 }
 // FIN DE ESTRUCTURA OBLIGATORIA DEL PROCESO SWAP
-
 // INICIO DE MANEJO DE PAGINAS DEL PROCESO SWAP
 void assignPage(unsigned nroPag, estructuraAGuardar* str){
-	fwrite(*str,TAMANIO_PAGINA,1,SWAPFILE);
+	fwrite(&str,TAMANIO_PAGINA,1,SWAPFILE);
 	bitarray_set_bit(DISP_PAGINAS, nroPag);
 }
 
@@ -117,4 +116,25 @@ estructuraAGuardar* getPage(unsigned nroPag){
 }
 // FIN DE MANEJO DE PAGINAS DEL PROCESO SWAP
 
-
+unsigned searchSpaceToFill(unsigned programSize){
+	int freeSpace =0; 			//PARA REALIZAR COMPACTACION
+	int freeSpaceInARow=0;		//PARA ASIGNAR SIN COMPACTAR
+	int counter=0;				//CONTADOR DE PAGINAS
+	while(counter<CANTIDAD_PAGINAS){
+		if(bitarray_test_bit(DISP_PAGINAS, counter)!=0){
+			freeSpaceInARow=0;
+		}
+		else{
+			freeSpace++;
+			freeSpaceInARow++;
+			if(programSize<=freeSpaceInARow){
+				return (counter-freeSpaceInARow+1); //DEVUELVE EL NRO DE PAGINA DONDE INICIA EL SEGMENTO LIBRE PARA ASIGNAR EL PROGRAMA
+			}
+		}
+		counter++;
+	}
+	if(programSize<=freeSpace){
+		return -1;
+	}
+	return -2;
+}
