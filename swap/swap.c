@@ -16,8 +16,6 @@
 #include <unistd.h>
 #include "swap.h"
 
-
-
 int main(){
 	readConfigFile();
 	crearArchivoSWAP();
@@ -28,7 +26,7 @@ int main(){
 	accionesDeFinalizacion();
 	return 0;
 }
-
+// INICIO DE ESTRUCTURA OBLIGATORIA DEL PROCESO SWAP
 void readConfigFile(){
 	t_config *config = config_create("config.conf");
 		if (config == NULL) {
@@ -64,7 +62,7 @@ void crearEstructurasDeManejo(){
 
 void limpiarI_P(int tamanio){
 	int i=0;
-	while (tamanio>i){
+	while (i<tamanio){
 		INFO_PROG[i].LONGITUD = 0;
 		INFO_PROG[i].PAG_INICIAL = 0;
 		INFO_PROG[i].PID = 0;
@@ -97,4 +95,26 @@ void acceptSocket() {
 void accionesDeFinalizacion() {
 	fclose(SWAPFILE);
 	bitarray_destroy(DISP_PAGINAS);
+	free(INFO_PROG);
 }
+// FIN DE ESTRUCTURA OBLIGATORIA DEL PROCESO SWAP
+
+// INICIO DE MANEJO DE PAGINAS DEL PROCESO SWAP
+void assignPage(unsigned nroPag, estructuraAGuardar* str){
+	fwrite(*str,TAMANIO_PAGINA,1,SWAPFILE);
+	bitarray_set_bit(DISP_PAGINAS, nroPag);
+}
+
+void unAssignPage(unsigned nroPag){
+	bitarray_clean_bit(DISP_PAGINAS,nroPag);
+}
+
+estructuraAGuardar* getPage(unsigned nroPag){
+	estructuraAGuardar* pagOrigen;
+	fread(&pagOrigen,TAMANIO_PAGINA,1,SWAPFILE);
+	bitarray_clean_bit(DISP_PAGINAS,nroPag);
+	return pagOrigen;
+}
+// FIN DE MANEJO DE PAGINAS DEL PROCESO SWAP
+
+
