@@ -6,6 +6,7 @@
  */
 #include <commons/config.h>
 #include <commons/string.h>
+#include <commons/bitarray.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,13 +17,15 @@
 #include "swap.h"
 
 
+
 int main(){
 	readConfigFile();
 	crearArchivoSWAP();
+	crearEstructurasDeManejo();
 	setSocket();
 	bindSocket();
 	acceptSocket();
-	fclose(SWAPFILE);
+	accionesDeFinalizacion();
 	return 0;
 }
 
@@ -50,7 +53,24 @@ void crearArchivoSWAP(){
 	SWAPFILE= fopen(NOMBRE_SWAP, "r+");
 }
 
+void crearEstructurasDeManejo(){
+	int tamanio = (CANTIDAD_PAGINAS/8)+1;
+	char *data = malloc(tamanio);
+	strcpy(data,"\0");
+	DISP_PAGINAS = bitarray_create(data,tamanio);
+	INFO_PROG = malloc(tamanio*sizeof(t_infoProg));
+	limpiarI_P(tamanio);
+}
 
+void limpiarI_P(int tamanio){
+	int i=0;
+	while (tamanio>i){
+		INFO_PROG[i].LONGITUD = 0;
+		INFO_PROG[i].PAG_INICIAL = 0;
+		INFO_PROG[i].PID = 0;
+		i++;
+	}
+}
 
 void setSocket(){
 		myAddress.sin_family = AF_INET;
@@ -72,4 +92,9 @@ void acceptSocket() {
 	listen(listeningSocket,10);
 	int socketCliente = accept(listeningSocket, (struct sockaddr *) &addr, &addrlen);
 	printf("Se ha conectado al UMC\n");
+}
+
+void accionesDeFinalizacion() {
+	fclose(SWAPFILE);
+	bitarray_destroy(DISP_PAGINAS);
 }
