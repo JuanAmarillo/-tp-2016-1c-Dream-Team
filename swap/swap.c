@@ -15,6 +15,8 @@
 #include <netdb.h>
 #include <unistd.h>
 #include "swap.h"
+#include "messageCode.h"
+#include "initialize.h"
 
 int main(){
 	readConfigFile();
@@ -23,100 +25,130 @@ int main(){
 	setSocket();
 	bindSocket();
 	acceptSocket();
+	int codigo = recibirCabecera();
+	switch(codigo){
+		case RESERVE_SPACE: reservarEspacio();
+			break;
+		case SAVE_PROGRAM: saveProgram();
+			break;
+		case SAVE_PAGE: savePage();
+			break;
+		case END_PROGRAM: endProgram();
+				break;
+		case RETURN_PAGE: returnPage();
+				break;
+	}
 	accionesDeFinalizacion();
 	return 0;
 }
-// INICIO DE ESTRUCTURA OBLIGATORIA DEL PROCESO SWAP
-void readConfigFile(){
-	t_config *config = config_create("config.conf");
-		if (config == NULL) {
-			free(config);
-			printf("1");
-			abort();
-		}
-	PUERTO_ESCUCHA = atoi(config_get_string_value(config, "PUERTO_ESCUCHA"));
-	NOMBRE_SWAP = config_get_string_value(config, "NOMBRE_SWAP");
-	CANTIDAD_PAGINAS= atoi(config_get_string_value(config, "CANTIDAD_PAGINAS"));
-	TAMANIO_PAGINA= atoi(config_get_string_value(config, "TAMANIO_PAGINA"));
-	RETARDO_COMPACTACION= atoi(config_get_string_value(config, "RETARDO_COMPACTACION"));
+
+// INICIO DE MANEJO DE PAGINAS BASICO DEL PROCESO SWAP
+
+void savePage(unsigned nroPag){
+	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
+	fwrite(&searchedPage,TAMANIO_PAGINA,1,SWAPFILE);
 }
 
-void crearArchivoSWAP(){
-	char comandoCreacion[100];
-	sprintf(comandoCreacion, "dd if=/dev/zero of=%s bs=%i count=%i", NOMBRE_SWAP, TAMANIO_PAGINA, CANTIDAD_PAGINAS);
-	if (system(comandoCreacion)){
-		printf("No se pudo crear el archivo %s\n", NOMBRE_SWAP);
-		exit(1);
-	}
-	SWAPFILE= fopen(NOMBRE_SWAP, "r+");
-}
-
-void crearEstructurasDeManejo(){
-	int tamanio = (CANTIDAD_PAGINAS/8)+1;
-	char *data = malloc(tamanio);
-	strcpy(data,"\0");
-	DISP_PAGINAS = bitarray_create(data,tamanio);
-	INFO_PROG = malloc(tamanio*sizeof(t_infoProg));
-	limpiarI_P(tamanio);
-}
-
-void limpiarI_P(int tamanio){
-	int i=0;
-	while (i<tamanio){
-		INFO_PROG[i].LONGITUD = 0;
-		INFO_PROG[i].PAG_INICIAL = 0;
-		INFO_PROG[i].PID = 0;
-		i++;
-	}
-}
-
-void setSocket(){
-		myAddress.sin_family = AF_INET;
-		myAddress.sin_port = htons(PUERTO_ESCUCHA);
-		myAddress.sin_addr.s_addr = INADDR_ANY;
-		memset(myAddress.sin_zero, '\0', sizeof(myAddress.sin_zero));
-}
-
-void bindSocket(){
-	int auxiliar=1;
-	listeningSocket=socket(AF_INET, SOCK_STREAM, 0);
-	setsockopt(listeningSocket, SOL_SOCKET, SO_REUSEADDR, &auxiliar, sizeof(int));
-	bind(listeningSocket,(struct sockaddr*) &myAddress, sizeof(struct sockaddr));
-}
-
-void acceptSocket() {
-	struct sockaddr_in addr;	// Esta estructura contendra los datos de la conexion del cliente. IP, puerto, etc.
-	socklen_t addrlen = sizeof(addr);
-	listen(listeningSocket,10);
-	int socketCliente = accept(listeningSocket, (struct sockaddr *) &addr, &addrlen);
-	printf("Se ha conectado al UMC\n");
-}
-
-void accionesDeFinalizacion() {
-	fclose(SWAPFILE);
-	bitarray_destroy(DISP_PAGINAS);
-	free(INFO_PROG);
-}
-// FIN DE ESTRUCTURA OBLIGATORIA DEL PROCESO SWAP
-// INICIO DE MANEJO DE PAGINAS DEL PROCESO SWAP
-void assignPage(unsigned nroPag, estructuraAGuardar* str){
-	fwrite(&str,TAMANIO_PAGINA,1,SWAPFILE);
+void setNewPage(unsigned nroPag){
 	bitarray_set_bit(DISP_PAGINAS, nroPag);
 }
 
-void unAssignPage(unsigned nroPag){
+void unSetPage(unsigned nroPag){
 	bitarray_clean_bit(DISP_PAGINAS,nroPag);
 }
 
-estructuraAGuardar* getPage(unsigned nroPag){
-	estructuraAGuardar* pagOrigen;
-	fread(&pagOrigen,TAMANIO_PAGINA,1,SWAPFILE);
-	bitarray_clean_bit(DISP_PAGINAS,nroPag);
-	return pagOrigen;
+char* getPage(unsigned nroPag){
+	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
+	fread(searchedPage,TAMANIO_PAGINA,1,SWAPFILE);
+	return searchedPage;
 }
-// FIN DE MANEJO DE PAGINAS DEL PROCESO SWAP
 
-unsigned searchSpaceToFill(unsigned programSize){
+int recibirCabecera(){
+	int codigo = 0;
+	recv(socketCliente, &codigo, 4, 0);
+	return codigo;
+}
+
+void reservarEspacio(){
+	unsigned pid, espacio;
+	recv(socketCliente, &pid, 4, 0);
+	recv(socketCliente, &espacio, 4, 0);
+	int lugar = searchSpaceToFill(espacio);
+	if(lugar == -1){
+		compactar();
+		lugar = searchSpaceToFill(espacio);
+	}
+	if(lugar == -2){
+		negarEjecucion(pid);
+		return;
+	}
+	asignarEspacio(pid,lugar,espacio);
+}
+
+void compactar(){
+	int contador=0, inicioEspacioBlanco =0, estadoPagina;
+	bool espacioBlancoDetras=false;
+	while(contador<CANTIDAD_PAGINAS){
+		estadoPagina=bitarray_test_bit(DISP_PAGINAS,contador);
+		if(estadoPagina==0){
+			if(!espacioBlancoDetras){
+				inicioEspacioBlanco=contador;
+			}
+			espacioBlancoDetras=true;
+			contador++;
+		}
+		else if(espacioBlancoDetras){
+			moveProgram(contador,inicioEspacioBlanco);
+			espacioBlancoDetras=false;
+		}
+		else
+			contador++;
+	}
+}
+
+void moveProgram(int inicioProg, int inicioEspacioBlanco){
+	int contador=0;
+	int pid = buscarPIDSegunPagina(inicioProg);
+	int longitudPrograma= buscarLongPrograma(pid);
+	while(contador<=longitudPrograma){
+		searchedPage = getPage(inicioProg+contador);
+		savePage(inicioEspacioBlanco+contador);
+		unSetPage(inicioProg+contador);
+		setNewPage(inicioEspacioBlanco+contador);
+		contador++;
+		//FALTA CAMBIAR LOS ESTADOS DEL PID, NUMERO DE PAG INICIAL, OFFSET
+	}
+}
+
+void asignarEspacio(unsigned pid, int lugar, unsigned espacio){
+	agregarAlprogInfo(pid,lugar,espacio);
+	int paginasReservadas;
+	while(paginasReservadas<= espacio){
+		setPage(lugar);
+		lugar++;
+		paginasReservadas++;
+	}
+}
+
+void saveProgram(){
+	int espacio, pagInicial, cantidadGuardada=0;
+	unsigned pid;
+	char* pagAGuardar = malloc(TAMANIO_PAGINA);
+	recv(socketCliente,&pid,4,0);
+	espacio = buscarLongPrograma(pid);
+	pagInicial = buscarPagInicial(pid);
+	while(cantidadGuardada<=espacio){
+		recv(socketCliente,&pagAGuardar,TAMANIO_PAGINA,0);
+		savePage(pagInicial+cantidadGuardada,pagAGuardar);
+		cantidadGuardada++;
+	}
+}
+
+
+// FIN DE ACCIONES PEDIDAS DE LA UMC
+
+// INICIO DE FUNCIONES ADICIONALES
+int searchSpaceToFill(unsigned programSize){
 	int freeSpace =0; 			//PARA REALIZAR COMPACTACION
 	int freeSpaceInARow=0;		//PARA ASIGNAR SIN COMPACTAR
 	int counter=0;				//CONTADOR DE PAGINAS
@@ -127,14 +159,13 @@ unsigned searchSpaceToFill(unsigned programSize){
 		else{
 			freeSpace++;
 			freeSpaceInARow++;
-			if(programSize<=freeSpaceInARow){
+			if(programSize<=freeSpaceInARow)
 				return (counter-freeSpaceInARow+1); //DEVUELVE EL NRO DE PAGINA DONDE INICIA EL SEGMENTO LIBRE PARA ASIGNAR EL PROGRAMA
-			}
 		}
 		counter++;
 	}
 	if(programSize<=freeSpace){
-		return -1;
+		return -1; //HAY QUE COMPACTAR
 	}
-	return -2;
+	return -2; //NO HAY LUGAR PARA ALBERGARLO
 }
