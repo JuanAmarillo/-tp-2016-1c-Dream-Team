@@ -31,8 +31,47 @@ struct sockaddr_in setDireccion(const char *puerto)
 	return direccion;
 }
 
+void gestionarConexiones() // el select basicamente
+{
+	fd_set fdsParaLectura;
+	int maximoFD;
+	int fdBuscador;
 
-void recibirConexiones()
+	FD_ZERO(&master);
+	FD_ZERO(&fdsParaLectura);
+
+	maximoFD = recibirConexiones();
+
+	while(1){
+		fdsParaLectura = master;
+
+		if (  select(maximoFD+1,&fdsParaLectura,NULL,NULL,NULL) == -1  ){ //comprobar si el select funciona
+			perror("Error en el select");
+			abort();
+		}
+
+		for(fdBuscador=0; fdBuscador <= maximoFD; fdBuscador++) // explora los FDs que estan listos para leer
+		{
+			if( FD_ISSET(fdBuscador,&fdsParaLectura) ) { //entra una conexion, la acepta y la agrega al master
+				if(fdBuscador == servidorUMC)
+					aceptarConexion();
+				else{
+					FD_SET(clienteUMC, &master);
+					if(clienteUMC > maximoFD) //Actualzar el maximo fd
+						maximoFD = clienteUMC;
+				}
+
+			}
+			else{
+				 if(recibirDatos() > 0)
+					 enviarDatos(); // al swap para probar
+			}
+		}
+	}
+
+	return;
+}
+int recibirConexiones()
 {
 
 	direccionServidorUMC = setDireccion(infoConfig.puertoUMC);
@@ -49,27 +88,31 @@ void recibirConexiones()
 
 	printf("Estoy escuchando\n");
 	listen(servidorUMC, 100);
-	return;
+	FD_SET(servidorUMC,&master);
+
+	return servidorUMC;
 }
 
 void aceptarConexion()
 {
-	struct sockaddr_in direccionCPU;
+	struct sockaddr_in direccion;  //del cpu o del nucleo
 	unsigned int tamanioDireccion;
-	clienteUMC = accept(servidorUMC, (void*) &direccionCPU, &tamanioDireccion);
+	clienteUMC = accept(servidorUMC, (void*) &direccion, &tamanioDireccion);
 	return ;
 }
 
-void recibirDatos()
+int recibirDatos()
 {
 	buffer = malloc(100);
 	int bytesRecibidos = recv(clienteUMC, buffer, 100, 0);
 	if (bytesRecibidos <= 0) {
 		perror("El cliente se desconecto\n");
-		abort();
+		close(clienteUMC);
+		FD_CLR(clienteUMC, &master);
+		return 0;
 	}
 	printf("UMC: El mensaje recibido es: %s\n", buffer);
-	return;
+	return bytesRecibidos;
 }
 
 void conectarAlSWAP()
@@ -96,12 +139,13 @@ int main(){
 	conectarAlSWAP();
 
 	//servidor
-	recibirConexiones();
-	aceptarConexion();
-	recibirDatos();
+	gestionarConexiones();
+	//recibirConexiones();
+	//aceptarConexion();
+	//recibirDatos();
 
 	//cliente
-	enviarDatos();
+	//enviarDatos();
 
 	return 0;
 }

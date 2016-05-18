@@ -17,6 +17,9 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <commons/config.h>
 #include <commons/string.h>
 
@@ -36,16 +39,18 @@ t_infoConfig infoConfig;
 int servidorUMC,clienteSWAP,clienteUMC;
 struct sockaddr_in direccionServidorUMC;
 struct sockaddr_in direccionServidorSWAP;
-char* buffer; // problablemente lo termine sacando
+fd_set master;
+char* buffer; // probablemente lo termine sacando
 
 /*
  * Funciones
  */
 struct sockaddr_in setDireccion(const char *puerto);
+void gestionarConexiones();
 void leerArchivoConfig();
-void recibirConexiones();
+int recibirConexiones();
 void aceptarConexion();
-void recibirDatos();
+int recibirDatos();
 void conectarAlSWAP();
 void enviarDatos();
 
