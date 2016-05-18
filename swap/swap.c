@@ -31,7 +31,7 @@ int main(){
 			break;
 		case SAVE_PROGRAM: saveProgram();
 			break;
-		case SAVE_PAGE: savePage();
+		case SAVE_PAGE: saveNewPage();
 			break;
 		case END_PROGRAM: endProgram();
 				break;
@@ -42,11 +42,20 @@ int main(){
 	return 0;
 }
 
-// INICIO DE MANEJO DE PAGINAS BASICO DEL PROCESO SWAP
+void saveNewPage(){
+	unsigned pid;
+	unsigned nroPagDentroProg;
+	recv(socketCliente,&pid,4,0);
+	recv(socketCliente,&nroPagDentroProg,4,0);
+	recv(socketCliente,searchedPage,TAMANIO_PAGINA,0);
+	int pagInicial = buscarPagInicial(pid);
+	savePage(pagInicial+nroPagDentroProg);
+
+}
 
 void savePage(unsigned nroPag){
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
-	fwrite(&searchedPage,TAMANIO_PAGINA,1,SWAPFILE);
+	fwrite(searchedPage,TAMANIO_PAGINA,1,SWAPFILE);
 }
 
 void setNewPage(unsigned nroPag){
@@ -87,19 +96,19 @@ void reservarEspacio(){
 
 void compactar(){
 	int contador=0, inicioEspacioBlanco =0, estadoPagina;
-	bool espacioBlancoDetras=false;
+	int espacioBlancoDetras=0;
 	while(contador<CANTIDAD_PAGINAS){
 		estadoPagina=bitarray_test_bit(DISP_PAGINAS,contador);
 		if(estadoPagina==0){
 			if(!espacioBlancoDetras){
 				inicioEspacioBlanco=contador;
 			}
-			espacioBlancoDetras=true;
+			espacioBlancoDetras=1;
 			contador++;
 		}
 		else if(espacioBlancoDetras){
 			moveProgram(contador,inicioEspacioBlanco);
-			espacioBlancoDetras=false;
+			espacioBlancoDetras=0;
 		}
 		else
 			contador++;
@@ -108,7 +117,7 @@ void compactar(){
 
 void moveProgram(int inicioProg, int inicioEspacioBlanco){
 	int contador=0;
-	int pid = buscarPIDSegunPagina(inicioProg);
+	int pid = buscarPIDSegunPagInicial(inicioProg);
 	int longitudPrograma= buscarLongPrograma(pid);
 	while(contador<=longitudPrograma){
 		searchedPage = getPage(inicioProg+contador);
@@ -139,15 +148,41 @@ void saveProgram(){
 	pagInicial = buscarPagInicial(pid);
 	while(cantidadGuardada<=espacio){
 		recv(socketCliente,&pagAGuardar,TAMANIO_PAGINA,0);
-		savePage(pagInicial+cantidadGuardada,pagAGuardar);
+		savePage(pagInicial+cantidadGuardada);
 		cantidadGuardada++;
 	}
 }
 
+int buscarPIDSegunPagInicial(int inicioProg){
+	int i=0;
+	while(i<=CANTIDAD_PAGINAS){
+		if(inicioProg == INFO_PROG[i].PAG_INICIAL)
+			return INFO_PROG[i].PID;
+		i++;
+	}
+	return -1;
+}
 
-// FIN DE ACCIONES PEDIDAS DE LA UMC
+int buscarLongPrograma(int pid){
+	int i=0;
+		while(i<=CANTIDAD_PAGINAS){
+			if(pid == INFO_PROG[i].PID)
+				return INFO_PROG[i].LONGITUD;
+			i++;
+		}
+		return -1;
+}
 
-// INICIO DE FUNCIONES ADICIONALES
+int buscarPagInicial(int pid){
+	int i=0;
+	while(i<=CANTIDAD_PAGINAS){
+		if(pid == INFO_PROG[i].PID)
+			return INFO_PROG[i].PAG_INICIAL;
+		i++;
+	}
+	return -1;
+}
+
 int searchSpaceToFill(unsigned programSize){
 	int freeSpace =0; 			//PARA REALIZAR COMPACTACION
 	int freeSpaceInARow=0;		//PARA ASIGNAR SIN COMPACTAR

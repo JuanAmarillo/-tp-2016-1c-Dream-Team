@@ -32,17 +32,6 @@ FILE* SWAPFILE;
 t_bitarray* DISP_PAGINAS;
 t_infoProg* INFO_PROG;
 char* searchedPage;
-//PROTOTIPOS DE FUNCIONES INICIALES
-int main();
-void readConfigFile();
-void crearArchivoSWAP();
-void crearEstructurasDeManejo();
-void limpiarI_P(int);
-
-//PROTOTIPO DE FUNCIONES DE SOCKETS
-void setSocket();
-void bindSocket();
-void acceptSocket();
 
 //PROTOTIPO DE FUNCIONES DE MANEJO DE PAGINAS
 void setNewPage(unsigned, char*);
@@ -66,12 +55,14 @@ void setPage(unsigned);
 void unSetPage(unsigned);
 void saveProgram();
 void savePage(unsigned);
+void saveNewPage();
 void endProgram();
 void returnPage();
 void asignarEspacio(unsigned,int,unsigned);
-//PROTOTIPO DE FUNCIONES FINALES
-void accionesDeFinalizacion();
 void compactar();
 void moveProgram(int, int);
+int buscarPIDSegunPagInicial(int );
+int buscarPagInicial(int);
+int buscarLongPrograma(int );
 
 #endif /* SWAP_H_ */

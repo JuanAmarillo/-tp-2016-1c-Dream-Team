@@ -46,14 +46,14 @@ void crearEstructurasDeManejo(){
 	char *data = malloc(tamanio);
 	strcpy(data,"\0");
 	DISP_PAGINAS = bitarray_create(data,tamanio);
-	INFO_PROG = malloc(tamanio*sizeof(t_infoProg));
+	INFO_PROG = malloc(CANTIDAD_PAGINAS*sizeof(t_infoProg));
 	limpiarI_P(tamanio);
 	searchedPage=malloc(TAMANIO_PAGINA);
 }
 
-void limpiarI_P(int tamanio){
+void limpiarI_P(){
 	int i=0;
-	while (i<tamanio){
+	while (i<CANTIDAD_PAGINAS){
 		INFO_PROG[i].LONGITUD = 0;
 		INFO_PROG[i].PAG_INICIAL = 0;
 		INFO_PROG[i].PID = 0;
