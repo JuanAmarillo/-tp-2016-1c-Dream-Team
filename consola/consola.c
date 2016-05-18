@@ -28,6 +28,7 @@ int main(int argc, char** argv){
 	printf ("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
 	int enviar = 1;
 	while (enviar) {
+		//A partir de acá cambia el código?
 		fgets (mensaje, MSG_SIZE, stdin);
 		if (!strcmp (mensaje, "exit\n")) enviar = 0;
 		if (enviar) send (miSocket, mensaje, strlen(mensaje) +1, 0);
