@@ -23,15 +23,7 @@ int main(int argc, char** argv){
 		printf ("Error. Falta un parámetro.\n");
 		return -3;
 	}
-		// Leer archivo config.conf
-	leerArchivoConfig();
-	//inicializar estructura de socket con los datos del nucleo
-	inicializarDireccionNucleo();
-	int miSocket = socket(PF_INET, SOCK_STREAM, 0);
-	if (connect (miSocket, (struct sockaddr*) &direccionNucleo, sizeof(struct sockaddr_in)) == -1) {
-		printf("Error de connect\n");
-		exit(1);
-	}
+	//Abrir el archivo ANSISOP y poner el contenido en un char*
 	FILE*in;
 	in = fopen (argv [1], "r");
 	if (in==NULL){
@@ -45,6 +37,20 @@ int main(int argc, char** argv){
 	}
 	char *ansisop;
 	fscanf (in, "%s", ansisop);
+	fclose (in);
+	printf ("%s", ansisop);
+	
+	// Leer archivo config.conf
+	leerArchivoConfig();
+	
+	//inicializar estructura de socket con los datos del nucleo
+	inicializarDireccionNucleo();
+	int miSocket = socket(PF_INET, SOCK_STREAM, 0);
+	if (connect (miSocket, (struct sockaddr*) &direccionNucleo, sizeof(struct sockaddr_in)) == -1) {
+		printf("Error de connect\n");
+		exit(1);
+	}
+	
 	
 	
 	
