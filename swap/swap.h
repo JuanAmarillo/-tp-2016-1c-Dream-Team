@@ -31,7 +31,7 @@ int socketCliente;
 FILE* SWAPFILE;
 t_bitarray* DISP_PAGINAS;
 t_list * INFO_PROG;
-char* searchedPage;
+char* paginaMultiProposito;
 
 //PROTOTIPO DE FUNCIONES DE MANEJO DE PAGINAS
 void setNewPage(unsigned, char*);
@@ -46,7 +46,6 @@ char* getPage(unsigned);
  **/
 
 //ACCIONES DEL SWAP
-int recibirMensaje();
 int recibirCabecera();
 void reservarEspacio();
 void setPage(unsigned);

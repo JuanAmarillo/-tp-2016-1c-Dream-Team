@@ -48,7 +48,7 @@ void crearEstructurasDeManejo(){
 	strcpy(data,"\0");
 	DISP_PAGINAS = bitarray_create(data,tamanio);
 	INFO_PROG = list_create();
-	searchedPage=malloc(TAMANIO_PAGINA);
+	paginaMultiProposito=malloc(TAMANIO_PAGINA);
 }
 
 
@@ -77,6 +77,6 @@ void acceptSocket() {
 void accionesDeFinalizacion() {
 	fclose(SWAPFILE);
 	bitarray_destroy(DISP_PAGINAS);
-	free(searchedPage);
+	free(paginaMultiProposito);
 	list_destroy_and_destroy_elements(INFO_PROG,(void*) infoProg_destroy);
 }

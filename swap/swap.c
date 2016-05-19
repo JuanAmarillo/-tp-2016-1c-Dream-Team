@@ -37,7 +37,7 @@ int main(){
 			break;
 		case END_PROGRAM: endProgram();
 			break;
-		case RETURN_PAGE: returnPage();
+		case BRING_PAGE_TO_UMC: returnPage();
 			break;
 	}
 	accionesDeFinalizacion();
@@ -45,14 +45,13 @@ int main(){
 }
 
 void saveProgram(){
-	int espacio, pagInicial, cantidadGuardada=0;
+	int espacio, pagInicial, cantidadGuardada=1;
 	unsigned pid;
-	char* pagAGuardar = malloc(TAMANIO_PAGINA);
 	recv(socketCliente,&pid,4,0);
 	espacio = buscarLongPrograma(pid);
 	pagInicial = buscarPagInicial(pid);
 	while(cantidadGuardada<=espacio){
-		recv(socketCliente,&pagAGuardar,TAMANIO_PAGINA,0);
+		recv(socketCliente,paginaMultiProposito,TAMANIO_PAGINA,0);
 		savePage(pagInicial+cantidadGuardada);
 		cantidadGuardada++;
 	}
@@ -63,11 +62,12 @@ void returnPage(){
 	recv(socketCliente,&pid,4,0);
 	recv(socketCliente,&nroPagDentroProg,4,0);
 	getPage(buscarPagInicial(pid)+nroPagDentroProg);
-	send(socketCliente,searchedPage,TAMANIO_PAGINA,0);
+	send(socketCliente,SWAP_SENDS_PAGE,4,0);
+	send(socketCliente,paginaMultiProposito,TAMANIO_PAGINA,0);
 }
 
 void endProgram(){
-	int pid, longitud, inicial, contador=0;
+	int pid, longitud, inicial, contador=1;
 	recv(socketCliente,&pid,4,0);
 	longitud = buscarLongPrograma(pid);
 	inicial = buscarPagInicial(pid);
@@ -89,7 +89,7 @@ void saveNewPage(){
 	unsigned nroPagDentroProg;
 	recv(socketCliente,&pid,4,0);
 	recv(socketCliente,&nroPagDentroProg,4,0);
-	recv(socketCliente,searchedPage,TAMANIO_PAGINA,0);
+	recv(socketCliente,paginaMultiProposito,TAMANIO_PAGINA,0);
 	int pagInicial = buscarPagInicial(pid);
 	savePage(pagInicial+nroPagDentroProg);
 
@@ -97,7 +97,7 @@ void saveNewPage(){
 
 void savePage(unsigned nroPag){
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
-	fwrite(searchedPage,TAMANIO_PAGINA,1,SWAPFILE);
+	fwrite(paginaMultiProposito,TAMANIO_PAGINA,1,SWAPFILE);
 }
 
 void setNewPage(unsigned nroPag){
@@ -110,8 +110,8 @@ void unSetPage(unsigned nroPag){
 
 char* getPage(unsigned nroPag){
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
-	fread(searchedPage,TAMANIO_PAGINA,1,SWAPFILE);
-	return searchedPage;
+	fread(paginaMultiProposito,TAMANIO_PAGINA,1,SWAPFILE);
+	return paginaMultiProposito;
 }
 
 int recibirCabecera(){
@@ -162,7 +162,7 @@ void moveProgram(int inicioProg, int inicioEspacioBlanco){
 	int pid = buscarPIDSegunPagInicial(inicioProg);
 	int longitudPrograma= buscarLongPrograma(pid);
 	while(contador<=longitudPrograma){
-		searchedPage = getPage(inicioProg+contador);
+		paginaMultiProposito = getPage(inicioProg+contador);
 		savePage(inicioEspacioBlanco+contador);
 		unSetPage(inicioProg+contador);
 		setNewPage(inicioEspacioBlanco+contador);
@@ -171,18 +171,22 @@ void moveProgram(int inicioProg, int inicioEspacioBlanco){
 	}
 }
 
-void asignarEspacio(unsigned pid, int lugar, unsigned espacio){
-	agregarAlprogInfo(pid,lugar,espacio);
+void asignarEspacio(unsigned pid, int lugar, unsigned tamanio){
+	agregarAlprogInfo(pid,lugar,tamanio);
 	int paginasReservadas;
-	while(paginasReservadas<= espacio){
-		setPage(lugar);
+	while(paginasReservadas<= tamanio){
+		setNewPage(lugar);
 		lugar++;
 		paginasReservadas++;
 	}
 }
 
-void agregarAlprogInfo(unsigned pid,int lugar,unsigned espacio){
-
+void agregarAlprogInfo(unsigned pid,int lugar,unsigned tamanio){
+	t_infoProg* new = malloc(sizeof(t_infoProg));
+	new->LONGITUD = tamanio;
+	new->PAG_INICIAL = lugar;
+	new->PID = pid;
+	list_add(INFO_PROG,(void*) new);
 }
 
 

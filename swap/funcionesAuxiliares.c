@@ -20,28 +20,22 @@
 #include "initialize.h"
 #include "funcionesAuxiliares.h"
 
-t_infoProg buscarPIDSegunPagInicial(int inicioProg){
-	return (list_find(INFO_PROG,(void*) returnPIDwhenSameInitPage(inicioProg)));
+int buscarPIDSegunPagInicial(int inicioProg){
+	INICIOPROGBUSCADOR= inicioProg;
+	t_infoProg* new = (t_infoProg*) (list_find(INFO_PROG, (void*) returnPIDwhenSameInitPage));
+	return new->PID;
 }
 
 int buscarLongPrograma(int pid){
-	int i=0;
-		while(i<=CANTIDAD_PAGINAS){
-			if(pid == INFO_PROG[i].PID)
-				return INFO_PROG[i].LONGITUD;
-			i++;
-		}
-		return -1;
+	PIDBUSCADOR= pid;
+	t_infoProg* new = (t_infoProg*) (list_find(INFO_PROG, (void*) returnWhenSamePID));
+	return new->LONGITUD;
 }
 
 int buscarPagInicial(int pid){
-	int i=0;
-	while(i<=CANTIDAD_PAGINAS){
-		if(pid == INFO_PROG[i].PID)
-			return INFO_PROG[i].PAG_INICIAL;
-		i++;
-	}
-	return -1;
+	PIDBUSCADOR=pid;
+	t_infoProg* new = (t_infoProg*) (list_find(INFO_PROG, (void*) returnWhenSamePID));
+	return new->PAG_INICIAL;
 }
 
 int searchSpaceToFill(unsigned programSize){
@@ -74,7 +68,12 @@ static void infoProg_destroy(t_infoProg *self){
 	free(self);
 }
 
-static bool returnPIDwhenSameInitPage (t_infoProg *programa, int pagInicial){
-	bool x = (programa->PAG_INICIAL == pagInicial);
+static int returnPIDwhenSameInitPage (t_infoProg *programa){
+	int x = (programa->PAG_INICIAL == INICIOPROGBUSCADOR);
+	return x;
+}
+
+static int returnWhenSamePID(t_infoProg *programa){
+	int x = programa->PID == PIDBUSCADOR;
 	return x;
 }
