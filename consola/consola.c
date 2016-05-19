@@ -17,11 +17,11 @@ int main(int argc, char** argv){
 	// Verifica cantidad de parámetros
 	if (argc>2) {
 		printf ("Error. Hay más de dos argumentos.\n");
-		return -3;
+		return -2;
 	}
 	if (argc==1) {
 		printf ("Error. Falta un parámetro.\n");
-		return -2;
+		return -3;
 	}
 		// Leer archivo config.conf
 	leerArchivoConfig();
@@ -36,12 +36,12 @@ int main(int argc, char** argv){
 	in = fopen (argv [1], "r");
 	if (in==NULL){
 		printf ("No se puede abrir el archivo\n");
-		return -3;
+		return -4;
 	}
 	
 	if (ferror(in)){
 		printf ("Error en la lectura del archivo.\n");
-		return -4;
+		return -5;
 	}
 	char *ansisop;
 	fscanf (in, "%s", ansisop);
