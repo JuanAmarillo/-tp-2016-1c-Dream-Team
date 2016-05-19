@@ -1,7 +1,6 @@
 /*
  * Hipotesis: Al trabajar todos con la misma maquina virtual, no tenemos en cuenta la variacion de tamaño de los tipo de datos segun las arquitecturas.
  */
-
 /*
  * empaquetar_mensaje();
  * Parametros:
@@ -46,7 +45,6 @@ void *empaquetar_mensaje(t_mensaje mensaje) {
  * Descripcion: Dado un buffer, desempaqueta el HEAD
  * Return: t_mensajeHead mensaje_head
  */
-
 t_mensajeHead desempaquetar_head(const void *buffer) {
 
 	// Declaro variables usadas
@@ -92,7 +90,7 @@ t_mensaje desempaquetar_mensaje(const void *buffer) {
 
 	// Desempaqueto lo extra
 	mensaje_desempaquetado.mensaje_extra = malloc(mensaje_desempaquetado.head.tam_extra);
-	memcpy(&mensaje_desempaquetado.mensaje_extra, buffer + desplazamiento, mensaje_desempaquetado.head.tam_extra);
+	memcpy(mensaje_desempaquetado.mensaje_extra, buffer + desplazamiento, mensaje_desempaquetado.head.tam_extra);
 
 	return mensaje_desempaquetado;
 }

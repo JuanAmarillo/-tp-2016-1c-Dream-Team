@@ -11,8 +11,9 @@
 #include <unistd.h>
 #include <parser/parser.h>
 #include <signal.h>
-#include "analizador.h"
 #include "protocolo_mensaje.h"
+#include "pcb.h"
+#include "analizador.h"
 #include "cpu.h"
 #include "codigos_operacion.h"
 
@@ -27,11 +28,8 @@ int main(int argc, char** argv){
 	// Asigno una funcion a la señal SIGUSR1
 	signal(SIGUSR1, signal_sigusr1);
 
-	//testMensajeProtocolo();
-
-
 	// Me conecto a la UMC
-	socketUMC = conectarseUMC();
+	/*socketUMC = conectarseUMC();
 	if(socketUMC == -1) abort();
 
 	// Me conecto a el Nucleo
@@ -42,11 +40,18 @@ int main(int argc, char** argv){
 
 		// Recibo el PCB
 
-		// Obtener siguiente instruccion
 
-		// analizadorLinea (parser)
+		// INICIO LOOP: QUANTUM
+			// Obtener siguiente instruccion
+			// analizadorLinea (parser)
+			// Actualizar PCB
+		// FIN LOOP: QUANTUM
 
 		// Notificar al Nucleo
+
+
+		// Libero recursos
+		free(&mensaje_recibido);
 
 		// Si recibo señal para desconectarme, me desconecto
 		if(notificacion_signal_sigusr1 == 1){
@@ -54,9 +59,7 @@ int main(int argc, char** argv){
 			close(socketNucleo);
 			break;
 		}
-	}
-
-	//testParser();
+	}*/
 
 	return EXIT_SUCCESS;
 }
@@ -255,6 +258,240 @@ void signal_sigusr1(int signal){
 }
 
 /*
+ * INICIO PROTOCOLO_MENSAJE.c
+ */
+
+/*
+ * Hipotesis: Al trabajar todos con la misma maquina virtual, no tenemos en cuenta la variacion de tamaño de los tipo de datos segun las arquitecturas.
+ */
+/*
+ * empaquetar_mensaje();
+ * Parametros:
+ *		-> mensaje: Bloque de mensaje a empaquetar
+ * Descripcion: Dado un mensaje, lo empaqueta para enviarlo
+ * Return: *mensaje_empaquetado
+ */
+void *empaquetar_mensaje(t_mensaje mensaje) {
+
+	// Variables usadas
+	unsigned desplazamiento = 0;
+	unsigned i_parametro;
+
+	// Creo un bloque en memoria con la tamaño del Head + Payload
+	void *mensaje_empaquetado = malloc(sizeof(t_mensajeHead) + sizeof(unsigned) * mensaje.head.cantidad_parametros + mensaje.head.tam_extra);
+
+	// Copio el head en el bloque de memoria creado
+	memcpy(mensaje_empaquetado + desplazamiento, &mensaje.head.codigo, sizeof(unsigned));
+	desplazamiento += sizeof(unsigned);
+	memcpy(mensaje_empaquetado + desplazamiento, &mensaje.head.cantidad_parametros, sizeof(unsigned));
+	desplazamiento += sizeof(unsigned);
+	memcpy(mensaje_empaquetado + desplazamiento, &mensaje.head.tam_extra, sizeof(unsigned));
+	desplazamiento += sizeof(unsigned);
+
+	// Copio los parametros
+	for (i_parametro = 0; i_parametro < mensaje.head.cantidad_parametros; i_parametro++){
+		memcpy(mensaje_empaquetado + desplazamiento, &mensaje.parametros[i_parametro], sizeof(unsigned));
+		desplazamiento += sizeof(unsigned);
+	}
+
+	// Copio el mensaje_extra
+	memcpy(mensaje_empaquetado + desplazamiento, mensaje.mensaje_extra, mensaje.head.tam_extra);
+
+	// Devuelvo
+	return mensaje_empaquetado;
+}
+
+/*
+ * desempaquetar_head();
+ * Parametros:
+ *		-> buffer: Bytes a desempaquetar
+ * Descripcion: Dado un buffer, desempaqueta el HEAD
+ * Return: t_mensajeHead mensaje_head
+ */
+t_mensajeHead desempaquetar_head(const void *buffer) {
+
+	// Declaro variables usadas
+	unsigned desplazamiento = 0;
+	t_mensajeHead mensaje_head;
+
+	// Desempaqueto el head
+	memcpy(&mensaje_head.codigo, buffer, sizeof(unsigned));
+	desplazamiento += sizeof(unsigned);
+	memcpy(&mensaje_head.cantidad_parametros, buffer + desplazamiento, sizeof(unsigned));
+	desplazamiento += sizeof(unsigned);
+	memcpy(&mensaje_head.tam_extra, buffer + desplazamiento, sizeof(unsigned));
+
+	return mensaje_head;
+}
+
+/*
+ * desempaquetar_mensaje();
+ * Parametros:
+ *		-> buffer: Bytes a desempaquetar
+ * Descripcion: Dado un buffer, lo desempaqueta
+ * Return: t_mensaje mensaje_desempaquetado
+ */
+t_mensaje desempaquetar_mensaje(const void *buffer) {
+
+	// Declaro variables usadas
+	unsigned i_parametro;
+	unsigned desplazamiento = 0;
+	t_mensaje mensaje_desempaquetado;
+
+	// Desempaqueto el HEAD
+	mensaje_desempaquetado.head = desempaquetar_head(buffer);
+	desplazamiento = sizeof(t_mensajeHead);
+
+	// Creo memoria para los parametros
+	mensaje_desempaquetado.parametros = malloc(sizeof(unsigned) * mensaje_desempaquetado.head.cantidad_parametros);
+
+	// Desempaqueto los parametros
+	for (i_parametro = 0; i_parametro < mensaje_desempaquetado.head.cantidad_parametros; i_parametro++){
+		memcpy(&mensaje_desempaquetado.parametros[i_parametro], buffer + desplazamiento, sizeof(unsigned));
+		desplazamiento += sizeof(unsigned);
+	}
+
+	// Desempaqueto lo extra
+	mensaje_desempaquetado.mensaje_extra = malloc(mensaje_desempaquetado.head.tam_extra);
+	memcpy(mensaje_desempaquetado.mensaje_extra, buffer + desplazamiento, mensaje_desempaquetado.head.tam_extra);
+
+	return mensaje_desempaquetado;
+}
+
+/*
+ * enviarMensaje();
+ * Parametros:
+ * 	-> serverSocket :: ID del socket donde voy a enviar el mensaje
+ * 	-> mensaje	:: Mensaje a enviar
+ * Descripcion: Envia un mensaje a traves serverSocket
+ * Return:
+ * 		-> -1 :: Error
+ * 		->  other :: -
+ */
+int enviarMensaje(int serverSocket, t_mensaje mensaje){
+
+	void *mensaje_empaquetado = empaquetar_mensaje(mensaje);
+	unsigned tamano_mensaje = sizeof(unsigned)*3 + sizeof(unsigned) * mensaje.head.cantidad_parametros + mensaje.head.tam_extra;
+
+	int enviar = send(serverSocket, mensaje_empaquetado, tamano_mensaje, MSG_NOSIGNAL);
+
+	free(mensaje_empaquetado);
+
+	return enviar;
+
+}
+
+/*
+ * recibirMensaje();
+ * Parametros:
+ * 		-> serverSocket :: ID del socket desde donde voy a recibir el mensaje
+ * 		-> mensaje :: Donde voy a guardar el mensaje
+ * 		-> tamano :: Tamaño que ocupa el mensaje
+ * Descripcion: Recibe un mensaje del serverSocket y lo guarda en mensaje
+ * Return:
+ * 		-> -1 :: Error
+ * 		->  other :: -
+ */
+int recibirMensaje(int serverSocket, t_mensaje *mensaje){
+
+	// Declaro variables
+	t_mensajeHead mensaje_head;
+	unsigned desplazamiento = 0;
+	int recibir;
+
+	// Recibo el HEAD
+	void *buffer_head = malloc(sizeof(unsigned)*3);
+	recibir = recibirBytes(serverSocket, buffer_head, sizeof(unsigned)*3);
+	if (recibir <= 0){
+		free(buffer_head);
+		return recibir;
+	}
+
+	// Obtengo los valores del HEAD
+	mensaje_head = desempaquetar_head(buffer_head);
+	desplazamiento = sizeof(t_mensajeHead);
+
+	// Me preparo para recibir el Payload
+	unsigned faltan_recibir = sizeof(unsigned) * mensaje_head.cantidad_parametros + mensaje_head.tam_extra;
+	void *bufferTotal = malloc(sizeof(t_mensajeHead) + faltan_recibir);
+	memcpy(bufferTotal, buffer_head, sizeof(t_mensajeHead));
+
+	// Recibo el Payload
+	recibir = recibirBytes(serverSocket, bufferTotal + sizeof(t_mensajeHead), faltan_recibir);
+
+	// Desempaqueto el mensaje
+	*mensaje = desempaquetar_mensaje(bufferTotal);
+
+	// Limpieza
+	free(buffer_head);
+	free(bufferTotal);
+
+	//
+	return recibir;
+}
+
+/*
+ * recibirBytes();
+ * Parametros:
+ * 		-> serverSocket :: ID del socket desde donde voy a recibir el mensaje
+ * 		-> buffer :: Donde voy a guardar el mensaje
+ * 		-> tamano :: Tamaño que ocupa el mensaje
+ * Descripcion: Recibe un mensaje del serverSocket y lo guarda en buffer
+ * Return:
+ * 		-> -1 :: Error
+ * 		->  other :: -
+ */
+
+int recibirBytes(int serverSocket, void *buffer, unsigned tamano){
+	int recibir = recv(serverSocket, buffer, tamano, MSG_WAITALL);
+	return recibir;
+}
+
+/*
+ * freeMensaje();
+ * Parametros:
+ * 		-> mensaje :: Puntero a mensaje a destruir
+ * Descripcion: Procedimiento que libera memoria de un mensaje
+ * Return: -
+ */
+
+void freeMensaje(t_mensaje *mensaje) {
+  free(mensaje->parametros);
+  free(mensaje->mensaje_extra);
+}
+
+void testMensajeProtocolo(){
+	// Declaro variables usadas
+	t_mensaje mensaje;
+	t_mensaje mensaje_new;
+	unsigned parametros[2];
+
+	// Defino el mensaje a empaquetar
+	mensaje.head.codigo = 20;
+	mensaje.head.cantidad_parametros = 2;
+	mensaje.head.tam_extra = 0;
+	mensaje.mensaje_extra = NULL;
+	mensaje.parametros = parametros;
+	parametros[0] = 3;
+	parametros[1] = 7;
+
+	//
+	const char *buffer = empaquetar_mensaje(mensaje);
+
+	mensaje_new = desempaquetar_mensaje(buffer);
+
+	printf("%i",mensaje_new.head.codigo);
+}
+
+/*
+ * FIN PROTOCOLO_MENSAJE.c
+ */
+
+/*
+ * INICIO PRIMITIVAS.c
+ */
+
+/*
  * FUNCIONES ANALIZADOR
  */
 
@@ -294,3 +531,280 @@ void imprimirTexto(char* texto) {
 // void entradaSalida(t_nombre_dispositivo dispositivo, int tiempo);
 // void wait(t_nombre_semaforo identificador_semaforo);
 // void signal(t_nombre_semaforo identificador_semaforo);
+
+/*
+ * FIN PRIMITIVAS.c
+ */
+/*
+ * INICIO PCB.c
+ */
+/*
+ * stack_create();
+ * Parametros:
+ * 		-> retPos :: Direccion de retorno (Posición del índice de código donde se debe retornar al finalizar la ejecución de la función)
+ * 		-> numeroPagina, offset, size :: Posición de la variable de retorno  (Posición de memoria donde se debe almacenar el resultado de la función provisto por la sentencia RETURN)
+ * Descripcion: Crea un nuevo nodo con la estructura t_indiceStack
+ * Return: puntero a nodo
+ */
+static t_indiceStack *stack_create(unsigned retPos, unsigned numeroPagina, unsigned offset, unsigned size){
+	t_indiceStack *new = malloc(sizeof(t_indiceStack));
+	new->args = list_create();
+	new->vars = list_create();
+	new->retPos = retPos;
+	new->retVar.numeroPagina = numeroPagina;
+	new->retVar.offset = offset;
+	new->retVar.size = size;
+	return new;
+}
+
+/*
+ * args_create();
+ * Parametros:
+ * 		-> numeroPagina, offset, size :: Posiciones de memoria donde se almacenan la copia del argumento de la función
+ * Descripcion: Crea un nuevo nodo con la estructura t_posicionDeMemoria
+ * Return: puntero a nodo
+ */
+static t_posicionDeMemoria *args_create(unsigned numeroPagina, unsigned offset, unsigned size){
+	t_posicionDeMemoria *new = malloc(sizeof(t_posicionDeMemoria));
+	new->numeroPagina = numeroPagina;
+	new->offset = offset;
+	new->size = size;
+	return new;
+}
+
+/*
+ * vars_create();
+ * Parametros:
+ * 		-> identificador :: Nombre de la variable
+ * 		-> numeroPagina, offset, size :: Posicion de memoria donde se almacenan la variable local de la función
+ * Descripcion: Crea un nuevo nodo con la estructura t_posicionDeMemoria
+ * Return: puntero a nodo
+ */
+static t_variable *vars_create(char identificador, unsigned numeroPagina, unsigned offset, unsigned size){
+	t_variable *new = malloc(sizeof(t_variable));
+	new->identificador = identificador;
+	new->posicionMemoria.numeroPagina = numeroPagina;
+	new->posicionMemoria.offset = offset;
+	new->posicionMemoria.size = size;
+	return new;
+}
+
+/*
+ * pcb_to_mensaje();
+ * Parametros:
+ * 		-> pcb :: un PCB
+ * 		-> codigo :: Codigo de operacion del mensaje
+ * Descripcion: Convierte un PCB en estructura t_mensaje
+ * Return: t_mensaje
+ */
+t_mensaje pcb_to_mensaje(t_PCB pcb, unsigned codigo) {
+
+	// Variables usadas
+	int cantidad_indiceCodigo = 2;
+	int cantidad_indiceStack = list_size(pcb.indiceStack);
+	int cantidadTotal_args = 0;
+	int cantidadTotal_vars = 0;
+	unsigned tam_extra = 0;
+	int tam_headStack = sizeof(unsigned) * 2;
+	unsigned desplazamiento = 0;
+	unsigned i_parametro;
+	int cantidad_args = 0;
+	int cantidad_vars = 0;
+	t_mensaje mensaje;
+
+
+	// Seteo cantidadTotal_args y cantidadTotal_vars
+	if(cantidad_indiceStack != 0){
+		void _list_elements(t_indiceStack *tmp) {
+			cantidadTotal_args += list_size(tmp->args);
+			cantidadTotal_vars += list_size(tmp->vars);
+		}
+		list_iterate(pcb.indiceStack, (void*) _list_elements);
+	}
+
+	// El tamaño de Payload + Head Internos
+	tam_extra = sizeof(t_indiceCodigo) * cantidad_indiceCodigo + (tam_headStack + sizeof(unsigned) + sizeof(t_posicionDeMemoria)) * cantidad_indiceStack + sizeof(t_posicionDeMemoria) * cantidadTotal_args + sizeof(t_variable) * cantidadTotal_vars;
+
+	// Creo un bloque en memoria con la tamaño del Head + Payload
+	char *mensaje_empaquetado = malloc(tam_extra);
+
+	// Copio los indiceCodigo
+	for (i_parametro = 0; i_parametro < cantidad_indiceCodigo; i_parametro++){
+		memcpy(mensaje_empaquetado + desplazamiento, &pcb.indiceCodigo[i_parametro], sizeof(t_indiceCodigo));
+		desplazamiento += sizeof(t_indiceCodigo);
+	}
+
+	// Copio la lista de stack
+	if(cantidad_indiceStack != 0){
+		void _list_elements2(t_indiceStack *tmp2) {
+			cantidad_args = list_size(tmp2->args);
+			cantidad_vars = list_size(tmp2->vars);
+			//
+			memcpy(mensaje_empaquetado + desplazamiento, &cantidad_args, sizeof(int));
+			desplazamiento += sizeof(int);
+			memcpy(mensaje_empaquetado + desplazamiento, &cantidad_vars, sizeof(int));
+			desplazamiento += sizeof(int);
+
+			// Copio los args
+			if(cantidad_args != 0){
+				void _list_elements3(t_posicionDeMemoria *tmp3) {
+					memcpy(mensaje_empaquetado + desplazamiento, tmp3, sizeof(t_posicionDeMemoria));
+					desplazamiento += sizeof(t_posicionDeMemoria);
+				}
+				list_iterate(tmp2->args, (void*) _list_elements3);
+			}
+			// Copio los vars
+			if(cantidad_vars != 0){
+				void _list_elements4(t_variable *tmp4) {
+					memcpy(mensaje_empaquetado + desplazamiento, tmp4, sizeof(t_variable));
+					desplazamiento += sizeof(t_variable);
+				}
+				list_iterate(tmp2->vars, (void*) _list_elements4);
+			}
+			//
+			memcpy(mensaje_empaquetado + desplazamiento, &(tmp2->retPos), sizeof(unsigned));
+			desplazamiento += sizeof(unsigned);
+			memcpy(mensaje_empaquetado + desplazamiento, &(tmp2->retVar), sizeof(t_posicionDeMemoria));
+			desplazamiento += sizeof(t_posicionDeMemoria);
+			// Reset
+			cantidad_args = 0;
+			cantidad_vars = 0;
+		}
+		list_iterate(pcb.indiceStack, (void*) _list_elements2);
+	}
+
+	// Devuelvo
+	// Creo mensaje
+	unsigned *parametros = malloc(sizeof(unsigned) * 6);
+	parametros[0] = cantidad_indiceCodigo;
+	parametros[1] = cantidad_indiceStack;
+	parametros[2] = pcb.pid;
+	parametros[3] = pcb.pc;
+	parametros[4] = pcb.cantidadPaginas;
+	parametros[5] = pcb.estado;
+
+	mensaje.head.codigo = codigo;
+	mensaje.head.cantidad_parametros = 6;
+	mensaje.head.tam_extra = tam_extra;
+	mensaje.mensaje_extra = mensaje_empaquetado;
+	mensaje.parametros = parametros;
+	//
+	return mensaje;
+}
+
+
+/*
+ * t_mensajeHeadStack();
+ * Parametros:
+ * 		-> buffer :: Un buffer
+ * Descripcion: Dado un buffer desempaqueta el Head del Stack
+ * Return: t_mensajeHeadStack
+ */
+t_mensajeHeadStack desempaquetar_headStack(const void *buffer) {
+
+	// Declaro variables usadas
+	unsigned desplazamiento = 0;
+	t_mensajeHeadStack mensaje_HeadStack;
+
+	// Desempaqueto el head
+	memcpy(&mensaje_HeadStack.cantidad_args, buffer, sizeof(int));
+	desplazamiento += sizeof(int);
+	memcpy(&mensaje_HeadStack.cantidad_vars, buffer + desplazamiento, sizeof(int));
+	desplazamiento += sizeof(int);
+
+	return mensaje_HeadStack;
+}
+
+/*
+ * mensaje_to_pcb();
+ * Parametros:
+ * 		-> mensaje :: Un t_mensaje
+ * Descripcion: Dado un mensaje, lo convierte en t_PCB
+ * Return: t_PCB
+ */
+t_PCB mensaje_to_pcb(t_mensaje mensaje) {
+
+	// Declaro variables usadas
+	unsigned i_parametro;
+	unsigned i_stack;
+	unsigned i_args;
+	unsigned i_vars;
+	unsigned desplazamiento = 0;
+	t_mensajeHeadStack headStack;
+	t_indiceStack *aux_stack;
+	t_posicionDeMemoria aux_args;
+	t_variable aux_vars;
+	unsigned cantidad_indiceCodigo = mensaje.parametros[0];
+	unsigned cantidad_indiceStack = mensaje.parametros[1];
+
+
+	// Creo memoria para el PCB
+	t_PCB pcb;
+
+	char *buffer = mensaje.mensaje_extra;
+
+	// Desempaqueto el indiceCodigo
+	for (i_parametro = 0; i_parametro < cantidad_indiceCodigo; i_parametro++){
+		memcpy(&pcb.indiceCodigo[i_parametro], buffer + desplazamiento, sizeof(t_indiceCodigo));
+		desplazamiento += sizeof(t_indiceCodigo);
+	}
+
+
+	pcb.indiceStack = list_create();
+	// Desempaqueto el indiceStack
+	for (i_stack = 0; i_stack < cantidad_indiceStack; i_stack++){
+		// Creo Stack
+		list_add(pcb.indiceStack, stack_create(0, 0, 0, 0));
+		aux_stack = list_get(pcb.indiceStack, i_stack);
+		//
+		headStack = desempaquetar_headStack(buffer + desplazamiento);
+		desplazamiento += sizeof(t_mensajeHeadStack);
+		for (i_args = 0; i_args < headStack.cantidad_args; i_args++){
+			memcpy(&aux_args, buffer + desplazamiento, sizeof(t_posicionDeMemoria));
+			desplazamiento += sizeof(t_posicionDeMemoria);
+			list_add(aux_stack->args, args_create(aux_args.numeroPagina, aux_args.offset, aux_args.size));
+		}
+		for (i_vars = 0; i_vars < headStack.cantidad_vars; i_vars++){
+			memcpy(&aux_vars, buffer + desplazamiento, sizeof(t_variable));
+			desplazamiento += sizeof(t_variable);
+			list_add(aux_stack->vars, vars_create(aux_vars.identificador, aux_vars.posicionMemoria.numeroPagina, aux_vars.posicionMemoria.offset, aux_vars.posicionMemoria.size));
+		}
+		memcpy(&(aux_stack->retPos), buffer + desplazamiento, sizeof(unsigned));
+		desplazamiento += sizeof(unsigned);
+		memcpy(&(aux_stack->retVar), buffer + desplazamiento, sizeof(t_posicionDeMemoria));
+		desplazamiento += sizeof(t_posicionDeMemoria);
+	}
+
+	return pcb;
+}
+
+void testCrearPCB(){
+	t_PCB pcb;
+	t_indiceStack *aux_stack;
+
+	t_indiceCodigo parametros[2];
+	parametros[0].offset_fin = 53;
+	parametros[0].offset_inicio = 54;
+	parametros[1].offset_fin = 55;
+	parametros[1].offset_inicio = 56;
+
+	pcb.pid = 1;
+	pcb.pc = 22;
+	pcb.cantidadPaginas = 30;
+	pcb.estado = 13;
+	pcb.indiceCodigo = parametros;
+	pcb.indiceStack = list_create();
+
+	// Creo un nodo STACK
+	list_add(pcb.indiceStack, stack_create(40, 41, 42, 43));
+
+	// Le agrego contenido a las listas (args y vars) del nodo Stack
+	aux_stack = list_get(pcb.indiceStack, 0);
+	list_add(aux_stack->args, args_create(60, 61, 62));
+	list_add(aux_stack->args, args_create(63, 64, 65));
+	list_add(aux_stack->vars, vars_create('a', 66, 67, 68));
+	list_add(aux_stack->vars, vars_create('b', 69, 70, 71));
+}
+/*
+ * FIN PCB.c
+ */

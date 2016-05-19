@@ -1,10 +1,3 @@
-/*
- * cpu.h
- *
- *  Created on: 23/4/2016
- *      Author: utnso
- */
-
 #ifndef CPU_H_
 #define CPU_H_
 
@@ -17,7 +10,6 @@ typedef struct {
 	char *ip_umc;
 	char *puerto_umc;
 } t_infoConfig;
-
 
 /*
  * Variables Globales
