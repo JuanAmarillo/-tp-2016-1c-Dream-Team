@@ -14,8 +14,16 @@
 struct sockaddr_in direccionNucleo;
 
 int main(int argc, char** argv){
-
-	// Leer archivo config.conf
+	// Verifica cantidad de parámetros
+	if (argc>2) {
+		printf ("Error. Hay más de dos argumentos.\n");
+		return -3;
+	}
+	if (argc==1) {
+		printf ("Error. Falta un parámetro.\n");
+		return -2;
+	}
+		// Leer archivo config.conf
 	leerArchivoConfig();
 	//inicializar estructura de socket con los datos del nucleo
 	inicializarDireccionNucleo();
@@ -24,14 +32,31 @@ int main(int argc, char** argv){
 		printf("Error de connect\n");
 		exit(1);
 	}
+	FILE*in;
+	in = fopen (argv [1], "r");
+	if (in==NULL){
+		printf ("No se puede abrir el archivo\n");
+		return -3;
+	}
+	
+	if (ferror(in)){
+		printf ("Error en la lectura del archivo.\n");
+		return -4;
+	}
+	char *ansisop;
+	fscanf (in, "%s", ansisop);
+	
+	
+	
 	char mensaje[MSG_SIZE];
 	printf ("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
 	int enviar = 1;
 	while (enviar) {
+		
 		//A partir de acá cambia el código?
-		fgets (mensaje, MSG_SIZE, stdin);
-		if (!strcmp (mensaje, "exit\n")) enviar = 0;
-		if (enviar) send (miSocket, mensaje, strlen(mensaje) +1, 0);
+		// fgets (mensaje, MSG_SIZE, stdin);
+		// if (!strcmp (mensaje, "exit\n")) enviar = 0;
+		// if (enviar) send (miSocket, mensaje, strlen(mensaje) +1, 0);
 	}
 	close (miSocket);
 	return EXIT_SUCCESS;
