@@ -50,7 +50,7 @@ void gestionarConexiones() // el select basicamente
 			abort();
 		}
 
-		for(fdBuscador=0; fdBuscador <= maximoFD; fdBuscador++) // explora los FDs que estan listos para leer
+		for(fdBuscador=3; fdBuscador <= maximoFD; fdBuscador++) // explora los FDs que estan listos para leer
 		{
 			if( FD_ISSET(fdBuscador,&fdsParaLectura) ) { //entra una conexion, la acepta y la agrega al master
 				if(fdBuscador == servidorUMC)
@@ -62,7 +62,7 @@ void gestionarConexiones() // el select basicamente
 				}
 
 			}
-			else{
+			else{//aca metemos los threads
 				 if(recibirDatos() > 0)
 					 enviarDatos(); // al swap para probar
 			}
