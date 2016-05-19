@@ -238,6 +238,47 @@ t_PCB mensaje_to_pcb(t_mensaje mensaje) {
 	return pcb;
 }
 
+/*
+ * Funciones para destruir las listas
+ */
+static void args_destroy(t_posicionDeMemoria *self) {
+    free(self);
+}
+
+static void vars_destroy(t_variable *self) {
+    free(self);
+}
+
+static void stack_destroy(t_indiceStack *self) {
+    free(self->args);
+    free(self->vars);
+    free(self);
+}
+
+/*
+ * freePCB();
+ * Parametros:
+ * 		-> pcb :: Direccion de memoria de un PCB
+ * Descripcion: Dado un PCB, libera toda su memoria
+ */
+void freePCB(t_PCB *pcb){
+	int cantidad_indiceStack = list_size(pcb->indiceStack);
+	if(cantidad_indiceStack != 0){
+		void _list_elements2(t_indiceStack *tmp2) {
+			// Destruyo los args
+			list_destroy_and_destroy_elements(tmp2->args, (void*) args_destroy);
+			// Destruyo los vars
+			list_destroy_and_destroy_elements(tmp2->vars, (void*) vars_destroy);
+		}
+		list_iterate(pcb->indiceStack, (void*) _list_elements2);
+	}
+	// Destruyo los Stack
+	list_destroy_and_destroy_elements(pcb->indiceStack, (void*) stack_destroy);
+}
+
+/*
+ * testCrearPCB();
+ */
 void testCrearPCB(){
 	t_PCB pcb;
 	t_indiceStack *aux_stack;

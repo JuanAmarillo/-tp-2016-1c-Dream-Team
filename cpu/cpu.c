@@ -21,6 +21,9 @@ int main(int argc, char** argv){
 
 	// Declaro variables
 	t_mensaje mensaje_recibido;
+	t_PCB pcb;
+	int i_quantum;
+	char *instruccion;
 
 	// Leer archivo config.conf
 	leerArchivoConfig();
@@ -29,29 +32,41 @@ int main(int argc, char** argv){
 	signal(SIGUSR1, signal_sigusr1);
 
 	// Me conecto a la UMC
-	/*socketUMC = conectarseUMC();
+	socketUMC = conectarseUMC();
 	if(socketUMC == -1) abort();
 
 	// Me conecto a el Nucleo
 	socketNucleo = conectarseNucleo();
 	if(socketNucleo == -1) abort();
 
-	while(recibirMensajeNucleo(&mensaje_recibido) > 0){
-
+	while(1){
 		// Recibo el PCB
+		recibirMensajeNucleo(&mensaje_recibido);
 
+		// Si no es el PCB, borro el mensaje
+		if(mensaje_recibido.head.codigo != STRUCT_PCB){
+			freeMensaje(&mensaje_recibido);
+			continue;
+		}
 
-		// INICIO LOOP: QUANTUM
-			// Obtener siguiente instruccion
-			// analizadorLinea (parser)
-			// Actualizar PCB
-		// FIN LOOP: QUANTUM
+		// Convierto el mensaje en un PCB, y borro el mensaje
+		pcb = mensaje_to_pcb(mensaje_recibido);
+		freeMensaje(&mensaje_recibido);
+
+		// Obtener siguiente instruccion
+		*instruccion = obtenerSiguienteIntruccion();
+
+		// analizadorLinea (parser)
+		analizadorLinea(instruccion, &functions, &kernel_functions);
+
+		// Actualizar PCB
+		pcb.pc++;
 
 		// Notificar al Nucleo
+		enviarPCBnucleo(pcb);
 
-
-		// Libero recursos
-		free(&mensaje_recibido);
+		// Libero recursos PCB
+		freePCB(&pcb);
 
 		// Si recibo señal para desconectarme, me desconecto
 		if(notificacion_signal_sigusr1 == 1){
@@ -59,7 +74,7 @@ int main(int argc, char** argv){
 			close(socketNucleo);
 			break;
 		}
-	}*/
+	}
 
 	return EXIT_SUCCESS;
 }
@@ -778,6 +793,47 @@ t_PCB mensaje_to_pcb(t_mensaje mensaje) {
 	return pcb;
 }
 
+/*
+ * Funciones para destruir las listas
+ */
+static void args_destroy(t_posicionDeMemoria *self) {
+    free(self);
+}
+
+static void vars_destroy(t_variable *self) {
+    free(self);
+}
+
+static void stack_destroy(t_indiceStack *self) {
+    free(self->args);
+    free(self->vars);
+    free(self);
+}
+
+/*
+ * freePCB();
+ * Parametros:
+ * 		-> pcb :: Direccion de memoria de un PCB
+ * Descripcion: Dado un PCB, libera toda su memoria
+ */
+void freePCB(t_PCB *pcb){
+	int cantidad_indiceStack = list_size(pcb->indiceStack);
+	if(cantidad_indiceStack != 0){
+		void _list_elements2(t_indiceStack *tmp2) {
+			// Destruyo los args
+			list_destroy_and_destroy_elements(tmp2->args, (void*) args_destroy);
+			// Destruyo los vars
+			list_destroy_and_destroy_elements(tmp2->vars, (void*) vars_destroy);
+		}
+		list_iterate(pcb->indiceStack, (void*) _list_elements2);
+	}
+	// Destruyo los Stack
+	list_destroy_and_destroy_elements(pcb->indiceStack, (void*) stack_destroy);
+}
+
+/*
+ * testCrearPCB();
+ */
 void testCrearPCB(){
 	t_PCB pcb;
 	t_indiceStack *aux_stack;

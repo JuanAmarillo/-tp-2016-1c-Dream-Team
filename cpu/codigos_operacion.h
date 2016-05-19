@@ -12,7 +12,18 @@
 
 
 // NUCLEO -> CPU
-#define ENVIO_PCB 300 // parametros: A definir
+#define STRUCT_PCB 300 // Utilizar la funcion: mensaje_to_pcb() y pcb_to_mensaje() segun corresponda
+
+// UMC -> SWAP
+#define RESERVE_SPACE 900 		// Parametros recibidos despues de la cabecera: pid(unsigned), longitud del programa(unsigned)
+#define SAVE_PROGRAM 905		// Parametros recibidos despues de la cabecera: pid(unsigned), paginas(char[TAMANIO_PAGINA])
+#define SAVE_PAGE 910			// Parametros recibidos despues de la cabecera: pid(unsigned), numeroDePagDentroDelPrograma(unsigned), pagina(char[TAMANIO_PAGINA])
+#define END_PROGRAM 915			// Parametros recibidos despues de la cabecera: pid(unsigned)
+#define BRING_PAGE_TO_UMC 920	// Parametros recibidos despues de la cabecera: pid(unsigned), numeroDePagDentroDelPrograma(unsigned)
+#define NOT_ENOUGH_SPACE 925 	// Parametros recibidos despues de la cabecera: pid(unsigned)
+
+// SWAP -> UMC
+#define SWAP_SENDS_PAGE 930		// Parametros recibidos despues de la cabecera: pagina(char[TAMANIO_PAGINA])
 
 
 #endif /* CODIGOS_OPERACION_H_ */
