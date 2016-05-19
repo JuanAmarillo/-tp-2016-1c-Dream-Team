@@ -14,6 +14,21 @@ typedef struct{
  */
 t_infoConfig infoConfig;
 
+typedef struct {
+  unsigned codigo;
+  unsigned cantidad_parametros;
+  unsigned tam_extra;
+} t_mensajeHead;
+
+t_mensajeHead mensajeHead;
+
+typedef struct {
+  t_mensajeHead head;
+  unsigned *parametros;
+  char *mensaje_extra;
+} t_mensaje;
+
+t_mensaje mensaje;
 
 /*
  * Funciones / Procedimientos
