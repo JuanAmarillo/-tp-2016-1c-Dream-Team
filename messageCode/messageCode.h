@@ -8,7 +8,16 @@
 #ifndef MESSAGECODE_H_
 #define MESSAGECODE_H_
 
+// CPU -> UMC
+#define GET_DATA 200 			// Parametros: pagina, offset, size
+#define GET_TAM_PAGINA 205 		// Parametros: NULL
 
+// NUCLEO <-> CPU
+#define STRUCT_PCB 300 			// Utilizar la funcion: mensaje_to_pcb() y pcb_to_mensaje() segun corresponda
+
+// UMC -> CPU
+#define RETURN_DATA 201 		// Parametros: NULL; mensaje_extra: Bytes en memoria solicitados
+#define RETURN_TAM_PAGINA 206 	// Parametros: tamaño_pagina
 
 // DESDE LA UMC, LO QUE RECIBE EL SWAP
 #define RESERVE_SPACE 900 		// Parametros recibidos despues de la cabecera: pid(unsigned), longitud del programa(unsigned)
