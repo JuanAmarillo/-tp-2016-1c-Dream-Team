@@ -7,6 +7,7 @@
 #include <commons/config.h>
 #include <commons/string.h>
 #include <commons/bitarray.h>
+#include <commons/collections/list.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +18,7 @@
 #include "swap.h"
 #include "messageCode.h"
 #include "initialize.h"
+#include "funcionesAuxiliares.h"
 
 int main(){
 	readConfigFile();
@@ -34,12 +36,52 @@ int main(){
 		case SAVE_PAGE: saveNewPage();
 			break;
 		case END_PROGRAM: endProgram();
-				break;
+			break;
 		case RETURN_PAGE: returnPage();
-				break;
+			break;
 	}
 	accionesDeFinalizacion();
 	return 0;
+}
+
+void saveProgram(){
+	int espacio, pagInicial, cantidadGuardada=0;
+	unsigned pid;
+	char* pagAGuardar = malloc(TAMANIO_PAGINA);
+	recv(socketCliente,&pid,4,0);
+	espacio = buscarLongPrograma(pid);
+	pagInicial = buscarPagInicial(pid);
+	while(cantidadGuardada<=espacio){
+		recv(socketCliente,&pagAGuardar,TAMANIO_PAGINA,0);
+		savePage(pagInicial+cantidadGuardada);
+		cantidadGuardada++;
+	}
+}
+
+void returnPage(){
+	unsigned pid, nroPagDentroProg;
+	recv(socketCliente,&pid,4,0);
+	recv(socketCliente,&nroPagDentroProg,4,0);
+	getPage(buscarPagInicial(pid)+nroPagDentroProg);
+	send(socketCliente,searchedPage,TAMANIO_PAGINA,0);
+}
+
+void endProgram(){
+	int pid, longitud, inicial, contador=0;
+	recv(socketCliente,&pid,4,0);
+	longitud = buscarLongPrograma(pid);
+	inicial = buscarPagInicial(pid);
+	eliminarDelProgInfo(pid);
+	while(contador<=longitud){
+		overWritePage(inicial+contador);
+	}
+}
+
+void overWritePage(int nroPag){
+	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
+	char* barraCero = "\0";
+	fwrite(barraCero,1,TAMANIO_PAGINA,SWAPFILE);
+	unSetPage(nroPag);
 }
 
 void saveNewPage(){
@@ -139,68 +181,8 @@ void asignarEspacio(unsigned pid, int lugar, unsigned espacio){
 	}
 }
 
-void saveProgram(){
-	int espacio, pagInicial, cantidadGuardada=0;
-	unsigned pid;
-	char* pagAGuardar = malloc(TAMANIO_PAGINA);
-	recv(socketCliente,&pid,4,0);
-	espacio = buscarLongPrograma(pid);
-	pagInicial = buscarPagInicial(pid);
-	while(cantidadGuardada<=espacio){
-		recv(socketCliente,&pagAGuardar,TAMANIO_PAGINA,0);
-		savePage(pagInicial+cantidadGuardada);
-		cantidadGuardada++;
-	}
+void agregarAlprogInfo(unsigned pid,int lugar,unsigned espacio){
+
 }
 
-int buscarPIDSegunPagInicial(int inicioProg){
-	int i=0;
-	while(i<=CANTIDAD_PAGINAS){
-		if(inicioProg == INFO_PROG[i].PAG_INICIAL)
-			return INFO_PROG[i].PID;
-		i++;
-	}
-	return -1;
-}
 
-int buscarLongPrograma(int pid){
-	int i=0;
-		while(i<=CANTIDAD_PAGINAS){
-			if(pid == INFO_PROG[i].PID)
-				return INFO_PROG[i].LONGITUD;
-			i++;
-		}
-		return -1;
-}
-
-int buscarPagInicial(int pid){
-	int i=0;
-	while(i<=CANTIDAD_PAGINAS){
-		if(pid == INFO_PROG[i].PID)
-			return INFO_PROG[i].PAG_INICIAL;
-		i++;
-	}
-	return -1;
-}
-
-int searchSpaceToFill(unsigned programSize){
-	int freeSpace =0; 			//PARA REALIZAR COMPACTACION
-	int freeSpaceInARow=0;		//PARA ASIGNAR SIN COMPACTAR
-	int counter=0;				//CONTADOR DE PAGINAS
-	while(counter<CANTIDAD_PAGINAS){
-		if(bitarray_test_bit(DISP_PAGINAS, counter)!=0){
-			freeSpaceInARow=0;
-		}
-		else{
-			freeSpace++;
-			freeSpaceInARow++;
-			if(programSize<=freeSpaceInARow)
-				return (counter-freeSpaceInARow+1); //DEVUELVE EL NRO DE PAGINA DONDE INICIA EL SEGMENTO LIBRE PARA ASIGNAR EL PROGRAMA
-		}
-		counter++;
-	}
-	if(programSize<=freeSpace){
-		return -1; //HAY QUE COMPACTAR
-	}
-	return -2; //NO HAY LUGAR PARA ALBERGARLO
-}

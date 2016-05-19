@@ -10,7 +10,6 @@
 void readConfigFile();
 void crearArchivoSWAP();
 void crearEstructurasDeManejo();
-void limpiarI_P();
 void setSocket();
 void bindSocket();
 void acceptSocket();

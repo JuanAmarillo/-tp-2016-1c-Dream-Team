@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include "swap.h"
 #include "initialize.h"
+#include "funcionesAuxiliares.h"
 
 void readConfigFile(){
 	t_config *config = config_create("config.conf");
@@ -46,20 +47,10 @@ void crearEstructurasDeManejo(){
 	char *data = malloc(tamanio);
 	strcpy(data,"\0");
 	DISP_PAGINAS = bitarray_create(data,tamanio);
-	INFO_PROG = malloc(CANTIDAD_PAGINAS*sizeof(t_infoProg));
-	limpiarI_P(tamanio);
+	INFO_PROG = list_create();
 	searchedPage=malloc(TAMANIO_PAGINA);
 }
 
-void limpiarI_P(){
-	int i=0;
-	while (i<CANTIDAD_PAGINAS){
-		INFO_PROG[i].LONGITUD = 0;
-		INFO_PROG[i].PAG_INICIAL = 0;
-		INFO_PROG[i].PID = 0;
-		i++;
-	}
-}
 
 void setSocket(){
 		myAddress.sin_family = AF_INET;
@@ -86,6 +77,6 @@ void acceptSocket() {
 void accionesDeFinalizacion() {
 	fclose(SWAPFILE);
 	bitarray_destroy(DISP_PAGINAS);
-	free(INFO_PROG);
 	free(searchedPage);
+	list_destroy_and_destroy_elements(INFO_PROG,(void*) infoProg_destroy);
 }

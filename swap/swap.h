@@ -30,7 +30,7 @@ int socketCliente;
 //VARIABLES DE USO DEL SWAP
 FILE* SWAPFILE;
 t_bitarray* DISP_PAGINAS;
-t_infoProg* INFO_PROG;
+t_list * INFO_PROG;
 char* searchedPage;
 
 //PROTOTIPO DE FUNCIONES DE MANEJO DE PAGINAS
@@ -45,13 +45,13 @@ char* getPage(unsigned);
  *	Si la funcion devuelve -2, no hay memoria disponible en el SWAP y se debe avisar a la UMC para rechazar el programa.
  **/
 
-int searchSpaceToFill(unsigned size);
-
 //ACCIONES DEL SWAP
 int recibirMensaje();
 int recibirCabecera();
 void reservarEspacio();
 void setPage(unsigned);
+void endProgram();
+void overWritePage(int);
 void unSetPage(unsigned);
 void saveProgram();
 void savePage(unsigned);
@@ -61,8 +61,5 @@ void returnPage();
 void asignarEspacio(unsigned,int,unsigned);
 void compactar();
 void moveProgram(int, int);
-int buscarPIDSegunPagInicial(int );
-int buscarPagInicial(int);
-int buscarLongPrograma(int );
 
 #endif /* SWAP_H_ */
