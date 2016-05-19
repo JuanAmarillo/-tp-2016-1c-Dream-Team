@@ -15,6 +15,7 @@ t_valor_variable dereferenciar(t_puntero puntero);
 void asignar(t_puntero puntero, t_valor_variable variable);
 void imprimir(t_valor_variable valor);
 void imprimirTexto(char* texto);
+void testParser();
 
 // Configuracion del analizador
 static const int CONTENIDO_VARIABLE = 20;

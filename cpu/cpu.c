@@ -1,7 +1,7 @@
 #include <commons/config.h>
 #include <commons/collections/list.h>
-#include <commons/collections/dictionary.h>
 #include <commons/string.h>
+#include <commons/log.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,9 +21,9 @@ int main(int argc, char** argv){
 
 	// Declaro variables
 	t_mensaje mensaje_recibido;
-	t_PCB pcb;
 	int i_quantum;
 	char *instruccion;
+	unsigned tamano_pagina_umc;
 
 	// Leer archivo config.conf
 	leerArchivoConfig();
@@ -39,6 +39,9 @@ int main(int argc, char** argv){
 	socketNucleo = conectarseNucleo();
 	if(socketNucleo == -1) abort();
 
+	// Obtener tamaño de paginas UMC
+	tamano_pagina_umc = obtenerTamanoPaginasUMC();
+
 	while(1){
 		// Recibo el PCB
 		recibirMensajeNucleo(&mensaje_recibido);
@@ -50,7 +53,7 @@ int main(int argc, char** argv){
 		}
 
 		// Convierto el mensaje en un PCB, y borro el mensaje
-		pcb = mensaje_to_pcb(mensaje_recibido);
+		pcb_global = mensaje_to_pcb(mensaje_recibido);
 		freeMensaje(&mensaje_recibido);
 
 		// Obtener siguiente instruccion
@@ -59,14 +62,17 @@ int main(int argc, char** argv){
 		// analizadorLinea (parser)
 		analizadorLinea(instruccion, &functions, &kernel_functions);
 
+		// Libero memoria de la instruccion
+		free(instruccion);
+
 		// Actualizar PCB
-		pcb.pc++;
+		pcb_global.pc++;
 
 		// Notificar al Nucleo
-		enviarPCBnucleo(pcb);
+		enviarPCBnucleo();
 
 		// Libero recursos PCB
-		freePCB(&pcb);
+		freePCB(&pcb_global);
 
 		// Si recibo señal para desconectarme, me desconecto
 		if(notificacion_signal_sigusr1 == 1){
@@ -211,31 +217,6 @@ int recibirMensajeUMC(t_mensaje *mensaje) {
 }
 
 /*
- * testParser();
- * Parametros: -
- * Descripcion: Procedimiento que simula ejecutar un codigo ansisop
- * Return: -
- */
-void testParser() {
-	// Definir variable
-	printf("Ejecutando '%s'\n", DEFINICION_VARIABLES);
-	analizadorLinea(strdup(DEFINICION_VARIABLES), &functions, &kernel_functions);
-	printf("================\n");
-	// Asignar
-	printf("Ejecutando '%s'\n", ASIGNACION);
-	analizadorLinea(strdup(ASIGNACION), &functions, &kernel_functions);
-	printf("================\n");
-	// Imprimir
-	printf("Ejecutando '%s'\n", IMPRIMIR);
-	analizadorLinea(strdup(IMPRIMIR), &functions, &kernel_functions);
-	printf("================\n");
-	// Imprimir texto
-	printf("Ejecutando '%s'", IMPRIMIR_TEXTO);
-	analizadorLinea(strdup(IMPRIMIR_TEXTO), &functions, &kernel_functions);
-	printf("================\n");
-}
-
-/*
  * crearConexion();
  * Parametros:
  * 		-> ip :: Direccion IP donde nos vamos a conectar
@@ -271,6 +252,88 @@ void signal_sigusr1(int signal){
   printf("Recibida señal SIGUSR1.\n");
   notificacion_signal_sigusr1 = 1;
 }
+
+
+/*
+ * obtenerSiguienteIntruccion();
+ * Parametros: -
+ * Descripcion: Busca en la UMC la proxima instruccion a ejecutarse segun el PCB GLOBAL
+ * Return: Instruccion
+ */
+char *obtenerSiguienteIntruccion(){
+	t_mensaje mensaje;
+	unsigned parametros[3];
+	parametros[0] = 0; // Numero de Pagina
+	parametros[1] = pcb_global.indiceCodigo[0].offset_inicio; // Desplazamiento
+	parametros[2] = pcb_global.indiceCodigo[0].offset_fin; // Cantidad de bytes a leer
+	mensaje.head.codigo = GET_DATA;
+	mensaje.head.cantidad_parametros = 3;
+	mensaje.head.tam_extra = 0;
+	mensaje.parametros = parametros;
+	mensaje.mensaje_extra = NULL;
+
+	// Envio al UMC la peticion
+	enviarMensajeUMC(mensaje);
+
+	// Libero memoria de mensaje
+	free(&mensaje);
+
+	// Recibo mensaje
+	recibirMensajeUMC(&mensaje);
+
+	if(mensaje.head.codigo != RETURN_DATA){
+		// ERROR
+	}
+
+	char *instruccion = malloc(mensaje.head.tam_extra);
+	memcpy(instruccion, mensaje.mensaje_extra, mensaje.head.tam_extra);
+
+	// Libero memoria de mensaje
+	free(&mensaje);
+
+	return instruccion;
+}
+
+/*
+ * obtenerTamanoPaginasUMC();
+ * Parametros: -
+ * Descripcion: Peticion a la UMC para que devuelva el tamaño de pagina
+ * Return: tamano_pagina
+ */
+unsigned obtenerTamanoPaginasUMC(){
+	t_mensaje mensaje;
+	unsigned tamano_pagina;
+	mensaje.head.codigo = GET_TAM_PAGINA;
+	mensaje.head.cantidad_parametros = 0;
+	mensaje.head.tam_extra = 0;
+	mensaje.parametros = NULL;
+	mensaje.mensaje_extra = NULL;
+
+	// Envio al UMC la peticion
+	enviarMensajeUMC(mensaje);
+
+	// Libero memoria de mensaje
+	free(&mensaje);
+
+	// Recibo mensaje
+	recibirMensajeUMC(&mensaje);
+
+	if(mensaje.head.codigo != RETURN_TAM_PAGINA){
+		// ERROR
+	}
+
+	// Tamaño de pagina
+	tamano_pagina = mensaje.parametros[0];
+
+	// Libero memoria de mensaje
+	free(&mensaje);
+
+	return tamano_pagina;
+}
+
+/*
+ * FIN CPU.c
+ */
 
 /*
  * INICIO PROTOCOLO_MENSAJE.c
