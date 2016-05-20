@@ -57,6 +57,8 @@ int main(int argc, char** argv){
 		pcb_global = mensaje_to_pcb(mensaje_recibido);
 		freeMensaje(&mensaje_recibido);
 
+		// Notifico a la UMC de cambio de proceso
+
 		// Obtener siguiente instruccion
 		char *instruccion = obtenerSiguienteIntruccion();
 
@@ -71,6 +73,8 @@ int main(int argc, char** argv){
 
 		// Notificar al Nucleo
 		enviarPCBnucleo();
+
+		// Notifico a la UMC de cambio de proceso
 
 		// Libero recursos PCB
 		freePCB(&pcb_global);
@@ -330,6 +334,13 @@ unsigned obtenerTamanoPaginasUMC(){
 	freeMensaje(&mensaje);
 
 	return tamano_pagina;
+}
+
+void enviarPCBnucleo(){
+	t_mensaje mensaje;
+	mensaje = pcb_to_mensaje(pcb_global,0);
+	enviarMensajeNucleo(mensaje);
+	freeMensaje(&mensaje);
 }
 
 /*
