@@ -588,15 +588,42 @@ t_puntero definirVariable(t_nombre_variable variable) {
 	t_indiceStack *aux_stack;
 
 	// Crear variable en la memoria (Reservar el espacio)
-	t_posicionDeMemoria posicionMemoria = reservarEspacioMemoria(sizeof(t_valor_variable));
+	t_posicionDeMemoria posicionMemoria;
+	t_mensaje mensaje;
+	unsigned parametros[1];
+	parametros[0] = sizeof(t_valor_variable);	// Tamaño a reservar
+	mensaje.head.codigo = RESERVE_MEMORY;
+	mensaje.head.cantidad_parametros = 1;
+	mensaje.head.tam_extra = 0;
+	mensaje.parametros = parametros;
+	mensaje.mensaje_extra = NULL;
+
+	// Envio al UMC la peticion
+	enviarMensajeUMC(mensaje);
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
+
+	// Recibo mensaje
+	recibirMensajeUMC(&mensaje);
+
+	if(mensaje.head.codigo != RETURN_POS){
+		// ERROR
+	}
+
+	posicionMemoria.numeroPagina = mensaje.parametros[0];
+	posicionMemoria.offset = mensaje.parametros[1];
+	posicionMemoria.size = mensaje.parametros[2];
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
 
 	// Registrar variable en el ultimo Indice Stack
 	aux_stack = list_get(pcb_global.indiceStack, lastStack);
 	list_add(aux_stack->vars, vars_create(variable, posicionMemoria.numeroPagina, posicionMemoria.offset, posicionMemoria.size));
 
 	// Devuelvo posicion de la variable en el contexto actual
-	t_puntero puntero_variable = posicionMemoria;
-	return puntero_variable;
+	return posicionMemoria;
 }
 
 t_puntero obtenerPosicionVariable(t_nombre_variable variable) {
@@ -655,7 +682,34 @@ t_valor_variable dereferenciar(t_puntero puntero) {
 }
 
 void asignar(t_puntero puntero, t_valor_variable variable) {
-	printf("Asignando en %d el valor %d\n", puntero, variable);
+	// Variables
+	t_mensaje mensaje;
+	unsigned parametros[4];
+	parametros[0] = puntero.numeroPagina;	// Numero de Pagina
+	parametros[1] = puntero.offset;			// Desplazamiento
+	parametros[2] = puntero.size;			// Tamaño
+	parametros[3] = variable;				// Data
+	mensaje.head.codigo = RECORD_DATA;
+	mensaje.head.cantidad_parametros = 4;
+	mensaje.head.tam_extra = 0;
+	mensaje.parametros = parametros;
+	mensaje.mensaje_extra = NULL;
+
+	// Envio al UMC la peticion
+	enviarMensajeUMC(mensaje);
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
+
+	// Recibo mensaje
+	recibirMensajeUMC(&mensaje);
+
+	if(mensaje.head.codigo != RECORD_OK){
+		// ERROR
+	}
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
 }
 
 // t_valor_variable obtenerValorCompartida(t_nombre_compartida variable);
