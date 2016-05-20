@@ -164,6 +164,8 @@ void reservarEspacio(){
 		negarEjecucion(pid);
 		return;
 	}
+	else
+		permitirEjecucion(pid);
 	asignarEspacio(pid,lugar,espacio);
 }
 
