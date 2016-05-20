@@ -7,7 +7,6 @@
 #include <commons/config.h>
 #include <commons/string.h>
 #include <commons/bitarray.h>
-#include <commons/collections/list.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,21 +26,55 @@ int main(){
 	setSocket();
 	bindSocket();
 	acceptSocket();
-	int codigo = recibirCabecera();
-	switch(codigo){
-		case RESERVE_SPACE: reservarEspacio();
-			break;
-		case SAVE_PROGRAM: saveProgram();
-			break;
-		case SAVE_PAGE: saveNewPage();
-			break;
-		case END_PROGRAM: endProgram();
-			break;
-		case BRING_PAGE_TO_UMC: returnPage();
-			break;
+	int cabecera = recibirCabecera();
+	while(cabecera){
+		switch(cabecera){
+			case RESERVE_SPACE: reservarEspacio();
+				break;
+			case SAVE_PROGRAM: saveProgram();
+				break;
+			case SAVE_PAGE: saveNewPage();
+				break;
+			case END_PROGRAM: endProgram();
+				break;
+			case BRING_PAGE_TO_UMC: returnPage();
+				break;
+		}
+		cabecera = recibirCabecera();
 	}
 	accionesDeFinalizacion();
 	return 0;
+}
+
+void setNewPage(unsigned nroPag){
+	bitarray_set_bit(DISP_PAGINAS, nroPag);
+}
+
+void unSetPage(unsigned nroPag){
+	bitarray_clean_bit(DISP_PAGINAS,nroPag);
+}
+
+void getPage(unsigned nroPag){
+	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
+	fread(paginaMultiProposito,TAMANIO_PAGINA,1,SWAPFILE);
+}
+
+void savePage(unsigned nroPag){
+	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
+	fwrite(paginaMultiProposito,TAMANIO_PAGINA,1,SWAPFILE);
+}
+
+int recibirCabecera(){
+	int codigo = 0;
+	recv(socketCliente, &codigo, 4, 0);
+	return codigo;
+}
+
+void overWritePage(int nroPag){
+	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
+	char* barraCero = "\0";
+	fwrite(barraCero,1,TAMANIO_PAGINA,SWAPFILE);
+	unSetPage(nroPag);
 }
 
 void saveProgram(){
@@ -62,7 +95,7 @@ void returnPage(){
 	recv(socketCliente,&pid,4,0);
 	recv(socketCliente,&nroPagDentroProg,4,0);
 	getPage(buscarPagInicial(pid)+nroPagDentroProg);
-	send(socketCliente,SWAP_SENDS_PAGE,4,0);
+	send(socketCliente,(void *)SWAP_SENDS_PAGE,4,0);
 	send(socketCliente,paginaMultiProposito,TAMANIO_PAGINA,0);
 }
 
@@ -71,17 +104,10 @@ void endProgram(){
 	recv(socketCliente,&pid,4,0);
 	longitud = buscarLongPrograma(pid);
 	inicial = buscarPagInicial(pid);
-	eliminarDelProgInfo(pid);
+	eliminarSegunPID(pid);
 	while(contador<=longitud){
 		overWritePage(inicial+contador);
 	}
-}
-
-void overWritePage(int nroPag){
-	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
-	char* barraCero = "\0";
-	fwrite(barraCero,1,TAMANIO_PAGINA,SWAPFILE);
-	unSetPage(nroPag);
 }
 
 void saveNewPage(){
@@ -92,42 +118,47 @@ void saveNewPage(){
 	recv(socketCliente,paginaMultiProposito,TAMANIO_PAGINA,0);
 	int pagInicial = buscarPagInicial(pid);
 	savePage(pagInicial+nroPagDentroProg);
-
 }
 
-void savePage(unsigned nroPag){
-	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
-	fwrite(paginaMultiProposito,TAMANIO_PAGINA,1,SWAPFILE);
+void replacePages(int longitudPrograma, int inicioProg,int inicioEspacioBlanco) {
+	int contador=0;
+	while (contador <= longitudPrograma) {
+		getPage(inicioProg + contador);
+		savePage(inicioEspacioBlanco + contador);
+		unSetPage(inicioProg + contador);
+		setNewPage(inicioEspacioBlanco + contador);
+		contador++;
+	}
 }
 
-void setNewPage(unsigned nroPag){
-	bitarray_set_bit(DISP_PAGINAS, nroPag);
+void new_Or_Replace_t_infoProg(int pid, int longitudPrograma, int inicioProg,int eliminar) {
+	t_infoProg* new = malloc(sizeof(t_infoProg));
+	new->PID = pid;
+	new->LONGITUD = longitudPrograma;
+	new->PAG_INICIAL = inicioProg;
+	if(eliminar)
+		eliminarSegunPID(pid);
+	list_add(INFO_PROG, (void*) new);
 }
 
-void unSetPage(unsigned nroPag){
-	bitarray_clean_bit(DISP_PAGINAS,nroPag);
-}
-
-char* getPage(unsigned nroPag){
-	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
-	fread(paginaMultiProposito,TAMANIO_PAGINA,1,SWAPFILE);
-	return paginaMultiProposito;
-}
-
-int recibirCabecera(){
-	int codigo = 0;
-	recv(socketCliente, &codigo, 4, 0);
-	return codigo;
+void asignarEspacio(unsigned pid, int lugar, unsigned tamanio){
+	new_Or_Replace_t_infoProg(pid,lugar,tamanio,0);
+	int paginasReservadas;
+	while(paginasReservadas<= tamanio){
+		setNewPage(lugar);
+		lugar++;
+		paginasReservadas++;
+	}
 }
 
 void reservarEspacio(){
 	unsigned pid, espacio;
 	recv(socketCliente, &pid, 4, 0);
 	recv(socketCliente, &espacio, 4, 0);
-	int lugar = searchSpaceToFill(espacio);
+	int lugar = searchSpace(espacio);
 	if(lugar == -1){
-		compactar();
-		lugar = searchSpaceToFill(espacio);
+		deleteEmptySpaces();
+		lugar = searchSpace(espacio);
 	}
 	if(lugar == -2){
 		negarEjecucion(pid);
@@ -136,7 +167,15 @@ void reservarEspacio(){
 	asignarEspacio(pid,lugar,espacio);
 }
 
-void compactar(){
+void moveProgram(int inicioProg, int inicioEspacioBlanco){
+
+	int pid = buscarPIDSegunPagInicial(inicioProg);
+	int longitudPrograma= buscarLongPrograma(pid);
+	new_Or_Replace_t_infoProg(pid, longitudPrograma, inicioProg, 1);
+	replacePages(longitudPrograma, inicioProg, inicioEspacioBlanco);
+}
+
+void deleteEmptySpaces(){
 	int contador=0, inicioEspacioBlanco =0, estadoPagina;
 	int espacioBlancoDetras=0;
 	while(contador<CANTIDAD_PAGINAS){
@@ -155,38 +194,5 @@ void compactar(){
 		else
 			contador++;
 	}
+	sleep(RETARDO_COMPACTACION);
 }
-
-void moveProgram(int inicioProg, int inicioEspacioBlanco){
-	int contador=0;
-	int pid = buscarPIDSegunPagInicial(inicioProg);
-	int longitudPrograma= buscarLongPrograma(pid);
-	while(contador<=longitudPrograma){
-		paginaMultiProposito = getPage(inicioProg+contador);
-		savePage(inicioEspacioBlanco+contador);
-		unSetPage(inicioProg+contador);
-		setNewPage(inicioEspacioBlanco+contador);
-		contador++;
-		//FALTA CAMBIAR LOS ESTADOS DEL PID, NUMERO DE PAG INICIAL, OFFSET
-	}
-}
-
-void asignarEspacio(unsigned pid, int lugar, unsigned tamanio){
-	agregarAlprogInfo(pid,lugar,tamanio);
-	int paginasReservadas;
-	while(paginasReservadas<= tamanio){
-		setNewPage(lugar);
-		lugar++;
-		paginasReservadas++;
-	}
-}
-
-void agregarAlprogInfo(unsigned pid,int lugar,unsigned tamanio){
-	t_infoProg* new = malloc(sizeof(t_infoProg));
-	new->LONGITUD = tamanio;
-	new->PAG_INICIAL = lugar;
-	new->PID = pid;
-	list_add(INFO_PROG,(void*) new);
-}
-
-

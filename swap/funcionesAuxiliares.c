@@ -22,7 +22,7 @@
 
 int buscarPIDSegunPagInicial(int inicioProg){
 	INICIOPROGBUSCADOR= inicioProg;
-	t_infoProg* new = (t_infoProg*) (list_find(INFO_PROG, (void*) returnPIDwhenSameInitPage));
+	t_infoProg* new = (t_infoProg*) (list_find(INFO_PROG, (void*) returnWhenSameInitPage));
 	return new->PID;
 }
 
@@ -38,7 +38,12 @@ int buscarPagInicial(int pid){
 	return new->PAG_INICIAL;
 }
 
-int searchSpaceToFill(unsigned programSize){
+void eliminarSegunPID(int pid){
+	PIDBUSCADOR= pid;
+	list_remove_by_condition(INFO_PROG, (void*)returnWhenSamePID);
+}
+
+int searchSpace(unsigned programSize){
 	int freeSpace =0; 			//PARA REALIZAR COMPACTACION
 	int freeSpaceInARow=0;		//PARA ASIGNAR SIN COMPACTAR
 	int counter=0;				//CONTADOR DE PAGINAS
@@ -64,16 +69,16 @@ void negarEjecucion(){
 	send(socketCliente,(void*) NOT_ENOUGH_SPACE,sizeof(NOT_ENOUGH_SPACE),0);
 }
 
-static void infoProg_destroy(t_infoProg *self){
+void infoProg_destroy(t_infoProg *self){
 	free(self);
 }
 
-static int returnPIDwhenSameInitPage (t_infoProg *programa){
+int returnWhenSameInitPage (t_infoProg *programa){
 	int x = (programa->PAG_INICIAL == INICIOPROGBUSCADOR);
 	return x;
 }
 
-static int returnWhenSamePID(t_infoProg *programa){
+int returnWhenSamePID(t_infoProg *programa){
 	int x = programa->PID == PIDBUSCADOR;
 	return x;
 }
