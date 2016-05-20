@@ -17,6 +17,10 @@
 // NUCLEO <-> CPU
 #define STRUCT_PCB 300 			// Utilizar la funcion: mensaje_to_pcb() y pcb_to_mensaje() segun corresponda
 
+//NUCLEO -> UMC
+#define INIT_PROG 300
+#define FIN_PROG 305
+
 // UMC -> CPU
 #define RETURN_DATA 201 		// Parametros: NULL; mensaje_extra: Bytes en memoria solicitados
 #define RETURN_TAM_PAGINA 206 	// Parametros: tamaño_pagina
