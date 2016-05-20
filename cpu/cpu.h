@@ -33,6 +33,7 @@ int crearConexion(const char *, const char *);
 void signal_sigusr1(int);
 char *obtenerSiguienteIntruccion();
 unsigned obtenerTamanoPaginasUMC();
+void enviarPCBnucleo();
 
 
 #endif /* CPU_H_ */
