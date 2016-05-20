@@ -69,6 +69,10 @@ void negarEjecucion(){
 	send(socketCliente,(void*) NOT_ENOUGH_SPACE,sizeof(NOT_ENOUGH_SPACE),0);
 }
 
+void permitirEjecucion(){
+	send(socketCliente,(void*) ENOUGH_SPACE,sizeof(ENOUGH_SPACE),0);
+}
+
 void infoProg_destroy(t_infoProg *self){
 	free(self);
 }

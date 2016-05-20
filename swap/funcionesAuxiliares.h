@@ -20,6 +20,7 @@ void eliminarSegunPID(int pid);
  **/
 int searchSpace(unsigned);
 void negarEjecucion();
+void permitirEjecucion();
 void infoProg_destroy(t_infoProg *);
 int returnWhenSameInitPage (t_infoProg * );
 int returnWhenSamePID(t_infoProg *);
