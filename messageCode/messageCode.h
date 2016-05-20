@@ -33,4 +33,5 @@
 
 // DESDE EL SWAP, LO QUE RECIBE LA UMC
 #define SWAP_SENDS_PAGE 930		// Parametros recibidos despues de la cabecera: pagina(char[TAMANIO_PAGINA])
+#define ENOUGH_SPACE 955		  // Parametros recibidos despues de la cabecera: pid(unsigned)
 #endif /* MESSAGECODE_H_ */
