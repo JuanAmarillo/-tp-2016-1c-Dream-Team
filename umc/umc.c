@@ -31,43 +31,126 @@ struct sockaddr_in setDireccion(const char *puerto)
 	return direccion;
 }
 
-void gestionarConexiones() // el select basicamente
-{
-	fd_set fdsParaLectura;
-	int maximoFD;
-	int fdBuscador;
+t_mensajeHead desempaquetar_head(const void *buffer) {
 
-	FD_ZERO(&master);
-	FD_ZERO(&fdsParaLectura);
+	// Declaro variables usadas
+	unsigned desplazamiento = 0;
+	t_mensajeHead mensaje_head;
 
-	maximoFD = recibirConexiones();
+	// Desempaqueto el head
+	memcpy(&mensaje_head.codigo, buffer, sizeof(unsigned));
+	desplazamiento += sizeof(unsigned);
+	memcpy(&mensaje_head.cantidad_parametros, buffer + desplazamiento, sizeof(unsigned));
+	desplazamiento += sizeof(unsigned);
+	memcpy(&mensaje_head.tam_extra, buffer + desplazamiento, sizeof(unsigned));
 
-	while(1){
-		fdsParaLectura = master;
+	return mensaje_head;
+}
 
-		if (  select(maximoFD+1,&fdsParaLectura,NULL,NULL,NULL) == -1  ){ //comprobar si el select funciona
-			perror("Error en el select");
-			abort();
-		}
+t_mensaje desempaquetar_mensaje(const void *buffer) {
 
-		for(fdBuscador=3; fdBuscador <= maximoFD; fdBuscador++) // explora los FDs que estan listos para leer
-		{
-			if( FD_ISSET(fdBuscador,&fdsParaLectura) ) { //entra una conexion, la acepta y la agrega al master
-				if(fdBuscador == servidorUMC)
-					aceptarConexion();
-				else{
-					FD_SET(clienteUMC, &master);
-					if(clienteUMC > maximoFD) //Actualzar el maximo fd
-						maximoFD = clienteUMC;
-				}
+	// Declaro variables usadas
+	unsigned i_parametro;
+	unsigned desplazamiento = 0;
+	t_mensaje mensaje_desempaquetado;
 
-			}
-			else{//aca metemos los threads
-				 if(recibirDatos() > 0)
-					 enviarDatos(); // al swap para probar
-			}
-		}
+	// Desempaqueto el HEAD
+	mensaje_desempaquetado.head = desempaquetar_head(buffer);
+	desplazamiento = sizeof(t_mensajeHead);
+
+	// Creo memoria para los parametros
+	mensaje_desempaquetado.parametros = malloc(sizeof(unsigned) * mensaje_desempaquetado.head.cantidad_parametros);
+
+	// Desempaqueto los parametros
+	for (i_parametro = 0; i_parametro < mensaje_desempaquetado.head.cantidad_parametros; i_parametro++){
+		memcpy(&mensaje_desempaquetado.parametros[i_parametro], buffer + desplazamiento, sizeof(unsigned));
+		desplazamiento += sizeof(unsigned);
 	}
+
+	// Desempaqueto lo extra
+	mensaje_desempaquetado.mensaje_extra = malloc(mensaje_desempaquetado.head.tam_extra);
+	memcpy(mensaje_desempaquetado.mensaje_extra, buffer + desplazamiento, mensaje_desempaquetado.head.tam_extra);
+
+	return mensaje_desempaquetado;
+}
+void clienteDesconectado(int clienteUMC)
+{
+	perror("El cliente se desconecto\n");
+
+	pthread_mutex_lock(&mutex);
+	FD_CLR(clienteUMC, &master);
+	pthread_mutex_unlock(&mutex);
+
+	close(clienteUMC);
+
+    // hacer un pthread_exit !! <--
+
+	return;
+}
+void recibirMensaje(int clienteUMC, t_mensaje *mensaje){
+
+	// Declaro variables
+	t_mensajeHead mensaje_head;
+	int recibir;
+
+
+	// Recibo el HEAD
+	void *buffer_head = malloc(sizeof(unsigned)*3);
+	recibir = recv(clienteUMC, buffer_head, sizeof(unsigned)*3, MSG_WAITALL);
+	if (recibir <= 0){
+		free(buffer_head);
+		clienteDesconectado(clienteUMC);
+		return;
+	}
+
+	// Obtengo los valores del HEAD
+	mensaje_head = desempaquetar_head(buffer_head);
+
+	// Me preparo para recibir el Payload
+	unsigned faltan_recibir = sizeof(unsigned) * mensaje_head.cantidad_parametros + mensaje_head.tam_extra;
+	void *bufferTotal = malloc(sizeof(t_mensajeHead) + faltan_recibir);
+	memcpy(bufferTotal, buffer_head, sizeof(t_mensajeHead));
+
+	// Recibo el Payload
+	recibir = recv(clienteUMC, bufferTotal + sizeof(t_mensajeHead), faltan_recibir,MSG_WAITALL);
+	if(recibir <= 0){
+		free(buffer_head);
+		free(bufferTotal);
+		clienteDesconectado(clienteUMC);
+		return;
+	}
+
+	// Desempaqueto el mensaje
+	*mensaje = desempaquetar_mensaje(bufferTotal);
+
+	// Limpieza
+	free(buffer_head);
+	free(bufferTotal);
+
+	//
+	return;
+}
+
+void accionSegunCabecera(int cabeceraDelMensaje,t_mensaje mensaje,int clienteUMC)
+{
+	switch(cabeceraDelMensaje){
+		case GET_DATA: ;
+			break;
+		case GET_TAM_PAGINA: ;
+			break;
+		case SWAP_SENDS_PAGE: ;
+			break;
+
+	}
+	return;
+}
+
+
+void gestionarSolicitudesDeOperacion(int clienteUMC)
+{
+	t_mensaje mensaje;
+	recibirMensaje(clienteUMC,&mensaje);
+	accionSegunCabecera(mensaje.head.codigo,mensaje,clienteUMC);
 
 	return;
 }
@@ -93,18 +176,18 @@ int recibirConexiones()
 	return servidorUMC;
 }
 
-void aceptarConexion()
+int aceptarConexion()
 {
+	int clienteUMC;
 	struct sockaddr_in direccion;  //del cpu o del nucleo
 	unsigned int tamanioDireccion;
 	clienteUMC = accept(servidorUMC, (void*) &direccion, &tamanioDireccion);
-	return ;
+	return clienteUMC ;
 }
-
-int recibirDatos()
+/*
+int recibirDatos(void *buffer,unsigned tamanioDelMensaje,int clienteUMC)
 {
-	buffer = malloc(100);
-	int bytesRecibidos = recv(clienteUMC, buffer, 100, 0);
+	int bytesRecibidos = recv(clienteUMC, buffer, tamanioDelMensaje, 0);
 	if (bytesRecibidos <= 0) {
 		perror("El cliente se desconecto\n");
 		close(clienteUMC);
@@ -113,7 +196,7 @@ int recibirDatos()
 	}
 	printf("UMC: El mensaje recibido es: %s\n", buffer);
 	return bytesRecibidos;
-}
+}*/
 
 void conectarAlSWAP()
 {
@@ -125,10 +208,55 @@ void conectarAlSWAP()
 		}
 		return ;
 }
-void enviarDatos() // Por ahora al swap
+void enviarDatos() // MODIFICAR BUFFER y empaquetar
 {
 	send(clienteSWAP, buffer, strlen(buffer), 0);
 	free(buffer);
+	return;
+}
+
+void gestionarConexiones() // el select basicamente
+{
+
+	fd_set fdsParaLectura;
+	int maximoFD;
+	int fdBuscador;
+	pthread_t cliente;
+	int clienteUMC;
+	pthread_mutex_init(&mutex,NULL);
+
+	FD_ZERO(&master);
+	FD_ZERO(&fdsParaLectura);
+
+	maximoFD = recibirConexiones();
+
+	while(1){
+		fdsParaLectura = master;
+
+		if (  select(maximoFD+1,&fdsParaLectura,NULL,NULL,NULL) == -1  ){ //comprobar si el select funciona
+			perror("Error en el select");
+			abort();
+		}
+
+		for(fdBuscador=3; fdBuscador <= maximoFD; fdBuscador++) // explora los FDs que estan listos para leer
+		{
+			if( FD_ISSET(fdBuscador,&fdsParaLectura) ) { //entra una conexion, la acepta y la agrega al master
+				if(fdBuscador == servidorUMC)
+					clienteUMC = aceptarConexion();
+				else{
+					FD_SET(clienteUMC, &master);
+					if(clienteUMC > maximoFD) //Actualzar el maximo fd
+						maximoFD = clienteUMC;
+				}
+
+			}
+			else{
+				pthread_create(&cliente,NULL,(void*)gestionarSolicitudesDeOperacion,clienteUMC);
+			}
+		}
+	}
+	//pthread_join(cliente,NULL);
+
 	return;
 }
 
@@ -140,12 +268,8 @@ int main(){
 
 	//servidor
 	gestionarConexiones();
-	//recibirConexiones();
-	//aceptarConexion();
-	//recibirDatos();
 
-	//cliente
-	//enviarDatos();
+
 
 	return 0;
 }
