@@ -9,12 +9,14 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
-#include <parser/parser.h>
+//#include <parser/parser.h>
+#include <parser/sintax.h>
 #include <signal.h>
 #include "protocolo_mensaje.h"
 #include "pcb.h"
-#include "analizador.h"
 #include "cpu.h"
+#include "parser.h" // parser/parser.h -> Modificado los typedef
+#include "analizador.h"
 #include "codigos_operacion.h"
 
 int main(int argc, char** argv){
@@ -22,7 +24,6 @@ int main(int argc, char** argv){
 	// Declaro variables
 	t_mensaje mensaje_recibido;
 	int i_quantum;
-	char *instruccion;
 	unsigned tamano_pagina_umc;
 
 	// Leer archivo config.conf
@@ -57,7 +58,7 @@ int main(int argc, char** argv){
 		freeMensaje(&mensaje_recibido);
 
 		// Obtener siguiente instruccion
-		*instruccion = obtenerSiguienteIntruccion();
+		char *instruccion = obtenerSiguienteIntruccion();
 
 		// analizadorLinea (parser)
 		analizadorLinea(instruccion, &functions, &kernel_functions);
@@ -276,7 +277,7 @@ char *obtenerSiguienteIntruccion(){
 	enviarMensajeUMC(mensaje);
 
 	// Libero memoria de mensaje
-	free(&mensaje);
+	freeMensaje(&mensaje);
 
 	// Recibo mensaje
 	recibirMensajeUMC(&mensaje);
@@ -289,7 +290,7 @@ char *obtenerSiguienteIntruccion(){
 	memcpy(instruccion, mensaje.mensaje_extra, mensaje.head.tam_extra);
 
 	// Libero memoria de mensaje
-	free(&mensaje);
+	freeMensaje(&mensaje);
 
 	return instruccion;
 }
@@ -313,7 +314,7 @@ unsigned obtenerTamanoPaginasUMC(){
 	enviarMensajeUMC(mensaje);
 
 	// Libero memoria de mensaje
-	free(&mensaje);
+	freeMensaje(&mensaje);
 
 	// Recibo mensaje
 	recibirMensajeUMC(&mensaje);
@@ -326,7 +327,7 @@ unsigned obtenerTamanoPaginasUMC(){
 	tamano_pagina = mensaje.parametros[0];
 
 	// Libero memoria de mensaje
-	free(&mensaje);
+	freeMensaje(&mensaje);
 
 	return tamano_pagina;
 }
@@ -453,7 +454,7 @@ int enviarMensaje(int serverSocket, t_mensaje mensaje){
 
 	int enviar = send(serverSocket, mensaje_empaquetado, tamano_mensaje, MSG_NOSIGNAL);
 
-	free(mensaje_empaquetado);
+	freeMensaje(mensaje_empaquetado);
 
 	return enviar;
 
@@ -571,21 +572,86 @@ void testMensajeProtocolo(){
 
 /*
  * FUNCIONES ANALIZADOR
+ *
+ */
+/*
+ * Hipotesis: Consideramos que no hay errores semanticos ni de sintaxis
+ *
  */
 
+int _is_variableX(t_variable *tmp) {
+	return tmp->identificador == nombreVariable_aBuscar;
+}
+
 t_puntero definirVariable(t_nombre_variable variable) {
-	printf("definir la variable %c\n", variable);
-	return POSICION_MEMORIA;
+	int lastStack = list_size(pcb_global.indiceStack);
+	t_indiceStack *aux_stack;
+
+	// Crear variable en la memoria (Reservar el espacio)
+	t_posicionDeMemoria posicionMemoria = reservarEspacioMemoria(sizeof(t_valor_variable));
+
+	// Registrar variable en el ultimo Indice Stack
+	aux_stack = list_get(pcb_global.indiceStack, lastStack);
+	list_add(aux_stack->vars, vars_create(variable, posicionMemoria.numeroPagina, posicionMemoria.offset, posicionMemoria.size));
+
+	// Devuelvo posicion de la variable en el contexto actual
+	t_puntero puntero_variable = posicionMemoria;
+	return puntero_variable;
 }
 
 t_puntero obtenerPosicionVariable(t_nombre_variable variable) {
-	printf("Obtener posicion de %c\n", variable);
-	return POSICION_MEMORIA;
+	nombreVariable_aBuscar = variable;
+	int lastStack = list_size(pcb_global.indiceStack);
+	t_puntero puntero_variable;
+	t_indiceStack *aux_stack;
+	t_variable *aux_vars;
+
+	// Ingresar al ultimo indice stack
+	aux_stack = list_get(pcb_global.indiceStack, lastStack);
+	aux_vars = list_find(aux_stack->vars, (void*) _is_variableX);
+
+	puntero_variable = aux_vars->posicionMemoria;
+
+	return puntero_variable;
 }
 
 t_valor_variable dereferenciar(t_puntero puntero) {
-	printf("Dereferenciar %d y su valor es: %d\n", puntero, CONTENIDO_VARIABLE);
-	return CONTENIDO_VARIABLE;
+
+	// Variables
+	t_mensaje mensaje;
+	unsigned parametros[3];
+	parametros[0] = puntero.numeroPagina;	// Numero de Pagina
+	parametros[1] = puntero.offset;			// Desplazamiento
+	parametros[2] = puntero.size;			// Cantidad de bytes a leer
+	mensaje.head.codigo = GET_DATA;
+	mensaje.head.cantidad_parametros = 3;
+	mensaje.head.tam_extra = 0;
+	mensaje.parametros = parametros;
+	mensaje.mensaje_extra = NULL;
+
+	// Envio al UMC la peticion
+	enviarMensajeUMC(mensaje);
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
+
+	// Recibo mensaje
+	recibirMensajeUMC(&mensaje);
+
+	if(mensaje.head.codigo != RETURN_DATA){
+		// ERROR
+	}
+
+	t_valor_variable *contenido_tmp = malloc(mensaje.head.tam_extra);
+	memcpy(contenido_tmp, mensaje.mensaje_extra, mensaje.head.tam_extra);
+
+	t_valor_variable contenido_variable = (*contenido_tmp);
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
+	free(contenido_tmp);
+
+	return contenido_variable;
 }
 
 void asignar(t_puntero puntero, t_valor_variable variable) {
