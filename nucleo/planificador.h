@@ -18,7 +18,7 @@ t_queue cola_salida;
 
 void roundRobin(const unsigned short int quantum, t_queue *listos, t_queue *bloqueados, t_queue *salida);
 
-int ejecutar(t_PCB proceso);
+int ejecutar(t_PCB proceso, int cpu);
 void terminar(t_PCB proceso);
 void bloquear(t_PCB proceso);
 
