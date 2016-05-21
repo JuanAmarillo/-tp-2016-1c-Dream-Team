@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include "consola.h"
 #define MSG_SIZE 50+1
+
 struct sockaddr_in direccionNucleo;
 
 int main(int argc, char** argv){
@@ -23,49 +24,46 @@ int main(int argc, char** argv){
 		printf ("Error. Falta un parámetro.\n");
 		return -3;
 	}
-	//Abrir el archivo ANSISOP y poner el contenido en un char*
-	FILE*in;
-	in = fopen (argv [1], "r");
-	if (in==NULL){
-		printf ("No se puede abrir el archivo\n");
+
+	// Abre el archivo en modo lectura
+	FILE * file;
+	file = fopen( argv[1] , "r");
+
+	// Verifica si se puede abrir
+	if (file==NULL){
+		printf ("No se puede abrir el archivo. \n");
 		return -4;
 	}
-	
-	if (ferror(in)){
-		printf ("Error en la lectura del archivo.\n");
-		return -5;
-	}
-	char *ansisop;
-	fscanf (in, "%s", ansisop);
-	fclose (in);
-	printf ("%s", ansisop);
-	
+
+	// Comprueba el tamaño del archivo
+	fseek (file, 0L, SEEK_END);
+		
+	// Reserva lugar para lo que va a copiar
+	long int tamanio = ftell(file);
+	char* codigo = malloc (tamanio+1); //Chequear que sea posible reservar memoria
+	fread(codigo,tamanio,1,file);
+	fclose(file);
+
 	// Leer archivo config.conf
 	leerArchivoConfig();
-	
+
 	//inicializar estructura de socket con los datos del nucleo
 	inicializarDireccionNucleo();
 	int miSocket = socket(PF_INET, SOCK_STREAM, 0);
 	if (connect (miSocket, (struct sockaddr*) &direccionNucleo, sizeof(struct sockaddr_in)) == -1) {
 		printf("Error de connect\n");
 		exit(1);
-	}
-	
-	
-	
-	
-	char mensaje[MSG_SIZE];
+		}
 	printf ("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
-	int enviar = 1;
-	while (enviar) {
-		
-		//A partir de acá cambia el código?
-		// fgets (mensaje, MSG_SIZE, stdin);
-		// if (!strcmp (mensaje, "exit\n")) enviar = 0;
-		// if (enviar) send (miSocket, mensaje, strlen(mensaje) +1, 0);
-	}
-	close (miSocket);
-	return EXIT_SUCCESS;
+	
+	send(miSocket,codigo,4,0);
+	send(miSocket,(void *)tamanio,4,0);
+	free(codigo);
+	//Falta permanecer a la escucha
+	recv(miSocket,codigo,tamanio, 0);
+	printf("%s",codigo);
+	
+	return 0;
 }
 
 
