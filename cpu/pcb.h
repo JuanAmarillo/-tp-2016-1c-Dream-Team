@@ -33,7 +33,9 @@ typedef struct {
 	unsigned sp;
 	unsigned cantidadPaginas;
 	unsigned estado;
-	char* indiceEtiquetas;
+	unsigned tam_indiceEtiquetas;
+	char *indiceEtiquetas;
+	unsigned total_instrucciones;
 	t_indiceCodigo *indiceCodigo;
 	t_list *indiceStack;
 } t_PCB;
