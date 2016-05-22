@@ -8,6 +8,7 @@
 /*
  * Estructuras de datos
  */
+
 typedef struct {
 	unsigned numeroPagina;
 	unsigned offset;
@@ -44,6 +45,8 @@ typedef struct {
 	unsigned cantidad_args;
 	unsigned cantidad_vars;
 } t_mensajeHeadStack;
+
+
 
 /*
  * Funciones / Procedimientos

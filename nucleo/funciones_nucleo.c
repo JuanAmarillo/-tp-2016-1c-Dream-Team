@@ -1,4 +1,4 @@
-#include "nucleo.h"
+#include "funciones_nucleo.h"
 
 /*
  * leerArchivoConfig();
@@ -7,7 +7,7 @@
  * Return: -
  */
 void leerArchivoConfig(void)
-	{
+{
 	t_config *config = config_create("config.conf");
 
 	if (config == NULL)
@@ -114,6 +114,9 @@ void administrarConexiones(void)
 	unsigned int tam = sizeof(struct sockaddr_in);//tamaño de datos pedido por accept()
 	char mensajeParaCPU[100] = "Nucleo dice: Conectado a CPU\n";
 	int encontrarCPU;//file descriptor para encontrar una cpu en caso de que la consola envie un mensaje
+
+	char estadoString[20];
+
 	fd_set conj_master, conj_read;//conjuntos de fd's total(master) y para los que tienen datos para lectura(read)
 
 	fd_set conj_consola, conj_cpu;
@@ -124,6 +127,7 @@ void administrarConexiones(void)
 	FD_ZERO(&conj_cpu);
 
 	maxfd = maximofd(fd_listener_consola, maximofd(fd_listener_cpu, fd_umc));//Encontrar el maximo fd
+	max_cpu = 0;//para que la primer cpu aceptada cumpla la condicion de ser mayor y se le asigne su valor
 
 	FD_SET(fd_listener_consola, &conj_master);
 	FD_SET(fd_listener_cpu, &conj_master);
@@ -131,6 +135,7 @@ void administrarConexiones(void)
 
 	while(1)
 	{
+
 		conj_read = conj_master;//se ponen a disposicion todos los fd para despues filtrar los que tengan entrada
 		select(maxfd+1, &conj_read, NULL, NULL, NULL);
 
@@ -167,7 +172,10 @@ void administrarConexiones(void)
 					{
 						FD_SET(fd_new, &conj_master);
 						FD_SET(fd_new, &conj_cpu);
+						FD_SET(fd_new, &conjunto_master_cpus);
+						FD_SET(fd_new, &conjunto_cpus_libres);
 						printf("Se acaba de aceptar una conexion de una nueva CPU\n");
+						if(fd_new > max_cpu) max_cpu = fd_new;
 						if(fd_new > maxfd) maxfd = fd_new;
 					}
 				}
@@ -175,7 +183,7 @@ void administrarConexiones(void)
 				{
 					if(FD_ISSET(fd_explorer, &conj_consola))//Los datos vienen de una Consola
 					{
-						nbytes = recv(fd_explorer, bufferConsola, 100, 0);//Recibir los datos al buffer
+						nbytes = recibirMensaje(fd_explorer, &mensajeConsola);//Recibir los datos al buffer
 						if(nbytes <= 0)//Hubo un error o se desconecto
 						{
 							if(nbytes < 0)
@@ -194,17 +202,21 @@ void administrarConexiones(void)
 							}
 						}
 						else//No hubo error ni desconexion
-							{
-								printf("Mensaje recibido de una Consola: %s\n", bufferConsola);
-								for(encontrarCPU = 0; !FD_ISSET(encontrarCPU, &conj_cpu) && encontrarCPU <= maxfd; encontrarCPU++);
-								if(encontrarCPU > maxfd) printf("No hay ninguna CPU conectada aun\n");
-								else send(encontrarCPU, mensajeParaCPU, 100, 0);
-							}
+						{
+							printf("Se ha recibido un programa de una Consola\n");
+							t_PCB pcb = mensaje_to_pcb(mensajeConsola);
+							list_add(&lista_master_procesos, (void*) &pcb );
+							/*for(encontrarCPU = 0; !FD_ISSET(encontrarCPU, &conj_cpu) && encontrarCPU <= maxfd; encontrarCPU++);
+							if(encontrarCPU > maxfd) printf("No hay ninguna CPU conectada aun\n");
+							else send(encontrarCPU, mensajeParaCPU, 100, 0);*/
+						}
 					}
 
 					if(FD_ISSET(fd_explorer, &conj_cpu))//Los datos vienen de una CPU
 					{
-						nbytes = recv(fd_explorer, bufferCPU, 100, 0);//Recibir los datos al buffer
+						//recibirMensajeDeCPU()
+						nbytes = recibirMensaje(fd_explorer, &mensajeCPU);//Recibir los datos al buffer
+						PCB_actualizado = mensaje_to_pcb(mensajeCPU);
 						if(nbytes <= 0)//Hubo un error o se desconecto
 						{
 							if(nbytes < 0)
@@ -222,12 +234,40 @@ void administrarConexiones(void)
 								printf("Se ha desconectado una cpu\n");
 							}
 						}
-					else//No hubo error ni desconexion
-						printf("Mensaje recibido de una CPU: %s\n", bufferCPU);
+						else//No hubo error ni desconexion
+						{
+							actualizar_listaEjecutando();
+							estado_to_string(PCB_actualizado.estado, estadoString);
+							printf("Estado actual del proceso %d: %s \n", PCB_actualizado.pid, estadoString);
+						}
 					}
 
 				}
 			}
 		}
+	}
+}
+
+void estado_to_string(int estado, char *string)
+{
+	switch(estado)
+	{
+	case 0:
+		strcpy(string, "Nuevo");
+		break;
+	case 1:
+		strcpy(string, "Listo");
+		break;
+	case 2:
+		strcpy(string, "Ejecutando");
+		break;
+	case 3:
+		strcpy(string, "Bloqueado");
+		break;
+	case 4:
+		strcpy(string, "Terminado");
+		break;
+	default:
+		perror("Se recibio un PCB con estado de proceso invalido");
 	}
 }

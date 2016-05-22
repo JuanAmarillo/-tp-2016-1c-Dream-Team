@@ -4,8 +4,9 @@
 //Bibliotecas a usar
 #include <commons/config.h>
 #include <commons/string.h>
+#include <commons/collections/list.h>
 #include <stdio.h>
-#include <stdlib.h>
+//#include <stdlib.h> ya está en planificador.h
 #include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -13,6 +14,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include "planificador.h"
 
 //Cuántas conexiones se aceptarán
 #define BACKLOG 100
@@ -27,49 +29,6 @@ struct t_infoConfig
 	char *puerto_umc;
 };
 
-/*****************************************************************************************/
-//__________________________________INICIO PCB___________________________________________//
-
-typedef struct {
-	unsigned numeroPagina;
-	unsigned offset;
-	size_t size;
-} t_posicionDeMemoria;
-
-typedef struct {
-	char *identificador;
-	t_posicionDeMemoria posicionMemoria;
-} t_variable;
-
-typedef struct {
-	t_list *args;
-	t_list *vars;
-	unsigned retPos;
-	t_posicionDeMemoria retVar;
-} t_indice_stack;
-
-typedef struct {
-	char *etiqueta;
-	unsigned int pc_instruccion;
-} t_indiceEtiqueta;
-
-typedef struct {
-	unsigned offset_inicio;
-	unsigned offset_fin;
-} t_indiceCodigo;
-
-typedef {
-	unsigned pid;
-	unsigned pc;
-	unsigned sp;
-	unsigned paginas_codigo;
-	unsigned estado;
-	t_indiceCodigo *indice_codigo;
-	t_dictionary *indice_etiquetas;
-	t_list *indice_stack;
-} struct t_PCB;
-//___________________________________FIN PCB_____________________________________________//
-/*****************************************************************************************/
 
 /*Variables Globales*/
 /*----------------------------------------------------------*/
@@ -82,7 +41,7 @@ struct sockaddr_in direccionCliente;//direccion del cliente
 int fd_umc, fd_listener_consola, fd_listener_cpu, fd_new, fd_explorer;
 
 //buffers para datos recibidos de los clientes
-char bufferConsola[100], bufferCPU[100];
+t_mensaje mensajeConsola, mensajeCPU;
 
 
 #endif /* FUNCIONES_NUCLEO_H_ */
