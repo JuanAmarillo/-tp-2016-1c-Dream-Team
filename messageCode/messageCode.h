@@ -16,6 +16,7 @@
 
 // NUCLEO <-> CPU
 #define STRUCT_PCB 300 			// Utilizar la funcion: mensaje_to_pcb() y pcb_to_mensaje() segun corresponda
+#define FIN_QUANTUM 301
 
 //NUCLEO -> UMC
 #define INIT_PROG 300
