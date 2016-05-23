@@ -146,7 +146,7 @@ int recibirMensaje(int serverSocket, t_mensaje *mensaje){
 
 	// Obtengo los valores del HEAD
 	mensaje_head = desempaquetar_head(buffer_head);
-	desplazamiento = sizeof(t_mensajeHead);
+	desplazamiento += sizeof(t_mensajeHead);
 
 	// Me preparo para recibir el Payload
 	unsigned faltan_recibir = sizeof(unsigned) * mensaje_head.cantidad_parametros + mensaje_head.tam_extra;
@@ -154,7 +154,7 @@ int recibirMensaje(int serverSocket, t_mensaje *mensaje){
 	memcpy(bufferTotal, buffer_head, sizeof(t_mensajeHead));
 
 	// Recibo el Payload
-	recibir = recibirBytes(serverSocket, bufferTotal + sizeof(t_mensajeHead), faltan_recibir);
+	recibir = recibirBytes(serverSocket, bufferTotal + desplazamiento, faltan_recibir);
 
 	// Desempaqueto el mensaje
 	*mensaje = desempaquetar_mensaje(bufferTotal);

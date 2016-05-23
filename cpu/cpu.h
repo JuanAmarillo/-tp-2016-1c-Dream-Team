@@ -34,6 +34,7 @@ void signal_sigusr1(int);
 char *obtenerSiguienteIntruccion();
 unsigned obtenerTamanoPaginasUMC();
 void enviarPCBnucleo();
+int recibirQuantum();
 
 
 #endif /* CPU_H_ */
