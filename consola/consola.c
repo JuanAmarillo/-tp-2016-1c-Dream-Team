@@ -61,7 +61,7 @@ int main(int argc, char** argv){
 	free(codigo);
 	//Falta permanecer a la escucha
 	recv(miSocket,codigo,tamanio, 0);
-	printf("%s",codigo);
+	//Ver qué hacer dependiendo si el mensaje es una sentencia imprimir o imprimirTexto
 	
 	return 0;
 }
