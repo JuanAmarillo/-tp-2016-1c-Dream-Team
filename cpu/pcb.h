@@ -30,8 +30,12 @@ typedef struct {
 typedef struct {
 	unsigned pid;
 	unsigned pc;
+	unsigned sp;
 	unsigned cantidadPaginas;
 	unsigned estado;
+	unsigned tam_indiceEtiquetas;
+	char *indiceEtiquetas;
+	unsigned total_instrucciones;
 	t_indiceCodigo *indiceCodigo;
 	t_list *indiceStack;
 } t_PCB;
