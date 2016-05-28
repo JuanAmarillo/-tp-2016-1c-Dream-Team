@@ -9,6 +9,8 @@ int main(void)
 
 	abrirPuertos();
 
+	inicializarListas();
+
 	administrarConexiones();
 
 	return EXIT_SUCCESS;

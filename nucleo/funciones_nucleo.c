@@ -108,14 +108,21 @@ int maximofd(int fd1, int fd2)
 		return fd2;
 }
 
+void inicializarListas(void)
+{
+	FD_ZERO(&conjunto_procesos_listos);
+	FD_ZERO(&conjunto_procesos_bloqueados);
+	FD_ZERO(&conjunto_procesos_ejecutando);
+	FD_ZERO(&conjunto_procesos_salida);
+	lista_master_procesos = list_create();
+	cola_bloqueados = queue_create();
+	cola_listos = queue_create();
+}
+
 void administrarConexiones(void)
 {
 	int maxfd/*cima del conjunto "master_fds" */, nbytes/*número de bytes recibidos del cliente*/;
 	unsigned int tam = sizeof(struct sockaddr_in);//tamaño de datos pedido por accept()
-	char mensajeParaCPU[100] = "Nucleo dice: Conectado a CPU\n";
-	int encontrarCPU;//file descriptor para encontrar una cpu en caso de que la consola envie un mensaje
-
-	char estadoString[20];
 
 	fd_set conj_master, conj_read;//conjuntos de fd's total(master) y para los que tienen datos para lectura(read)
 
@@ -128,6 +135,7 @@ void administrarConexiones(void)
 
 	maxfd = maximofd(fd_listener_consola, maximofd(fd_listener_cpu, fd_umc));//Encontrar el maximo fd
 	max_cpu = 0;//para que la primer cpu aceptada cumpla la condicion de ser mayor y se le asigne su valor
+	max_proceso = 0;//para que el primero proceso recibido cumpla la condicion de ser mayor y se le asigne su valor
 
 	FD_SET(fd_listener_consola, &conj_master);
 	FD_SET(fd_listener_cpu, &conj_master);
@@ -172,7 +180,6 @@ void administrarConexiones(void)
 					{
 						FD_SET(fd_new, &conj_master);
 						FD_SET(fd_new, &conj_cpu);
-						FD_SET(fd_new, &conjunto_master_cpus);
 						FD_SET(fd_new, &conjunto_cpus_libres);
 						printf("Se acaba de aceptar una conexion de una nueva CPU\n");
 						if(fd_new > max_cpu) max_cpu = fd_new;
@@ -204,8 +211,15 @@ void administrarConexiones(void)
 						else//No hubo error ni desconexion
 						{
 							printf("Se ha recibido un programa de una Consola\n");
-							t_PCB pcb = mensaje_to_pcb(mensajeConsola);
-							list_add(&lista_master_procesos, (void*) &pcb );
+							//Crear PCB
+							t_PCB *pcb = malloc(sizeof(t_PCB));
+							*pcb = mensaje_to_pcb(mensajeConsola);
+							//Asignar max_proceso
+							if(pcb->pid > max_proceso) max_proceso = pcb->pid;
+							//Agregar el PCB a Lista Master
+							list_add(lista_master_procesos, pcb);
+							//Agregar el PCB a Cola de Listos
+							ponerListo(pcb);
 							/*for(encontrarCPU = 0; !FD_ISSET(encontrarCPU, &conj_cpu) && encontrarCPU <= maxfd; encontrarCPU++);
 							if(encontrarCPU > maxfd) printf("No hay ninguna CPU conectada aun\n");
 							else send(encontrarCPU, mensajeParaCPU, 100, 0);*/
@@ -216,7 +230,8 @@ void administrarConexiones(void)
 					{
 						//recibirMensajeDeCPU()
 						nbytes = recibirMensaje(fd_explorer, &mensajeCPU);//Recibir los datos al buffer
-						PCB_actualizado = mensaje_to_pcb(mensajeCPU);
+
+
 						if(nbytes <= 0)//Hubo un error o se desconecto
 						{
 							if(nbytes < 0)
@@ -236,9 +251,23 @@ void administrarConexiones(void)
 						}
 						else//No hubo error ni desconexion
 						{
-							actualizar_listaEjecutando();
-							estado_to_string(PCB_actualizado.estado, estadoString);
-							printf("Estado actual del proceso %d: %s \n", PCB_actualizado.pid, estadoString);
+							if(mensajeCPU.head.codigo == FIN_QUANTUM)
+							{
+								t_PCB *pcb = malloc(sizeof(t_PCB));
+								*pcb = mensaje_to_pcb(mensajeCPU);
+								ponerListo(pcb);
+								FD_CLR(pcb->pid, &conjunto_procesos_ejecutando);
+								FD_SET(fd_explorer, &conjunto_cpus_libres);
+							}
+
+							if(mensajeCPU.head.codigo == FIN_PROGRAMA)
+							{
+								t_PCB *pcb = malloc(sizeof(t_PCB));
+								*pcb = mensaje_to_pcb(mensajeCPU);
+								terminar(pcb);
+								FD_SET(fd_explorer, &conjunto_cpus_libres);
+							}
+
 						}
 					}
 
