@@ -87,19 +87,3 @@ void bloquear(t_PCB *proceso)
 {
 	queue_push(cola_bloqueados, proceso);
 }
-
-bool agotoQuantum(void *proceso)
-{
-	//Aún sin definir
-	return true;
-}
-bool agotoRafaga(void *proceso)
-{
-	//Aún sin definir
-	return true;
-}
-int cpu_asociada_al_proceso(t_PCB proceso)
-{
-	//Aún sin definir
-	return 1;
-}
