@@ -15,6 +15,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include "planificador.h"
+#include <pthread.h>
 
 //Cuántas conexiones se aceptarán
 #define BACKLOG 100
@@ -27,6 +28,8 @@ struct t_infoConfig
 	char *puerto_prog;
 	char *puerto_cpu;
 	char *puerto_umc;
+	char *quantum;
+	char *quantum_sleep;
 };
 
 

@@ -19,6 +19,8 @@ void leerArchivoConfig(void)
 	infoConfig.puerto_prog = config_get_string_value(config, "PUERTO_PROG");
 	infoConfig.puerto_cpu = config_get_string_value(config, "PUERTO_CPU");
 	infoConfig.puerto_umc = config_get_string_value(config, "PUERTO_UMC");
+	infoConfig.quantum = config_get_string_value(config, "QUANTUM");
+	infoConfig.quantum_sleep = config_get_string_value(config, "QUANTUM_SLEEP");
 
 	// No uso config_destroy(config) porque bugea
 	free(config->path);
@@ -135,7 +137,7 @@ void administrarConexiones(void)
 
 	maxfd = maximofd(fd_listener_consola, maximofd(fd_listener_cpu, fd_umc));//Encontrar el maximo fd
 	max_cpu = 0;//para que la primer cpu aceptada cumpla la condicion de ser mayor y se le asigne su valor
-	max_proceso = 0;//para que el primero proceso recibido cumpla la condicion de ser mayor y se le asigne su valor
+	max_proceso = 0;//se incrementará a medida que lleguen programas
 
 	FD_SET(fd_listener_consola, &conj_master);
 	FD_SET(fd_listener_cpu, &conj_master);
@@ -213,13 +215,18 @@ void administrarConexiones(void)
 							printf("Se ha recibido un programa de una Consola\n");
 							//Crear PCB
 							t_PCB *pcb = malloc(sizeof(t_PCB));
+							printf("Tamaño recibido: %d\n", nbytes);
+
 							*pcb = mensaje_to_pcb(mensajeConsola);
-							//Asignar max_proceso
-							if(pcb->pid > max_proceso) max_proceso = pcb->pid;
+
+							//Asignar PID
+							pcb->pid = ++max_proceso;
 							//Agregar el PCB a Lista Master
 							list_add(lista_master_procesos, pcb);
 							//Agregar el PCB a Cola de Listos
 							ponerListo(pcb);
+							printf("Cola de Listos actual:\n");
+							mostrarCola(cola_listos);
 							/*for(encontrarCPU = 0; !FD_ISSET(encontrarCPU, &conj_cpu) && encontrarCPU <= maxfd; encontrarCPU++);
 							if(encontrarCPU > maxfd) printf("No hay ninguna CPU conectada aun\n");
 							else send(encontrarCPU, mensajeParaCPU, 100, 0);*/
@@ -275,6 +282,31 @@ void administrarConexiones(void)
 			}
 		}
 	}
+}
+
+
+void* llamar_RoundRobin(void *data)
+{
+	unsigned short int quantum = (unsigned short int) atoi(infoConfig.quantum);
+	roundRobin(quantum,cola_listos, cola_bloqueados, NULL);
+	return NULL;
+}
+
+void* llamar_AdministrarConexiones(void *data)
+{
+	administrarConexiones();
+	return NULL;
+}
+
+void montarHilos(void)
+{
+	pthread_t hilo_RoundRobin, hilo_AdministrarConexiones;
+
+	pthread_create(&hilo_AdministrarConexiones, NULL, llamar_AdministrarConexiones, NULL);
+	pthread_create(&hilo_RoundRobin, NULL, llamar_RoundRobin, NULL);
+
+	pthread_join(hilo_AdministrarConexiones, NULL);
+	pthread_join(hilo_RoundRobin, NULL);
 }
 
 void estado_to_string(int estado, char *string)

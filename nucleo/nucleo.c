@@ -1,4 +1,6 @@
 #include "nucleo.h"
+
+//ACORDATE DE QUE FALTAN LOS MUTEX
 int main(void)
 {
 	leerArchivoConfig();
@@ -11,7 +13,7 @@ int main(void)
 
 	inicializarListas();
 
-	administrarConexiones();
+	montarHilos();
 
 	return EXIT_SUCCESS;
 }

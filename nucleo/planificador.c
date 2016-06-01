@@ -1,33 +1,55 @@
 #include "planificador.h"
 
-
+int imprimir = 1, vuelta = 0;
 void roundRobin(const unsigned short int quantum, t_queue *listos, t_queue *bloqueados, t_queue *salida)
 {
 	t_PCB *proceso;
 	int cpu_explorer;
+	if(imprimir)
+	{
+		printf("Ha iniciado el planificador\n");
+		imprimir = 0;
+	}
 
-	//espera activa a que haya un primer proceso listo
-	while(queue_is_empty(listos));
 
 	while(1)
 	{
-		//Espera activa por una CPU
+		//espera activa a que haya un primer proceso listo
+		esperaPorProcesos(listos);
 
+		//Espera activa por una CPU
 		for(cpu_explorer = 3; cpu_explorer <= max_cpu; ++cpu_explorer)
 		{
+			printf("Se analiza fd[%d] -->", cpu_explorer);
 			if(estaLibre(cpu_explorer))
 			{
+				printf("CPU Libre\n");
 				//Extraer proceso de la cola de listos
-				proceso = queue_pop(cola_listos);
+				proceso = queue_pop(listos);
 				//Colocar proceso en la lista Ejecutando
 				FD_SET(proceso->pid, &conjunto_procesos_ejecutando);
+				//Poner en estado ejecutando;
+				proceso->estado = 1;
 				//Establecer que la cpu ya no está libre
 				FD_CLR(cpu_explorer, &conjunto_cpus_libres);
 				//Ejecutar proceso
 				ejecutar(*proceso, quantum, cpu_explorer);
+				printf("Se ejecutó el proceso %d\n", proceso->pid);
+				break;
 			}
+			else printf("Nada\n");
 		}
+		printf("vuelta: %d\n", ++vuelta);
+		sleep(3);
 	}
+}
+
+void esperaPorProcesos(t_queue* cola)
+{
+	//Si está vacía, informar
+	if(queue_is_empty(cola)) printf("La cola de Listos está vacía...\n");
+	//Espera activa
+	while(queue_is_empty(cola));
 }
 
 void ejecutar(t_PCB proceso, int quantum, int cpu)
@@ -38,10 +60,11 @@ void ejecutar(t_PCB proceso, int quantum, int cpu)
 	enviarMensaje(cpu, mensaje_quantum);
 }
 
-t_mensaje quantum_to_mensaje(int quantum)
+t_mensaje quantum_to_mensaje(unsigned short int quantum)
 {
-	t_mensajeHead head_quantum = {QUANTUM, 0, sizeof(int)};
-	int *q = (int*) malloc(sizeof(int));
+	t_mensajeHead head_quantum = {QUANTUM, 0, sizeof(unsigned short int)};
+	unsigned short int *q = (unsigned short int*) malloc(sizeof(unsigned short int));
+	*q = quantum;
 	t_mensaje mensaje_quantum = {head_quantum, NULL, (char*) q};
 	return mensaje_quantum;
 }
@@ -69,7 +92,6 @@ int estaLibre(int cpu)
 	return (FD_ISSET(cpu, &conjunto_cpus_libres));
 }
 
-
 void ponerListo(t_PCB *proceso)
 {
 	queue_push(cola_listos, proceso);
@@ -86,4 +108,15 @@ void terminar(t_PCB *proceso)
 void bloquear(t_PCB *proceso)
 {
 	queue_push(cola_bloqueados, proceso);
+}
+
+void *imprimirPID(void *pcb)
+{
+	printf("%d\n", ((t_PCB*)pcb)->pid);
+	return NULL;
+}
+
+void mostrarCola(const t_queue* cola)
+{
+	list_map(cola->elements, imprimirPID);
 }
