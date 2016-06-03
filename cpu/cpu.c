@@ -55,7 +55,7 @@ int main(int argc, char** argv){
 		}
 
 		// Recibir Quantum
-		//quantum = recibirQuantum();
+		quantum = recibirQuantum();
 
 		// Convierto el mensaje en un PCB, y borro el mensaje
 		pcb_global = mensaje_to_pcb(mensaje_recibido);
@@ -347,11 +347,43 @@ unsigned obtenerTamanoPaginasUMC(){
 	return tamano_pagina;
 }
 
+/*
+ * enviarPCBnucleo();
+ * Parametros: -
+ * Descripcion: Envia el PCB global al nucleo
+ * Return: -
+ */
 void enviarPCBnucleo(){
 	t_mensaje mensaje;
 	mensaje = pcb_to_mensaje(pcb_global,0);
 	enviarMensajeNucleo(mensaje);
 	freeMensaje(&mensaje);
+}
+
+/*
+ * recibirQuantum();
+ * Parametros: -
+ * Descripcion: Obtiene la cantidad de quantum a ejecutar
+ * Return: cantidad de quantum
+ */
+int recibirQuantum(){
+	t_mensaje mensaje;
+	int quantum;
+
+	// Recibo mensaje
+	recibirMensajeNucleo(&mensaje);
+
+	if(mensaje.head.codigo != QUANTUM){
+		// ERROR
+	}
+
+	// Tamaño de pagina
+	quantum = mensaje.parametros[0];
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
+
+	return quantum;
 }
 
 /*
