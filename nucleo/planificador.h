@@ -5,13 +5,14 @@
  *      Author: utnso
  */
 
-#ifndef PLANIFICADOR_H_
-#define PLANIFICADOR_H_
+#ifndef NUCLEO_5_PLANIFICADOR_H_
+#define NUCLEO_5_PLANIFICADOR_H_
 
 #include <commons/collections/queue.h>
-#include "pcb.h"
 #include <stdlib.h>
 #include <unistd.h>
+#include "pcb_5.h"
+#include "archivoLog.h"
 
 t_list *lista_master_procesos;
 t_queue *cola_listos;
@@ -34,6 +35,7 @@ typedef struct par_PCBs
 #define FIN_PROGRAMA 302
 #define EJECUTAR 303
 #define QUANTUM 304
+#define BLOQUEADO 305
 
 int max_cpu, max_proceso;
 t_PCB PCB_actualizado;
@@ -48,9 +50,10 @@ void terminar(t_PCB *proceso);
 void bloquear(t_PCB *proceso);
 int estaLibre(int cpu);
 void mostrarCola(const t_queue*);
+void actualizarMaster(void);
 
 int es_el_PCB_a_actualizar(t_PCB pcb);
 t_mensaje quantum_to_mensaje(unsigned short int quantum);
 //quizas haya que hacer que el tipo de dato de los parametros sea (void*)
 
-#endif /* PLANIFICADOR_H_ */
+#endif /* NUCLEO_5_PLANIFICADOR_H_ */

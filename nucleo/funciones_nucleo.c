@@ -1,4 +1,4 @@
-#include "funciones_nucleo.h"
+#include "funciones_nucleo_5.h"
 
 /*
  * leerArchivoConfig();
@@ -157,7 +157,7 @@ void administrarConexiones(void)
 				{
 					if( (fd_new = accept(fd_listener_consola, (struct sockaddr*) &direccionCliente, &tam)) == -1)
 					{
-						perror("Error Accept consola");
+						escribirLog("Error Accept consola (fd[%d])", fd_explorer);
 						FD_CLR(fd_new, &conj_master);
 						close(fd_new);
 					}
@@ -166,7 +166,7 @@ void administrarConexiones(void)
 					{
 						FD_SET(fd_new, &conj_master);
 						FD_SET(fd_new, &conj_consola);
-						printf("Se acaba de aceptar una conexion de una nueva Consola\n");
+						escribirLog("Se acaba de aceptar una conexion de una nueva Consola (fd[%d])\n", fd_new);
 						if(fd_new > maxfd) maxfd = fd_new;
 					}
 				}
@@ -174,7 +174,7 @@ void administrarConexiones(void)
 				{
 					if( (fd_new = accept(fd_listener_cpu, (struct sockaddr*) &direccionCliente, &tam)) == -1)
 					{
-						perror("Error Accept cpu");
+						escribirLog("Error Accept cpu (fd[%d])", fd_explorer);
 						FD_CLR(fd_new, &conj_master);
 						close(fd_new);
 					}
@@ -183,7 +183,7 @@ void administrarConexiones(void)
 						FD_SET(fd_new, &conj_master);
 						FD_SET(fd_new, &conj_cpu);
 						FD_SET(fd_new, &conjunto_cpus_libres);
-						printf("Se acaba de aceptar una conexion de una nueva CPU\n");
+						escribirLog("Se acaba de aceptar una conexion de una nueva CPU (fd[%d])\n", fd_new);
 						if(fd_new > max_cpu) max_cpu = fd_new;
 						if(fd_new > maxfd) maxfd = fd_new;
 					}
@@ -192,7 +192,7 @@ void administrarConexiones(void)
 				{
 					if(FD_ISSET(fd_explorer, &conj_consola))//Los datos vienen de una Consola
 					{
-						nbytes = recibirMensaje(fd_explorer, &mensajeConsola);//Recibir los datos al buffer
+						nbytes = recibirMensaje(fd_explorer, &mensajeConsola);//Recibir los datos en mensajeCOnsola
 						if(nbytes <= 0)//Hubo un error o se desconecto
 						{
 							if(nbytes < 0)
@@ -200,36 +200,38 @@ void administrarConexiones(void)
 								FD_CLR(fd_explorer, &conj_master);
 								FD_CLR(fd_explorer, &conj_consola);
 								close(fd_explorer);
-								perror("Error de recepción en una consola\n");
+								escribirLog("Error de recepción en una consola (fd[%d])\n", fd_explorer);
 							}
 							if(nbytes == 0)
 							{
 								FD_CLR(fd_explorer, &conj_master);
 								FD_CLR(fd_explorer, &conj_consola);
 								close(fd_explorer);
-								printf("Se ha desconectado una consola\n");
+								escribirLog("Se ha desconectado una consola (fd[%d])\n", fd_explorer);
 							}
 						}
 						else//No hubo error ni desconexion
 						{
-							printf("Se ha recibido un programa de una Consola\n");
+							escribirLog("Se ha recibido un programa de una Consola (fd[%d])\n", fd_explorer);
 							//Crear PCB
 							t_PCB *pcb = malloc(sizeof(t_PCB));
-							printf("Tamaño recibido: %d\n", nbytes);
+							escribirLog("Tamaño recibido: %d\n", nbytes);
 
 							*pcb = mensaje_to_pcb(mensajeConsola);
 
 							//Asignar PID
 							pcb->pid = ++max_proceso;
+							//Asignar estado
+							pcb->estado = 0;
+							//Asignar pc
+							pcb->pc = 0;
+							//
 							//Agregar el PCB a Lista Master
 							list_add(lista_master_procesos, pcb);
 							//Agregar el PCB a Cola de Listos
 							ponerListo(pcb);
-							printf("Cola de Listos actual:\n");
-							mostrarCola(cola_listos);
-							/*for(encontrarCPU = 0; !FD_ISSET(encontrarCPU, &conj_cpu) && encontrarCPU <= maxfd; encontrarCPU++);
-							if(encontrarCPU > maxfd) printf("No hay ninguna CPU conectada aun\n");
-							else send(encontrarCPU, mensajeParaCPU, 100, 0);*/
+							escribirLog("Cola de Listos actual:\n");
+							mostrarColaPorLog(cola_listos);
 						}
 					}
 
@@ -246,14 +248,15 @@ void administrarConexiones(void)
 								FD_CLR(fd_explorer, &conj_master);
 								FD_CLR(fd_explorer, &conj_cpu);
 								close(fd_explorer);
-								perror("Error de recepción en una cpu\n");
+								escribirLog("Error de recepción en una cpu (fd[%d])\n", fd_explorer);
 							}
 							if(nbytes == 0)
 							{
 								FD_CLR(fd_explorer, &conj_master);
 								FD_CLR(fd_explorer, &conj_cpu);
+								FD_CLR(fd_explorer, &conjunto_cpus_libres);
 								close(fd_explorer);
-								printf("Se ha desconectado una cpu\n");
+								escribirLog("Se ha desconectado una cpu (fd[%d])\n", fd_explorer);
 							}
 						}
 						else//No hubo error ni desconexion
@@ -264,6 +267,18 @@ void administrarConexiones(void)
 								*pcb = mensaje_to_pcb(mensajeCPU);
 								ponerListo(pcb);
 								FD_CLR(pcb->pid, &conjunto_procesos_ejecutando);
+								actualizarMaster();
+								FD_SET(fd_explorer, &conjunto_cpus_libres);
+							}
+
+							if(mensajeCPU.head.codigo == BLOQUEADO)
+							{
+								t_PCB *pcb = malloc(sizeof(t_PCB));
+								*pcb = mensaje_to_pcb(mensajeCPU);
+
+								FD_CLR(pcb->pid, &conjunto_procesos_ejecutando);
+								bloquear(pcb);
+								actualizarMaster();
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
 							}
 
@@ -272,6 +287,8 @@ void administrarConexiones(void)
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
 								terminar(pcb);
+								FD_CLR(pcb->pid, &conjunto_procesos_ejecutando);
+								actualizarMaster();
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
 							}
 
@@ -298,15 +315,23 @@ void* llamar_AdministrarConexiones(void *data)
 	return NULL;
 }
 
+void* llamar_Interfaz(void* data)
+{
+	interfaz();
+	return NULL;
+}
+
 void montarHilos(void)
 {
-	pthread_t hilo_RoundRobin, hilo_AdministrarConexiones;
+	pthread_t hilo_RoundRobin, hilo_AdministrarConexiones, hilo_Interfaz;
 
 	pthread_create(&hilo_AdministrarConexiones, NULL, llamar_AdministrarConexiones, NULL);
 	pthread_create(&hilo_RoundRobin, NULL, llamar_RoundRobin, NULL);
+	pthread_create(&hilo_Interfaz, NULL, llamar_Interfaz, NULL);
 
 	pthread_join(hilo_AdministrarConexiones, NULL);
 	pthread_join(hilo_RoundRobin, NULL);
+	pthread_join(hilo_Interfaz, NULL);
 }
 
 void estado_to_string(int estado, char *string)

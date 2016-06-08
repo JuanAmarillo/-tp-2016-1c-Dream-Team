@@ -1,4 +1,4 @@
-#include "planificador.h"
+#include "planificador_5.h"
 
 int imprimir = 1, vuelta = 0;
 void roundRobin(const unsigned short int quantum, t_queue *listos, t_queue *bloqueados, t_queue *salida)
@@ -7,7 +7,7 @@ void roundRobin(const unsigned short int quantum, t_queue *listos, t_queue *bloq
 	int cpu_explorer;
 	if(imprimir)
 	{
-		printf("Ha iniciado el planificador\n");
+		escribirLog("Ha iniciado el planificador\n");
 		imprimir = 0;
 	}
 
@@ -20,10 +20,10 @@ void roundRobin(const unsigned short int quantum, t_queue *listos, t_queue *bloq
 		//Espera activa por una CPU
 		for(cpu_explorer = 3; cpu_explorer <= max_cpu; ++cpu_explorer)
 		{
-			printf("Se analiza fd[%d] -->", cpu_explorer);
+			escribirLog("Se analiza fd[%d] -->", cpu_explorer);
 			if(estaLibre(cpu_explorer))
 			{
-				printf("CPU Libre\n");
+				escribirLog("CPU Libre\n");
 				//Extraer proceso de la cola de listos
 				proceso = queue_pop(listos);
 				//Colocar proceso en la lista Ejecutando
@@ -34,12 +34,12 @@ void roundRobin(const unsigned short int quantum, t_queue *listos, t_queue *bloq
 				FD_CLR(cpu_explorer, &conjunto_cpus_libres);
 				//Ejecutar proceso
 				ejecutar(*proceso, quantum, cpu_explorer);
-				printf("Se ejecutó el proceso %d\n", proceso->pid);
+				escribirLog("Se ejecutó el proceso %d en la cpu:fd[%d]\n", proceso->pid, cpu_explorer);
 				break;
 			}
-			else printf("Nada\n");
+			else escribirLog("Nada\n");
 		}
-		printf("vuelta: %d\n", ++vuelta);
+		escribirLog("vuelta: %d\n", ++vuelta);
 		sleep(3);
 	}
 }
@@ -47,7 +47,7 @@ void roundRobin(const unsigned short int quantum, t_queue *listos, t_queue *bloq
 void esperaPorProcesos(t_queue* cola)
 {
 	//Si está vacía, informar
-	if(queue_is_empty(cola)) printf("La cola de Listos está vacía...\n");
+	if(queue_is_empty(cola)) escribirLog("La cola de Listos está vacía...\n");
 	//Espera activa
 	while(queue_is_empty(cola));
 }
@@ -58,6 +58,7 @@ void ejecutar(t_PCB proceso, int quantum, int cpu)
 	t_mensaje mensaje_quantum = quantum_to_mensaje(quantum);
 	enviarMensaje(cpu, mensaje_PCB);
 	enviarMensaje(cpu, mensaje_quantum);
+	actualizarMaster();
 }
 
 t_mensaje quantum_to_mensaje(unsigned short int quantum)
@@ -92,22 +93,46 @@ int estaLibre(int cpu)
 	return (FD_ISSET(cpu, &conjunto_cpus_libres));
 }
 
+void* actualizar_si_corresponde(void *pcb)
+{
+	t_PCB *aux_pcb = (t_PCB*)pcb;
+	if(FD_ISSET(aux_pcb->pid, &conjunto_procesos_listos)) aux_pcb->estado = 1;
+	if(FD_ISSET(aux_pcb->pid, &conjunto_procesos_ejecutando)) aux_pcb->estado = 2;
+	if(FD_ISSET(aux_pcb->pid, &conjunto_procesos_bloqueados)) aux_pcb->estado = 3;
+	if(FD_ISSET(aux_pcb->pid, &conjunto_procesos_salida)) aux_pcb->estado = 4;
+
+	return NULL;
+}
+
+void actualizarMaster(void)
+{
+	list_map(lista_master_procesos, actualizar_si_corresponde);
+}
+
 void ponerListo(t_PCB *proceso)
 {
+	proceso->estado = 1;
 	queue_push(cola_listos, proceso);
 	FD_SET(proceso->pid, &conjunto_procesos_listos);
+	actualizarMaster();
 }
 
 void terminar(t_PCB *proceso)
 {
 	FD_CLR(proceso->pid, &conjunto_procesos_ejecutando);
 	FD_SET(proceso->pid, &conjunto_procesos_salida);
+	proceso->estado = 4;
+	actualizarMaster();
 	free(proceso);
 }
 
 void bloquear(t_PCB *proceso)
 {
+	FD_CLR(proceso->pid, &conjunto_procesos_ejecutando);
+	FD_SET(proceso->pid, &conjunto_procesos_bloqueados);
+	proceso->estado = 3;
 	queue_push(cola_bloqueados, proceso);
+	actualizarMaster();
 }
 
 void *imprimirPID(void *pcb)

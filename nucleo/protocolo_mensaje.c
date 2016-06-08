@@ -1,4 +1,4 @@
-#include "protocolo_mensaje.h"
+#include "protocolo_mensaje_5.h"
 
 /*
  * Hipotesis: Al trabajar todos con la misma maquina virtual, no tenemos en cuenta la variacion de tamaño de los tipo de datos segun las arquitecturas.
@@ -156,7 +156,7 @@ int recibirMensaje(int serverSocket, t_mensaje *mensaje){
 	memcpy(bufferTotal, buffer_head, sizeof(t_mensajeHead));
 
 	// Recibo el Payload
-	recibir = recibirBytes(serverSocket, bufferTotal + desplazamiento, faltan_recibir);
+	recibir += recibirBytes(serverSocket, bufferTotal + desplazamiento, faltan_recibir);
 
 	// Desempaqueto el mensaje
 	*mensaje = desempaquetar_mensaje(bufferTotal);

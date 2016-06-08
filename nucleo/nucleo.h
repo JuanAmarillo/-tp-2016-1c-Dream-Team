@@ -1,5 +1,5 @@
-#ifndef NUCLEO_H_
-#define NUCLEO_H_
+#ifndef NUCLEO_5_NUCLEO_H_
+#define NUCLEO_5_NUCLEO_H_
 
 //Bibliotecas a usar
 #include <commons/config.h>
@@ -7,7 +7,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "planificador.h"
+
+#include "planificador_5.h"
+#include "archivoLog.h"
 
 /*
  * Funciones / Procedimientos
@@ -21,5 +23,5 @@ int maximofd(int, int);//Compara valor numérico entre dos file descriptors y de
 void administrarConexiones(void);//Contiene todos los procedimientos para recibir datos de los otros procesos
 void montarHilos(void);
 
-#endif /* NUCLEO_H_ */
+#endif /* NUCLEO_5_NUCLEO_H_ */
 

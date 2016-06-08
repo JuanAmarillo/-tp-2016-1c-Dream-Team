@@ -1,5 +1,5 @@
-#ifndef FUNCIONES_NUCLEO_H_
-#define FUNCIONES_NUCLEO_H_
+#ifndef NUCLEO_5_FUNCIONES_NUCLEO_H_
+#define NUCLEO_5_FUNCIONES_NUCLEO_H_
 
 //Bibliotecas a usar
 #include <commons/config.h>
@@ -14,8 +14,10 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <unistd.h>
-#include "planificador.h"
 #include <pthread.h>
+#include "planificador_5.h"
+#include "archivoLog.h"
+#include "interfaz.h"
 
 //Cuántas conexiones se aceptarán
 #define BACKLOG 100
@@ -46,6 +48,7 @@ int fd_umc, fd_listener_consola, fd_listener_cpu, fd_new, fd_explorer;
 //buffers para datos recibidos de los clientes
 t_mensaje mensajeConsola, mensajeCPU;
 
-
-#endif /* FUNCIONES_NUCLEO_H_ */
+//FUNCIONES
+void estado_to_string(int estado, char *string);
+#endif /* NUCLEO_5_FUNCIONES_NUCLEO_H_ */
 

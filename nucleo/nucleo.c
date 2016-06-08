@@ -1,10 +1,12 @@
-#include "nucleo.h"
+#include "nucleo_5.h"
 
 //ACORDATE DE QUE FALTAN LOS MUTEX
 int main(void)
 {
 	leerArchivoConfig();
 	
+	crearLog();
+
 	inicializarDirecciones();
 	
 	conectar_a_umc();

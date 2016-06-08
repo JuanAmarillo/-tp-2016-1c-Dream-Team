@@ -1,9 +1,9 @@
-#ifndef PCB_H_
-#define PCB_H_
+#ifndef NUCLEO_5_PCB_H_
+#define NUCLEO_5_PCB_H_
 
 #include <string.h>
-#include "protocolo_mensaje.h"
 #include <commons/collections/list.h>
+#include "protocolo_mensaje_5.h"
 
 /*
  * Estructuras de datos
@@ -65,4 +65,4 @@ t_PCB mensaje_to_pcb(t_mensaje);
 void freePCB(t_PCB *);
 void testCrearPCB();
 
-#endif /* PCB_H_ */
+#endif /* NUCLEO_5_PCB_H_ */
