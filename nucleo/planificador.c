@@ -1,4 +1,4 @@
-#include "planificador_5.h"
+#include "planificador.h"
 
 int imprimir = 1, vuelta = 0;
 void roundRobin(const unsigned short int quantum, t_queue *listos, t_queue *bloqueados, t_queue *salida)

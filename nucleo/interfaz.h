@@ -3,9 +3,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "planificador_5.h"
-#include "pcb_5.h"
-#include "funciones_nucleo_5.h"
+
+#include "funciones_nucleo.h"
+#include "pcb.h"
+#include "planificador.h"
 
 void interfaz(void);
 void imprimirMaster(void);

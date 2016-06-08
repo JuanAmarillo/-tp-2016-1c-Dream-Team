@@ -1,4 +1,4 @@
-#include "nucleo_5.h"
+#include "nucleo.h"
 
 //ACORDATE DE QUE FALTAN LOS MUTEX
 int main(void)

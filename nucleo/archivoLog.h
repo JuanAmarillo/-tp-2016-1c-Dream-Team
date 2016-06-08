@@ -9,8 +9,8 @@
 #define ARCHIVOLOG_H_
 #include <stdio.h>
 #include <stdarg.h>
-#include "pcb_5.h"
 #include <commons/collections/queue.h>
+#include "pcb.h"
 
 FILE *archivoLog;
 

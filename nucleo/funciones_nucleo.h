@@ -15,9 +15,9 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <pthread.h>
-#include "planificador_5.h"
 #include "archivoLog.h"
 #include "interfaz.h"
+#include "planificador.h"
 
 //Cuántas conexiones se aceptarán
 #define BACKLOG 100

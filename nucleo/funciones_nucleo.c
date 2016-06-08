@@ -1,4 +1,4 @@
-#include "funciones_nucleo_5.h"
+#include "funciones_nucleo.h"
 
 /*
  * leerArchivoConfig();

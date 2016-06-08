@@ -3,7 +3,8 @@
 
 #include <string.h>
 #include <commons/collections/list.h>
-#include "protocolo_mensaje_5.h"
+
+#include "protocolo_mensaje.h"
 
 /*
  * Estructuras de datos

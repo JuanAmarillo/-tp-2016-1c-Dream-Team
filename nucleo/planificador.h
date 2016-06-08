@@ -11,8 +11,8 @@
 #include <commons/collections/queue.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "pcb_5.h"
 #include "archivoLog.h"
+#include "pcb.h"
 
 t_list *lista_master_procesos;
 t_queue *cola_listos;

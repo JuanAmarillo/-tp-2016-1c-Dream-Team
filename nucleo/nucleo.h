@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "planificador_5.h"
 #include "archivoLog.h"
+#include "planificador.h"
 
 /*
  * Funciones / Procedimientos

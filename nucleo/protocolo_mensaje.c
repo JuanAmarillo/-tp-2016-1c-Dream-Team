@@ -1,4 +1,4 @@
-#include "protocolo_mensaje_5.h"
+#include "protocolo_mensaje.h"
 
 /*
  * Hipotesis: Al trabajar todos con la misma maquina virtual, no tenemos en cuenta la variacion de tamaño de los tipo de datos segun las arquitecturas.
