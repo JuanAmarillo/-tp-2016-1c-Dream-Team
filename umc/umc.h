@@ -26,7 +26,6 @@
 #include <commons/collections/list.h>
 #include "messageCode.h"
 
-
 /*
  * Estructuras de datos
  */
@@ -35,6 +34,12 @@ typedef struct{
 	char *puertoUMC;
 	char *puertoSWAP;
 } t_infoConfig;
+
+typedef struct{
+	int marcos;
+	int tamanioDeMarcos;
+	int maxMarcosPorPrograma;
+} t_memoria;
 
 typedef struct {
   unsigned codigo;
@@ -48,16 +53,33 @@ typedef struct {
   char *mensaje_extra;
 } t_mensaje;
 
+typedef struct{
+	unsigned estaEnMemoria;
+	unsigned fueModificado;
+	unsigned marco;
+} t_entradaTablaPaginas;
+
+typedef struct{
+	unsigned pid;
+	t_entradaTablaPaginas *entradaTablaPaginas;
+} t_tablaDePaginas;
+
+
+
+
 
 /*
  * Variables Globales
  */
+t_memoria infoMemoria;
 t_infoConfig infoConfig;
 int servidorUMC,clienteSWAP;
 struct sockaddr_in direccionServidorUMC;
 struct sockaddr_in direccionServidorSWAP;
 fd_set master;
-char* buffer;
+unsigned procesoActivo;
+void* memoriaPrincipal;
+t_list *tablasDePaginas;
 pthread_mutex_t mutex;
 
 /*
