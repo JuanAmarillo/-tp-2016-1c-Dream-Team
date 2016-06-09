@@ -29,6 +29,7 @@ void readConfigFile(){
 	NOMBRE_SWAP = config_get_string_value(config, "NOMBRE_SWAP");
 	CANTIDAD_PAGINAS= atoi(config_get_string_value(config, "CANTIDAD_PAGINAS"));
 	TAMANIO_PAGINA= atoi(config_get_string_value(config, "TAMANIO_PAGINA"));
+	RETARDO_ACCESO= atoi(config_get_string_value(config, "RETARDO_ACCESO"));
 	RETARDO_COMPACTACION= atoi(config_get_string_value(config, "RETARDO_COMPACTACION"));
 }
 
