@@ -637,7 +637,7 @@ int _is_variableX(t_variable *tmp) {
 	return tmp->identificador == nombreVariable_aBuscar;
 }
 
-t_puntero definirVariable(t_nombre_variable variable) {
+t_puntero definirVariable(t_nombre_variable identificador_variable) {
 	int lastStack = list_size(pcb_global.indiceStack);
 	t_indiceStack *aux_stack;
 
@@ -674,14 +674,14 @@ t_puntero definirVariable(t_nombre_variable variable) {
 
 	// Registrar variable en el ultimo Indice Stack
 	aux_stack = list_get(pcb_global.indiceStack, lastStack);
-	list_add(aux_stack->vars, vars_create(variable, posicionMemoria.numeroPagina, posicionMemoria.offset, posicionMemoria.size));
+	list_add(aux_stack->vars, vars_create(identificador_variable, posicionMemoria.numeroPagina, posicionMemoria.offset, posicionMemoria.size));
 
 	// Devuelvo posicion de la variable en el contexto actual
 	return posicionMemoria;
 }
 
-t_puntero obtenerPosicionVariable(t_nombre_variable variable) {
-	nombreVariable_aBuscar = variable;
+t_puntero obtenerPosicionVariable(t_nombre_variable identificador_variable) {
+	nombreVariable_aBuscar = identificador_variable;
 	int lastStack = list_size(pcb_global.indiceStack);
 	t_puntero puntero_variable;
 	t_indiceStack *aux_stack;
@@ -696,14 +696,14 @@ t_puntero obtenerPosicionVariable(t_nombre_variable variable) {
 	return puntero_variable;
 }
 
-t_valor_variable dereferenciar(t_puntero puntero) {
+t_valor_variable dereferenciar(t_puntero direccion_variable) {
 
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[3];
-	parametros[0] = puntero.numeroPagina;	// Numero de Pagina
-	parametros[1] = puntero.offset;			// Desplazamiento
-	parametros[2] = puntero.size;			// Cantidad de bytes a leer
+	parametros[0] = direccion_variable.numeroPagina;	// Numero de Pagina
+	parametros[1] = direccion_variable.offset;			// Desplazamiento
+	parametros[2] = direccion_variable.size;			// Cantidad de bytes a leer
 	mensaje.head.codigo = GET_DATA;
 	mensaje.head.cantidad_parametros = 3;
 	mensaje.head.tam_extra = 0;
@@ -735,14 +735,14 @@ t_valor_variable dereferenciar(t_puntero puntero) {
 	return contenido_variable;
 }
 
-void asignar(t_puntero puntero, t_valor_variable variable) {
+void asignar(t_puntero direccion_variable, t_valor_variable valor) {
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[4];
-	parametros[0] = puntero.numeroPagina;	// Numero de Pagina
-	parametros[1] = puntero.offset;			// Desplazamiento
-	parametros[2] = puntero.size;			// Tamaño
-	parametros[3] = variable;				// Data
+	parametros[0] = direccion_variable.numeroPagina;	// Numero de Pagina
+	parametros[1] = direccion_variable.offset;			// Desplazamiento
+	parametros[2] = direccion_variable.size;			// Tamaño
+	parametros[3] = valor;				// Data
 	mensaje.head.codigo = RECORD_DATA;
 	mensaje.head.cantidad_parametros = 4;
 	mensaje.head.tam_extra = 0;
@@ -768,21 +768,16 @@ void asignar(t_puntero puntero, t_valor_variable variable) {
 
 // t_valor_variable obtenerValorCompartida(t_nombre_compartida variable);
 // t_valor_variable asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor);
-// t_puntero_instruccion irAlLabel(t_nombre_etiqueta etiqueta);
-// t_puntero_instruccion llamarFuncion(t_nombre_etiqueta etiqueta, t_posicion donde_retornar, t_puntero_instruccion linea_en_ejecucion);
-// t_puntero_instruccion retornar(t_valor_variable retorno);
-
-void imprimir(t_valor_variable valor) {
-	printf("Imprimir %d\n", valor);
-}
-
-void imprimirTexto(char* texto) {
-	printf("ImprimirTexto: %s", texto);
-}
-
-// void entradaSalida(t_nombre_dispositivo dispositivo, int tiempo);
-// void wait(t_nombre_semaforo identificador_semaforo);
-// void signal(t_nombre_semaforo identificador_semaforo);
+// void irAlLabel(t_nombre_etiqueta etiqueta)
+// void llamarSinRetorno(t_nombre_etiqueta etiqueta)
+// void llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar)
+// void finalizar()
+// void retornar(t_valor_variable retorno)
+// void imprimir(t_valor_variable valor_mostrar)
+// void imprimirTexto(char* texto)
+// void entradaSalida(t_nombre_dispositivo dispositivo, int tiempo)
+// void wait(t_nombre_semaforo identificador_semaforo)
+// void signal(t_nombre_semaforo identificador_semaforo)
 
 /*
  * FIN PRIMITIVAS.c
