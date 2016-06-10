@@ -17,7 +17,7 @@
 #include "cpu.h"
 #include "parser.h" // parser/parser.h -> Modificado los typedef
 #include "analizador.h"
-#include "codigos_operacion.h"
+#include "../messageCode/messageCode.h"
 
 int main(int argc, char** argv){
 
