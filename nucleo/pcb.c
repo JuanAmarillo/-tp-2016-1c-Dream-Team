@@ -1,3 +1,5 @@
+#include "pcb.h"
+
 /*
  * stack_create();
  * Parametros:

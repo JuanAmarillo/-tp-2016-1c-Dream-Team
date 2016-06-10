@@ -1,5 +1,10 @@
-#ifndef PCB_H_
-#define PCB_H_
+#ifndef NUCLEO_5_PCB_H_
+#define NUCLEO_5_PCB_H_
+
+#include <string.h>
+#include <commons/collections/list.h>
+
+#include "protocolo_mensaje.h"
 
 /*
  * Estructuras de datos
@@ -49,16 +54,16 @@ typedef struct {
  * Funciones / Procedimientos
  */
 
-static t_indiceStack *stack_create(unsigned, unsigned, unsigned, unsigned);
-static t_posicionDeMemoria *args_create(unsigned, unsigned, unsigned);
-static t_variable *vars_create(char, unsigned, unsigned, unsigned);
+//static t_indiceStack *stack_create(unsigned, unsigned, unsigned, unsigned);
+//static t_posicionDeMemoria *args_create(unsigned, unsigned, unsigned);
+//static t_variable *vars_create(char, unsigned, unsigned, unsigned);
 t_mensaje pcb_to_mensaje(t_PCB, unsigned);
 t_mensajeHeadStack desempaquetar_headStack(const void *);
 t_PCB mensaje_to_pcb(t_mensaje);
-static void args_destroy(t_posicionDeMemoria *);
-static void vars_destroy(t_variable *);
-static void stack_destroy(t_indiceStack *);
+//static void args_destroy(t_posicionDeMemoria *);
+//static void vars_destroy(t_variable *);
+//static void stack_destroy(t_indiceStack *);
 void freePCB(t_PCB *);
 void testCrearPCB();
 
-#endif /* PCB_H_ */
+#endif /* NUCLEO_5_PCB_H_ */

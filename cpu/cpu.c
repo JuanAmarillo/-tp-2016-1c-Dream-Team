@@ -24,6 +24,7 @@ int main(int argc, char** argv){
 	// Declaro variables
 	t_mensaje mensaje_recibido;
 	int i_quantum;
+	int quantum;
 	unsigned tamano_pagina_umc;
 
 	// Leer archivo config.conf
@@ -53,23 +54,33 @@ int main(int argc, char** argv){
 			continue;
 		}
 
+		// Recibir Quantum
+		quantum = recibirQuantum();
+
 		// Convierto el mensaje en un PCB, y borro el mensaje
 		pcb_global = mensaje_to_pcb(mensaje_recibido);
 		freeMensaje(&mensaje_recibido);
 
 		// Notifico a la UMC de cambio de proceso
 
-		// Obtener siguiente instruccion
-		char *instruccion = obtenerSiguienteIntruccion();
 
-		// analizadorLinea (parser)
-		analizadorLinea(instruccion, &functions, &kernel_functions);
+		// LOOP QUANTUM
+		for(i_quantum = 0; i_quantum < quantum; i_quantum++){
 
-		// Libero memoria de la instruccion
-		free(instruccion);
+			// Obtener siguiente instruccion
+			char *instruccion = obtenerSiguienteIntruccion();
 
-		// Actualizar PCB
-		pcb_global.pc++;
+			// analizadorLinea (parser)
+			analizadorLinea(instruccion, &functions, &kernel_functions);
+
+			// Libero memoria de la instruccion
+			free(instruccion);
+
+			// Actualizar PCB
+			pcb_global.pc++;
+
+		}
+		// FIN LOOP QUANTUM
 
 		// Notificar al Nucleo
 		enviarPCBnucleo();
@@ -336,11 +347,43 @@ unsigned obtenerTamanoPaginasUMC(){
 	return tamano_pagina;
 }
 
+/*
+ * enviarPCBnucleo();
+ * Parametros: -
+ * Descripcion: Envia el PCB global al nucleo
+ * Return: -
+ */
 void enviarPCBnucleo(){
 	t_mensaje mensaje;
 	mensaje = pcb_to_mensaje(pcb_global,0);
 	enviarMensajeNucleo(mensaje);
 	freeMensaje(&mensaje);
+}
+
+/*
+ * recibirQuantum();
+ * Parametros: -
+ * Descripcion: Obtiene la cantidad de quantum a ejecutar
+ * Return: cantidad de quantum
+ */
+int recibirQuantum(){
+	t_mensaje mensaje;
+	int quantum;
+
+	// Recibo mensaje
+	recibirMensajeNucleo(&mensaje);
+
+	if(mensaje.head.codigo != QUANTUM){
+		// ERROR
+	}
+
+	// Tamaño de pagina
+	quantum = mensaje.parametros[0];
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
+
+	return quantum;
 }
 
 /*
@@ -499,7 +542,7 @@ int recibirMensaje(int serverSocket, t_mensaje *mensaje){
 
 	// Obtengo los valores del HEAD
 	mensaje_head = desempaquetar_head(buffer_head);
-	desplazamiento = sizeof(t_mensajeHead);
+	desplazamiento += sizeof(t_mensajeHead);
 
 	// Me preparo para recibir el Payload
 	unsigned faltan_recibir = sizeof(unsigned) * mensaje_head.cantidad_parametros + mensaje_head.tam_extra;
@@ -507,7 +550,7 @@ int recibirMensaje(int serverSocket, t_mensaje *mensaje){
 	memcpy(bufferTotal, buffer_head, sizeof(t_mensajeHead));
 
 	// Recibo el Payload
-	recibir = recibirBytes(serverSocket, bufferTotal + sizeof(t_mensajeHead), faltan_recibir);
+	recibir = recibirBytes(serverSocket, bufferTotal + desplazamiento, faltan_recibir);
 
 	// Desempaqueto el mensaje
 	*mensaje = desempaquetar_mensaje(bufferTotal);
@@ -809,7 +852,8 @@ static t_variable *vars_create(char identificador, unsigned numeroPagina, unsign
 t_mensaje pcb_to_mensaje(t_PCB pcb, unsigned codigo) {
 
 	// Variables usadas
-	int cantidad_indiceCodigo = 2;
+	int cantidad_indiceCodigo = pcb.total_instrucciones;
+	unsigned tam_indiceEtiquetas = pcb.tam_indiceEtiquetas;
 	int cantidad_indiceStack = list_size(pcb.indiceStack);
 	int cantidadTotal_args = 0;
 	int cantidadTotal_vars = 0;
@@ -832,7 +876,7 @@ t_mensaje pcb_to_mensaje(t_PCB pcb, unsigned codigo) {
 	}
 
 	// El tamaño de Payload + Head Internos
-	tam_extra = sizeof(t_indiceCodigo) * cantidad_indiceCodigo + (tam_headStack + sizeof(unsigned) + sizeof(t_posicionDeMemoria)) * cantidad_indiceStack + sizeof(t_posicionDeMemoria) * cantidadTotal_args + sizeof(t_variable) * cantidadTotal_vars;
+	tam_extra = tam_indiceEtiquetas + sizeof(t_indiceCodigo) * cantidad_indiceCodigo + (tam_headStack + sizeof(unsigned) + sizeof(t_posicionDeMemoria)) * cantidad_indiceStack + sizeof(t_posicionDeMemoria) * cantidadTotal_args + sizeof(t_variable) * cantidadTotal_vars;
 
 	// Creo un bloque en memoria con la tamaño del Head + Payload
 	char *mensaje_empaquetado = malloc(tam_extra);
@@ -842,6 +886,10 @@ t_mensaje pcb_to_mensaje(t_PCB pcb, unsigned codigo) {
 		memcpy(mensaje_empaquetado + desplazamiento, &pcb.indiceCodigo[i_parametro], sizeof(t_indiceCodigo));
 		desplazamiento += sizeof(t_indiceCodigo);
 	}
+
+	// Copio indiceEtiquetas
+	memcpy(mensaje_empaquetado + desplazamiento, pcb.indiceEtiquetas, tam_indiceEtiquetas);
+	desplazamiento += tam_indiceEtiquetas;
 
 	// Copio la lista de stack
 	if(cantidad_indiceStack != 0){
@@ -884,16 +932,19 @@ t_mensaje pcb_to_mensaje(t_PCB pcb, unsigned codigo) {
 
 	// Devuelvo
 	// Creo mensaje
-	unsigned *parametros = malloc(sizeof(unsigned) * 6);
+	unsigned cantidad_parametros = 8;
+	unsigned *parametros = malloc(sizeof(unsigned) * cantidad_parametros);
 	parametros[0] = cantidad_indiceCodigo;
 	parametros[1] = cantidad_indiceStack;
 	parametros[2] = pcb.pid;
 	parametros[3] = pcb.pc;
 	parametros[4] = pcb.cantidadPaginas;
 	parametros[5] = pcb.estado;
+	parametros[6] = pcb.sp;
+	parametros[7] = pcb.tam_indiceEtiquetas;
 
 	mensaje.head.codigo = codigo;
-	mensaje.head.cantidad_parametros = 6;
+	mensaje.head.cantidad_parametros = cantidad_parametros;
 	mensaje.head.tam_extra = tam_extra;
 	mensaje.mensaje_extra = mensaje_empaquetado;
 	mensaje.parametros = parametros;
@@ -945,10 +996,22 @@ t_PCB mensaje_to_pcb(t_mensaje mensaje) {
 	t_variable aux_vars;
 	unsigned cantidad_indiceCodigo = mensaje.parametros[0];
 	unsigned cantidad_indiceStack = mensaje.parametros[1];
+	unsigned tam_indiceEtiquetas = mensaje.parametros[7];
 
 
 	// Creo memoria para el PCB
 	t_PCB pcb;
+
+	pcb.total_instrucciones = cantidad_indiceCodigo;
+	pcb.pid = mensaje.parametros[2];
+	pcb.pc = mensaje.parametros[3];
+	pcb.cantidadPaginas = mensaje.parametros[4];
+	pcb.estado = mensaje.parametros[5];
+	pcb.sp = mensaje.parametros[6];
+	pcb.tam_indiceEtiquetas = tam_indiceEtiquetas;
+
+	pcb.indiceCodigo = malloc(sizeof(t_indiceCodigo) * cantidad_indiceCodigo);
+	pcb.indiceEtiquetas = malloc(tam_indiceEtiquetas);
 
 	char *buffer = mensaje.mensaje_extra;
 
@@ -958,6 +1021,9 @@ t_PCB mensaje_to_pcb(t_mensaje mensaje) {
 		desplazamiento += sizeof(t_indiceCodigo);
 	}
 
+	// Paso indiceEtiquetas
+	memcpy(pcb.indiceEtiquetas, buffer + desplazamiento, tam_indiceEtiquetas);
+	desplazamiento += tam_indiceEtiquetas;
 
 	pcb.indiceStack = list_create();
 	// Desempaqueto el indiceStack
@@ -1023,37 +1089,8 @@ void freePCB(t_PCB *pcb){
 	}
 	// Destruyo los Stack
 	list_destroy_and_destroy_elements(pcb->indiceStack, (void*) stack_destroy);
-}
-
-/*
- * testCrearPCB();
- */
-void testCrearPCB(){
-	t_PCB pcb;
-	t_indiceStack *aux_stack;
-
-	t_indiceCodigo parametros[2];
-	parametros[0].offset_fin = 53;
-	parametros[0].offset_inicio = 54;
-	parametros[1].offset_fin = 55;
-	parametros[1].offset_inicio = 56;
-
-	pcb.pid = 1;
-	pcb.pc = 22;
-	pcb.cantidadPaginas = 30;
-	pcb.estado = 13;
-	pcb.indiceCodigo = parametros;
-	pcb.indiceStack = list_create();
-
-	// Creo un nodo STACK
-	list_add(pcb.indiceStack, stack_create(40, 41, 42, 43));
-
-	// Le agrego contenido a las listas (args y vars) del nodo Stack
-	aux_stack = list_get(pcb.indiceStack, 0);
-	list_add(aux_stack->args, args_create(60, 61, 62));
-	list_add(aux_stack->args, args_create(63, 64, 65));
-	list_add(aux_stack->vars, vars_create('a', 66, 67, 68));
-	list_add(aux_stack->vars, vars_create('b', 69, 70, 71));
+	//
+	free(pcb->indiceEtiquetas);
 }
 /*
  * FIN PCB.c

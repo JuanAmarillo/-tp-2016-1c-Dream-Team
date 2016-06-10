@@ -56,11 +56,13 @@ void unSetPage(unsigned nroPag){
 
 void getPage(unsigned nroPag){
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
+	sleep(RETARDO_ACCESO);
 	fread(paginaMultiProposito,TAMANIO_PAGINA,1,SWAPFILE);
 }
 
 void savePage(unsigned nroPag){
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
+	sleep(RETARDO_ACCESO);
 	fwrite(paginaMultiProposito,TAMANIO_PAGINA,1,SWAPFILE);
 }
 
