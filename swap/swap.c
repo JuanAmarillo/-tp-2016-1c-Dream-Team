@@ -15,9 +15,10 @@
 #include <netdb.h>
 #include <unistd.h>
 #include "swap.h"
-#include "messageCode.h"
+#include "../messageCode/messageCode.h"
 #include "initialize.h"
 #include "funcionesAuxiliares.h"
+#include "CUnit/Basic.h"
 
 int main(){
 	readConfigFile();
