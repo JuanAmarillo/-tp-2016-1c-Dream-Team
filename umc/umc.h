@@ -24,7 +24,7 @@
 #include <commons/config.h>
 #include <commons/string.h>
 #include <commons/collections/list.h>
-#include "messageCode.h"
+#include "../messageCode/messageCode.h"
 
 /*
  * Estructuras de datos
