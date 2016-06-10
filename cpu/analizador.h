@@ -21,9 +21,9 @@ void parser_asignar(t_puntero direccion_variable, t_valor_variable valor);
 t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable);
 t_valor_variable parser_asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor);
 void parser_irAlLabel(t_nombre_etiqueta etiqueta);
-void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta);
+void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta);*/
 void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar);
-void parser_finalizar();
+/*void parser_finalizar();
 void parser_retornar(t_valor_variable retorno);
 void parser_imprimir(t_valor_variable valor_mostrar);
 void parser_imprimirTexto(char* texto);
@@ -39,9 +39,9 @@ AnSISOP_funciones functions = {
 		/*.AnSISOP_obtenerValorCompartida	= parser_obtenerValorCompartida,
 		.AnSISOP_asignarValorCompartida	= parser_asignarValorCompartida,
 		.AnSISOP_irAlLabel				= parser_irAlLabel,
-		.AnSISOP_llamarSinRetorno		= parser_llamarSinRetorno,
+		.AnSISOP_llamarSinRetorno		= parser_llamarSinRetorno,*/
 		.AnSISOP_llamarConRetorno		= parser_llamarConRetorno,
-		.AnSISOP_finalizar				= parser_finalizar,
+		/*.AnSISOP_finalizar				= parser_finalizar,
 		.AnSISOP_retornar				= parser_retornar,
 		.AnSISOP_imprimir				= parser_imprimir,
 		.AnSISOP_imprimirTexto			= parser_imprimirTexto,
