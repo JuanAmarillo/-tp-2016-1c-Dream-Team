@@ -770,7 +770,18 @@ void parser_asignar(t_puntero direccion_variable, t_valor_variable valor) {
 // t_valor_variable parser_asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor);
 // void parser_irAlLabel(t_nombre_etiqueta etiqueta)
 // void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta)
-// void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar)
+void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar){
+
+	// Busco PC de la primera instruccion de la funcion
+	unsigned pc_first_intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
+
+	// Creo nuevo contexto, y guardo retPos y retVar
+	list_add(pcb_global.indiceStack, stack_create(pcb_global.pc, donde_retornar.numeroPagina, donde_retornar.offset, donde_retornar.size));
+
+	// Cambio el PC actual
+	pcb_global.pc = pc_first_intruction;
+
+}
 // void parser_finalizar()
 // void parser_retornar(t_valor_variable retorno)
 // void parser_imprimir(t_valor_variable valor_mostrar)
