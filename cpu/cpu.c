@@ -637,7 +637,7 @@ int _is_variableX(t_variable *tmp) {
 	return tmp->identificador == nombreVariable_aBuscar;
 }
 
-t_puntero definirVariable(t_nombre_variable identificador_variable) {
+t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 	int lastStack = list_size(pcb_global.indiceStack);
 	t_indiceStack *aux_stack;
 
@@ -680,7 +680,7 @@ t_puntero definirVariable(t_nombre_variable identificador_variable) {
 	return posicionMemoria;
 }
 
-t_puntero obtenerPosicionVariable(t_nombre_variable identificador_variable) {
+t_puntero parser_obtenerPosicionVariable(t_nombre_variable identificador_variable) {
 	nombreVariable_aBuscar = identificador_variable;
 	int lastStack = list_size(pcb_global.indiceStack);
 	t_puntero puntero_variable;
@@ -696,7 +696,7 @@ t_puntero obtenerPosicionVariable(t_nombre_variable identificador_variable) {
 	return puntero_variable;
 }
 
-t_valor_variable dereferenciar(t_puntero direccion_variable) {
+t_valor_variable parser_dereferenciar(t_puntero direccion_variable) {
 
 	// Variables
 	t_mensaje mensaje;
@@ -735,7 +735,7 @@ t_valor_variable dereferenciar(t_puntero direccion_variable) {
 	return contenido_variable;
 }
 
-void asignar(t_puntero direccion_variable, t_valor_variable valor) {
+void parser_asignar(t_puntero direccion_variable, t_valor_variable valor) {
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[4];
@@ -766,18 +766,18 @@ void asignar(t_puntero direccion_variable, t_valor_variable valor) {
 	freeMensaje(&mensaje);
 }
 
-// t_valor_variable obtenerValorCompartida(t_nombre_compartida variable);
-// t_valor_variable asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor);
-// void irAlLabel(t_nombre_etiqueta etiqueta)
-// void llamarSinRetorno(t_nombre_etiqueta etiqueta)
-// void llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar)
-// void finalizar()
-// void retornar(t_valor_variable retorno)
-// void imprimir(t_valor_variable valor_mostrar)
-// void imprimirTexto(char* texto)
-// void entradaSalida(t_nombre_dispositivo dispositivo, int tiempo)
-// void wait(t_nombre_semaforo identificador_semaforo)
-// void signal(t_nombre_semaforo identificador_semaforo)
+// t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable);
+// t_valor_variable parser_asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor);
+// void parser_irAlLabel(t_nombre_etiqueta etiqueta)
+// void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta)
+// void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar)
+// void parser_finalizar()
+// void parser_retornar(t_valor_variable retorno)
+// void parser_imprimir(t_valor_variable valor_mostrar)
+// void parser_imprimirTexto(char* texto)
+// void parser_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo)
+// void parser_wait(t_nombre_semaforo identificador_semaforo)
+// void parser_signal(t_nombre_semaforo identificador_semaforo)
 
 /*
  * FIN PRIMITIVAS.c
