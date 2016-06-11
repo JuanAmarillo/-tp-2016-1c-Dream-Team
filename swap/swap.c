@@ -15,9 +15,10 @@
 #include <netdb.h>
 #include <unistd.h>
 #include "swap.h"
-#include "messageCode.h"
+#include "../messageCode/messageCode.h"
 #include "initialize.h"
 #include "funcionesAuxiliares.h"
+#include "CUnit/Basic.h"
 
 int main(){
 	readConfigFile();
@@ -56,11 +57,13 @@ void unSetPage(unsigned nroPag){
 
 void getPage(unsigned nroPag){
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
+	sleep(RETARDO_ACCESO);
 	fread(paginaMultiProposito,TAMANIO_PAGINA,1,SWAPFILE);
 }
 
 void savePage(unsigned nroPag){
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
+	sleep(RETARDO_ACCESO);
 	fwrite(paginaMultiProposito,TAMANIO_PAGINA,1,SWAPFILE);
 }
 

@@ -253,4 +253,27 @@
 	void analizadorLinea(char* const instruccion, AnSISOP_funciones *AnSISOP_funciones, AnSISOP_kernel *AnSISOP_funciones_kernel);
 	char* _string_trim(char*);
 
+	/* META PARSER */
+
+	typedef struct {
+			t_puntero_instruccion	start;
+			t_size		offset;
+		} t_intructions;
+
+		typedef struct {
+			t_puntero_instruccion	instruccion_inicio;	//El numero de la primera instruccion (Begin)
+			t_size			instrucciones_size;				// Cantidad de instrucciones
+			t_intructions*	instrucciones_serializado; 		// Instrucciones del programa
+
+			t_size			etiquetas_size;					// Tamaño del mapa serializado de etiquetas
+			char*			etiquetas;							// La serializacion de las etiquetas
+
+			int				cantidad_de_funciones;
+			int				cantidad_de_etiquetas;
+		} t_metadata_program;
+
+	t_metadata_program* metadata_desde_literal(const char*);
+	void metadata_destruir(t_metadata_program*);
+	t_puntero_instruccion metadata_buscar_etiqueta(const t_nombre_etiqueta objetivo, const char *etiquetas, const t_size etiquetas_size);
+
 #endif

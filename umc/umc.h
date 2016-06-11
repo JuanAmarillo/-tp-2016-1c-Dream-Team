@@ -26,7 +26,6 @@
 #include <commons/collections/list.h>
 #include "messageCode.h"
 
-
 /*
  * Estructuras de datos
  */
@@ -35,6 +34,13 @@ typedef struct{
 	char *puertoUMC;
 	char *puertoSWAP;
 } t_infoConfig;
+
+typedef struct{
+	int marcos;
+	int tamanioDeMarcos;
+	int maxMarcosPorPrograma;
+	int entradasTLB;
+} t_memoria;
 
 typedef struct {
   unsigned codigo;
@@ -48,17 +54,45 @@ typedef struct {
   char *mensaje_extra;
 } t_mensaje;
 
+typedef struct{
+	unsigned estaEnMemoria;
+	unsigned fueModificado;
+	unsigned marco;
+} t_entradaTablaPaginas;
+
+typedef struct{
+	unsigned pid;
+	t_entradaTablaPaginas *entradaTablaPaginas;
+} t_tablaDePaginas;
+
+typedef struct{
+	unsigned pagina;
+	unsigned marco;
+	unsigned estaEnMemoria;
+	unsigned fueModificado;
+}t_entradaTLB;
+
+
 
 /*
  * Variables Globales
  */
+t_memoria infoMemoria;
 t_infoConfig infoConfig;
 int servidorUMC,clienteSWAP;
 struct sockaddr_in direccionServidorUMC;
 struct sockaddr_in direccionServidorSWAP;
 fd_set master;
-char* buffer;
-pthread_mutex_t mutex;
+unsigned procesoActivo;
+unsigned punteroClock;
+void* memoriaPrincipal;
+t_list *tablasDePaginas;
+t_entradaTLB  *TLB;
+pthread_mutex_t mutexClientes;
+pthread_mutex_t mutexMemoria;
+pthread_mutex_t mutexTablaPaginas;
+pthread_mutex_t mutexClock;
+pthread_mutex_t mutexProcesoActivo;
 
 /*
  * Funciones

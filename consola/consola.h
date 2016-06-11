@@ -1,6 +1,10 @@
 #ifndef CONSOLA_H_
 #define CONSOLA_H_
 
+#define NUEVO_PROGRAMA 100
+
+#include "protocolo_mensaje.h"
+
 /*
  * Estructuras de datos
  */
@@ -18,7 +22,19 @@ t_infoConfig infoConfig;
 /*
  * Funciones / Procedimientos
  */
- 
+
+t_mensaje codigo_to_mensaje(char* codigo)
+{
+	unsigned int tamCod = strlen(codigo);
+	t_mensajeHead head = {NUEVO_PROGRAMA, 0, tamCod};
+	t_mensaje mensaje;
+	mensaje.head = head;
+	mensaje.parametros = NULL;
+	mensaje.mensaje_extra = malloc(tamCod);
+	memcpy(mensaje.mensaje_extra, codigo, tamCod);
+	return mensaje;
+}
+
  /*
  * leerArchivoConfig();
  * Parametros: -
