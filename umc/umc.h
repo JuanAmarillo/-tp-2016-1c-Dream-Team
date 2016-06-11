@@ -24,7 +24,7 @@
 #include <commons/config.h>
 #include <commons/string.h>
 #include <commons/collections/list.h>
-#include "../messageCode/messageCode.h"
+#include "messageCode.h"
 
 /*
  * Estructuras de datos
@@ -39,6 +39,7 @@ typedef struct{
 	int marcos;
 	int tamanioDeMarcos;
 	int maxMarcosPorPrograma;
+	int entradasTLB;
 } t_memoria;
 
 typedef struct {
@@ -64,7 +65,12 @@ typedef struct{
 	t_entradaTablaPaginas *entradaTablaPaginas;
 } t_tablaDePaginas;
 
-
+typedef struct{
+	unsigned pagina;
+	unsigned marco;
+	unsigned estaEnMemoria;
+	unsigned fueModificado;
+}t_entradaTLB;
 
 
 
@@ -78,9 +84,15 @@ struct sockaddr_in direccionServidorUMC;
 struct sockaddr_in direccionServidorSWAP;
 fd_set master;
 unsigned procesoActivo;
+unsigned punteroClock;
 void* memoriaPrincipal;
 t_list *tablasDePaginas;
-pthread_mutex_t mutex;
+t_entradaTLB  *TLB;
+pthread_mutex_t mutexClientes;
+pthread_mutex_t mutexMemoria;
+pthread_mutex_t mutexTablaPaginas;
+pthread_mutex_t mutexClock;
+pthread_mutex_t mutexProcesoActivo;
 
 /*
  * Funciones

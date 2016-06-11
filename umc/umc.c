@@ -14,9 +14,10 @@ void leerArchivoConfig()
 	infoConfig.ip = config_get_string_value(config, "IP");
 	infoConfig.puertoUMC = config_get_string_value(config, "PUERTO");
 	infoConfig.puertoSWAP = config_get_string_value(config, "PUERTO_SWAP");
-	infoMemoria.marcos = config_get_string_value(config, "MARCOS");
-	infoMemoria.tamanioDeMarcos = config_get_string_value(config, "MARCO_SIZE");
-	infoMemoria.maxMarcosPorPrograma = config_get_string_value(config,"MARCO_X_PROC");
+	infoMemoria.marcos = config_get_int_value(config, "MARCOS");
+	infoMemoria.tamanioDeMarcos = config_get_int_value(config, "MARCO_SIZE");
+	infoMemoria.maxMarcosPorPrograma = config_get_int_value(config,"MARCO_X_PROC");
+	infoMemoria.entradasTLB = config_get_int_value(config,"ENTRADAS_TLB");
 
 	free(config->path);
 	free(config);
@@ -37,7 +38,9 @@ struct sockaddr_in setDireccion(const char *puerto)
 void inicializarEstructuras()
 {
 	memoriaPrincipal = malloc(infoMemoria.marcos * infoMemoria.tamanioDeMarcos);
+	TLB = list_create();
 	tablasDePaginas  = list_create();
+	punteroClock = 0;
 	return;
 }
 
@@ -83,13 +86,44 @@ t_mensaje desempaquetar_mensaje(const void *buffer) {
 
 	return mensaje_desempaquetado;
 }
+
+void *empaquetar_mensaje(t_mensaje mensaje) {
+
+	// Variables usadas
+	unsigned desplazamiento = 0;
+	unsigned i_parametro;
+
+	// Creo un bloque en memoria con la tamaño del Head + Payload
+	void *mensaje_empaquetado = malloc(sizeof(t_mensajeHead) + sizeof(unsigned) * mensaje.head.cantidad_parametros + mensaje.head.tam_extra);
+
+	// Copio el head en el bloque de memoria creado
+	memcpy(mensaje_empaquetado + desplazamiento, &mensaje.head.codigo, sizeof(unsigned));
+	desplazamiento += sizeof(unsigned);
+	memcpy(mensaje_empaquetado + desplazamiento, &mensaje.head.cantidad_parametros, sizeof(unsigned));
+	desplazamiento += sizeof(unsigned);
+	memcpy(mensaje_empaquetado + desplazamiento, &mensaje.head.tam_extra, sizeof(unsigned));
+	desplazamiento += sizeof(unsigned);
+
+	// Copio los parametros
+	for (i_parametro = 0; i_parametro < mensaje.head.cantidad_parametros; i_parametro++){
+		memcpy(mensaje_empaquetado + desplazamiento, &mensaje.parametros[i_parametro], sizeof(unsigned));
+		desplazamiento += sizeof(unsigned);
+	}
+
+	// Copio el mensaje_extra
+	memcpy(mensaje_empaquetado + desplazamiento, mensaje.mensaje_extra, mensaje.head.tam_extra);
+
+	// Devuelvo
+	return mensaje_empaquetado;
+}
+
 void clienteDesconectado(int clienteUMC)
 {
 	perror("El cliente se desconecto\n");
 
-	pthread_mutex_lock(&mutex);
+	pthread_mutex_lock(&mutexClientes);
 	FD_CLR(clienteUMC, &master);
-	pthread_mutex_unlock(&mutex);
+	pthread_mutex_unlock(&mutexClientes);
 
 	close(clienteUMC);
 
@@ -140,7 +174,7 @@ void recibirMensaje(int clienteUMC, t_mensaje *mensaje){
 	//
 	return;
 }
-void enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigned pid)
+void enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigned pid,unsigned tamanioCodigo)
 {
 	unsigned byte;
 	unsigned pagina;
@@ -148,30 +182,31 @@ void enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigne
 	char buffer[infoMemoria.tamanioDeMarcos];
 
 	//Reservar espacio en el SWAP
-	enviarDatos(RESERVE_SPACE);
-	enviarDatos(pid);
-	enviarDatos(paginasSolicitadas);
+	enviar(RESERVE_SPACE,clienteSWAP);
+	enviar(pid,clienteSWAP);
+	enviar(paginasSolicitadas,clienteSWAP);
 
 	//fijarse si pudo reservar
 
 	//Enviar programa al SWAP
-	enviarDatos(SAVE_PROGRAM);
-	enviarDatos(pid);
+	enviar(SAVE_PROGRAM);
+	enviar(pid);
 	for(pagina=0;pagina<paginasSolicitadas;pagina++)
 	{
 		for(byte=0;byte<infoMemoria.tamanioDeMarcos;byte++)
 		{
-			if(codigoPrograma[byte+pagina*infoMemoria.tamanioDeMarcos] != '\0')
+			if(byte+pagina*infoMemoria.tamanioDeMarcos != tamanioCodigo)
 				buffer[byte] = codigoPrograma[byte + pagina*infoMemoria.tamanioDeMarcos];
 
 			else
 			{
-				enviarDatos(buffer);
+				buffer[byte] = codigoPrograma[byte + pagina*infoMemoria.tamanioDeMarcos];
+				enviar(buffer,clienteSWAP);
 				return;
 			}
 		}
 		//Envia la pagina con el codigo correspondiente
-		enviarDatos(buffer);
+		enviar(buffer,clienteSWAP);
 		memset(buffer, '\0', infoMemoria.tamanioDeMarcos);
 
 
@@ -192,18 +227,34 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 		tablaPaginas->entradaTablaPaginas[pagina].fueModificado = 0;
 	}
 
-	pthread_mutex_lock(&mutex);
+	pthread_mutex_lock(&mutexTablaPaginas);
 	list_add(tablasDePaginas,tablaPaginas);
-	pthread_mutex_unlock(&mutex);
+	pthread_mutex_unlock(&mutexTablaPaginas);
 	return;
 
 }
+void freeMensaje(t_mensaje *mensaje) {
+  free(mensaje->parametros);
+  free(mensaje->mensaje_extra);
+  return;
+}
+void cambioProcesoActivo(unsigned pid)
+{
+	pthread_mutex_lock(&mutexProcesoActivo);
+	procesoActivo = pid;
+	pthread_mutex_unlock(&mutexProcesoActivo);
+	//borrar cache
+	return;
+}
+
 
 void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 {
 	unsigned pid = mensaje.parametros[0];
 	unsigned paginasSolicitadas = mensaje.parametros[1];
-	char *codigoPrograma = mensaje.parametros[2];// creo que no solo en el 2 fijarse !!!! !! !!!!!!!!!!!!!!!!!
+	char*codigoPrograma = malloc(paginasSolicitadas*infoMemoria.tamanioDeMarcos);
+	codigoPrograma = mensaje.mensaje_extra;
+	unsigned tamanioCodigo=mensaje.head.tam_extra;
 
 	if(paginasSolicitadas > infoMemoria.maxMarcosPorPrograma)
 	{
@@ -212,24 +263,213 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 	}
 
 	crearTablaDePaginas(pid,paginasSolicitadas);
-	enviarCodigoAlSwap(paginasSolicitadas,codigoPrograma,pid);
-
-	pthread_mutex_lock(&mutex);
-	procesoActivo = pid;
-	pthread_mutex_unlock(&mutex);
-
+	enviarCodigoAlSwap(paginasSolicitadas,codigoPrograma,pid,tamanioCodigo);
+	free(codigoPrograma);
 	return;
+}
+int eliminarDeMemoria(unsigned pid)
+{
+	t_tablaDePaginas *buscador;
+	int index;
+
+	//tabla de paginas
+
+	pthread_mutex_lock(&mutexTablaPaginas);
+	for(index=0;index < list_size(tablasDePaginas); index++ )
+	{
+		buscador = list_get(tablasDePaginas,index);
+		if(buscador->pid == pid)
+		{
+			list_remove(tablasDePaginas,index);
+			pthread_mutex_unlock(&mutexTablaPaginas);
+			return 1;
+		}
+	}
+	pthread_mutex_unlock(&mutexTablaPaginas);
+
+	return 0;
 }
 
 void finPrograma(t_mensaje mensaje)
 {
 	unsigned pid = mensaje.parametros[0];
-	//if(estaEnMemoria(pid)
-	//  borrar las paginas de la lista de paginas
-	//else
-	enviarDatos(END_PROGRAM);
-	enviarDatos(pid);
+	if(eliminarDeMemoria(pid) == 0)
+	{
+		enviar(END_PROGRAM,clienteSWAP);
+		enviar(pid,clienteSWAP);
+	}
+	return;
+}
+void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco)
+{
+	enviar(SAVE_PAGE,clienteSWAP);
+	enviar(procesoActivo,clienteSWAP);
+	enviar(pagina,clienteSWAP);
+	enviar(codigoDelMarco,clienteSWAP);
 
+	return;
+}
+void falloDePagina()
+{
+	t_tablaDePaginas* tablaBuscada;
+	unsigned indice;
+	unsigned paginaBuscada;
+	unsigned cantidadDePaginas;
+	void* codigoDelMarco;
+	for(indice=0;indice < list_size(tablasDePaginas);indice++)
+	{
+		tablaBuscada = list_get(tablasDePaginas,indice);
+		cantidadDePaginas = sizeof(tablaBuscada)/sizeof(t_tablaDePaginas);
+
+		for(paginaBuscada = 0; paginaBuscada < cantidadDePaginas; paginaBuscada++)
+		{
+			//Busca si la pagina esta en memoria
+			if(tablaBuscada->entradaTablaPaginas[paginaBuscada].estaEnMemoria == 1)
+				if(tablaBuscada->entradaTablaPaginas[paginaBuscada].marco == punteroClock)
+				{
+					//Pongo el bit de presencia en 0
+					tablaBuscada->entradaTablaPaginas[paginaBuscada].estaEnMemoria = 0;
+					list_replace(tablasDePaginas,indice,tablaBuscada);
+
+					//Llevo el codigo que esta en el marco al SWAP
+					pthread_mutex_lock(&mutexMemoria);
+					memcpy(codigoDelMarco, memoriaPrincipal+infoMemoria.tamanioDeMarcos*punteroClock, sizeof(infoMemoria.tamanioDeMarcos));
+					pthread_mutex_unlock(&mutexMemoria);
+					enviarPaginaAlSWAP(paginaBuscada,codigoDelMarco);
+					return;
+				}
+		}
+	}
+	return;
+}
+
+void actualizarPagina(unsigned pagina)
+{
+	t_tablaDePaginas *tablaDePagina;
+	unsigned indice;
+	for(indice = 0; indice < list_size(tablasDePaginas);indice++)
+	{
+		tablaDePagina = list_get(tablasDePaginas,indice);
+		if(tablaDePagina->pid == procesoActivo)
+		{
+			tablaDePagina->entradaTablaPaginas[pagina].estaEnMemoria = 1;
+			tablaDePagina->entradaTablaPaginas[pagina].marco = punteroClock;
+		}
+	}
+	return;
+}
+void escribirEnMemoria(void* codigoPrograma, unsigned pagina)
+{
+	actualizarPagina(pagina);
+	memcpy(memoriaPrincipal + infoMemoria.tamanioDeMarcos*punteroClock,codigoPrograma,sizeof(codigoPrograma));
+}
+
+void algoritmoClock(void* codigoPrograma,unsigned pagina)
+{
+	pthread_mutex_lock(&mutexClock);
+	falloDePagina();
+	escribirEnMemoria(codigoPrograma,pagina);
+	punteroClock++;
+	pthread_mutex_unlock(&mutexClock);
+	return;
+}
+
+void traerPaginaAMemoria(unsigned pagina)
+{
+	unsigned codigo;
+	void* codigoPrograma;
+
+
+	//Pedimos pagina al SWAP
+	enviar(BRING_PAGE_TO_UMC,clienteSWAP);
+	enviar(procesoActivo,clienteSWAP);
+	enviar(pagina,clienteSWAP);
+
+	//Recibimos pagina del SWAP
+	recibir(&codigo,4,clienteSWAP);
+	if(codigo == SWAP_SENDS_PAGE)
+		recibir(codigoPrograma,clienteSWAP);
+	else
+		perror("No hay espacio suficiente"); //modificar
+
+	algoritmoClock(codigoPrograma,pagina);
+
+
+	return;
+}
+void actualizarTLB(t_entradaTablaPaginas entradaDePaginas,unsigned pagina)
+{
+	//LRU
+	int tamanioMaximoTLB = infoMemoria.entradasTLB;
+	int tamanioTLB = list_size(TLB);
+
+	t_entradaTLB *entradaTLB = malloc(sizeof(entradaTLB));
+	entradaTLB->pagina = pagina;
+	entradaTLB->estaEnMemoria = entradaDePaginas.estaEnMemoria;
+	entradaTLB->fueModificado = entradaDePaginas.fueModificado;
+	entradaTLB->marco         = entradaDePaginas.marco;
+
+	if(tamanioTLB == tamanioMaximoTLB)
+		list_replace(TLB,tamanioTLB-1,entradaTLB);
+	else
+		list_add_in_index(TLB,tamanioTLB,entradaTLB);
+
+	return;
+}
+int buscarEnTLB(unsigned paginaBuscada)
+{
+	int indice;
+	int marco;
+	t_entradaTLB *entradaTLB;
+	for(indice=0;indice < infoMemoria.entradasTLB;indice++)
+	{
+		entradaTLB = list_get(TLB,indice);
+		if(TLB[indice].pagina == paginaBuscada)
+		  {
+			marco = TLB[indice].marco;
+
+			//Sacar la entrada y ponerla inicio de la lista
+			list_remove(TLB,indice);
+			list_add_in_index(TLB,0,entradaTLB);
+			return marco;
+		  }
+	}
+	return -1;
+}
+
+void traducirPaginaAMarco(unsigned pagina,int *marco)
+{
+	unsigned indice;
+	pthread_mutex_lock(&mutexTablaPaginas);
+	unsigned cantidadDeTablas = list_size(tablasDePaginas);
+	t_tablaDePaginas *tablaDePaginas;
+
+	//Buscar en TLB
+	*marco = buscarEnTLB(pagina);
+	if(*marco != -1)
+		return;
+
+	//Buscar en tabla de paginas
+	pthread_mutex_lock(&mutexProcesoActivo);
+	for(indice = 0;indice < cantidadDeTablas; indice++)
+	{
+		tablaDePaginas= list_get(tablasDePaginas,indice);
+
+		if(tablaDePaginas->pid == procesoActivo)
+		{
+			*marco = tablaDePaginas->entradaTablaPaginas[pagina].marco;
+			pthread_mutex_unlock(&mutexTablaPaginas);
+			pthread_mutex_unlock(&mutexProcesoActivo);
+			actualizarTLB(tablaDePaginas->entradaTablaPaginas[pagina],pagina);
+
+			return;
+		}
+	}
+	pthread_mutex_unlock(&mutexTablaPaginas);
+	// Buscar en swap
+	traerPaginaAMemoria(pagina);
+	traducirPaginaAMarco(pagina,marco);
+	pthread_mutex_unlock(&mutexProcesoActivo);
 	return;
 }
 
@@ -238,23 +478,69 @@ void almacenarBytesEnPagina(t_mensaje mensaje)
 	unsigned pagina  = mensaje.parametros[0];
 	unsigned offset  = mensaje.parametros[1];
 	unsigned tamanio = mensaje.parametros[2];
-	char*    buffer  = mensaje.parametros[3];
-	//1.traer con el getlist y el pdi del proceso actual la tabla correspondiente
-	//2. fijarse la pagina y el offset y meter el buffer con el tam correspondiente
-	//3. si no esta en la memoria, preguntar al swap, traerlo y repetir 1 y 2
+	void*    buffer  = mensaje.mensaje_extra;
+	int marco;
+	traducirPaginaAMarco(pagina,&marco);
+	memcpy(memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco+offset,buffer,sizeof(buffer));
+
+	return;
+}
+void empaquetarYEnviar(t_mensaje mensaje,int clienteUMC)
+{
+	void *mensaje_empaquetado = empaquetar_mensaje(mensaje);
+	unsigned tamanio_mensaje = sizeof(unsigned)*3 + sizeof(unsigned) * mensaje.head.cantidad_parametros + mensaje.head.tam_extra;
+
+	send(clienteUMC, mensaje_empaquetado, tamanio_mensaje, MSG_NOSIGNAL);
+
+	freeMensaje(mensaje_empaquetado);
 
 	return;
 }
 
+void enviarCodigoAlCPU(char* codigoAEnviar, unsigned tamanio,int clienteUMC)
+{
+	t_mensaje mensaje;
+	mensaje.head.codigo = RETURN_DATA;
+	mensaje.head.cantidad_parametros = 0;
+	mensaje.head.tam_extra = tamanio;
+	mensaje.parametros = NULL;
+	mensaje.mensaje_extra = codigoAEnviar;
+	empaquetarYEnviar(mensaje,clienteUMC);
+
+	return;
+}
 void enviarBytesDeUnaPagina(t_mensaje mensaje,int clienteUMC)
 {
 	unsigned pagina  = mensaje.parametros[0];
 	unsigned offset  = mensaje.parametros[1];
 	unsigned tamanio = mensaje.parametros[2];
-	//1.traer con el gestlist y el pdi actual la tabla correspondiente
-	//2.poner en una variable los bytes segun la pagina offset y tamaño
-	//3.enviar al cpu
-	//4.si no esta en memoria preguntar al swap,traerlo y repetir 1,2,3
+	char* codigoAEnviar = malloc(tamanio);
+	unsigned tamanioRecorrido;
+	int marco;
+	traducirPaginaAMarco(pagina,&marco);
+
+	pthread_mutex_lock(&mutexMemoria);
+	char* memoria = (char*)memoriaPrincipal;
+	pthread_mutex_unlock(&mutexMemoria);
+
+	for(tamanioRecorrido=0;tamanioRecorrido < tamanio;tamanioRecorrido++ )
+	{
+		codigoAEnviar[tamanioRecorrido] = memoria[infoMemoria.tamanioDeMarcos*marco+offset+tamanioRecorrido];
+	}
+	enviarCodigoAlCPU(codigoAEnviar,tamanio,clienteUMC);
+	free(codigoAEnviar);
+
+	return;
+}
+void enviarTamanioDePagina(int clienteUMC)
+{
+	t_mensaje mensaje;
+	mensaje.head.codigo = RETURN_TAM_PAGINA;
+	mensaje.head.cantidad_parametros = 1;
+	mensaje.head.tam_extra = 0;
+	mensaje.parametros[0] = infoMemoria.tamanioDeMarcos;
+	mensaje.mensaje_extra = NULL;
+	empaquetarYEnviar(mensaje,clienteUMC);
 
 	return;
 }
@@ -266,9 +552,9 @@ void accionSegunCabecera(int cabeceraDelMensaje,t_mensaje mensaje,int clienteUMC
 			break;
 		case FIN_PROG:  finPrograma(mensaje);
 			break;
-		case GET_DATA: ; enviarBytesDeUnaPagina(mensaje,clienteUMC);
+		case GET_DATA:  enviarBytesDeUnaPagina(mensaje,clienteUMC);
 			break;
-		case GET_TAM_PAGINA: ;
+		case GET_TAM_PAGINA: enviarTamanioDePagina(clienteUMC);
 			break;
 		case RESERVE_MEMORY: ;
 			break;
@@ -317,19 +603,20 @@ int aceptarConexion()
 	clienteUMC = accept(servidorUMC, (void*) &direccion, &tamanioDireccion);
 	return clienteUMC ;
 }
-/*
-int recibirDatos(void *buffer,unsigned tamanioDelMensaje,int clienteUMC)
+
+int recibir(void *buffer,unsigned tamanioDelMensaje,int clienteUMC)
 {
 	int bytesRecibidos = recv(clienteUMC, buffer, tamanioDelMensaje, 0);
 	if (bytesRecibidos <= 0) {
 		perror("El cliente se desconecto\n");
 		close(clienteUMC);
+		pthread_mutex_lock(&mutexClientes);
 		FD_CLR(clienteUMC, &master);
+		pthread_mutex_unlock(&mutexClientes);
 		return 0;
 	}
-	printf("UMC: El mensaje recibido es: %s\n", buffer);
 	return bytesRecibidos;
-}*/
+}
 
 void conectarAlSWAP()
 {
@@ -341,14 +628,14 @@ void conectarAlSWAP()
 		}
 		return ;
 }
-void enviarDatos(void* buffer)
+void enviar(void *buffer,int cliente)
 {
-	send(clienteSWAP, buffer, sizeof(buffer), 0);
+	send(cliente, buffer, sizeof(buffer), 0);
 	free(buffer);
 	return;
 }
 
-void gestionarConexiones() // el select basicamente
+void gestionarConexiones()
 {
 
 	fd_set fdsParaLectura;
@@ -356,7 +643,10 @@ void gestionarConexiones() // el select basicamente
 	int fdBuscador;
 	pthread_t cliente;
 	int clienteUMC;
-	pthread_mutex_init(&mutex,NULL);
+	pthread_mutex_init(&mutexClientes,NULL);
+	pthread_mutex_init(&mutexMemoria,NULL);
+	pthread_mutex_init(&mutexTablaPaginas,NULL);
+	pthread_mutex_init(&mutexProcesoActivo,NULL);
 
 	FD_ZERO(&master);
 	FD_ZERO(&fdsParaLectura);
@@ -401,6 +691,31 @@ int main(){
 
 	//servidor
 	gestionarConexiones();
+
+/*
+   //Pruebas commons
+	t_list *hola = list_create();
+	t_tablaDePaginas *tabla = malloc(sizeof(t_tablaDePaginas));
+	t_tablaDePaginas *tabla2 = malloc(sizeof(t_tablaDePaginas));
+	t_tablaDePaginas *tabla3 = malloc(sizeof(t_tablaDePaginas));
+	t_tablaDePaginas *aux;
+	unsigned cantidad;
+	tabla3->pid = 4;
+	tabla2->pid = 3;
+	tabla->pid = 2;
+	list_add(hola,tabla);
+	list_add_in_index(hola,0,tabla2);
+	list_add_in_index(hola,1,tabla3);
+	list_remove(hola,1);
+	//printf("%d",list_size(hola));
+	aux = list_get(hola,0);
+	printf("%d",aux->pid);
+	aux = list_get(hola,1);
+	printf("%d",aux->pid);
+	cantidad = list_size(hola);
+	printf("%d",aux->pid);
+*/
+
 
 
 
