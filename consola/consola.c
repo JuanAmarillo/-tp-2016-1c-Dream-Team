@@ -65,8 +65,6 @@ int main(int argc, char** argv){
 
 	mensaje = codigo_to_mensaje(codigo);
 
-	strcpy(codigo, mensaje.mensaje_extra);
-
 	if(enviarMensaje(miSocket, mensaje) == -1)
 	{
 		perror("Error al enviar Programa");
