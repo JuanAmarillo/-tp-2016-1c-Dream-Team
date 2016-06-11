@@ -15,6 +15,8 @@
 struct sockaddr_in direccionNucleo;
 
 int main(int argc, char** argv){
+	t_mensaje mensaje;
+
 	// Verifica cantidad de parámetros
 	if (argc>2) {
 		printf ("Error. Hay más de dos argumentos.\n");
@@ -36,16 +38,21 @@ int main(int argc, char** argv){
 	}
 
 	// Comprueba el tamaño del archivo
-	fseek (file, 0L, SEEK_END);
-		
+	fseek (file, 0, SEEK_END);
+
 	// Reserva lugar para lo que va a copiar
 	long int tamanio = ftell(file);
+
+	fseek (file, 0, SEEK_SET);
+
 	char* codigo = malloc (tamanio+1); //Chequear que sea posible reservar memoria
 	fread(codigo,tamanio,1,file);
 	fclose(file);
 
 	// Leer archivo config.conf
 	leerArchivoConfig();
+
+	printf("Codigo AnsiSOP:\n%s\n\n", codigo);
 
 	//inicializar estructura de socket con los datos del nucleo
 	inicializarDireccionNucleo();
@@ -55,14 +62,24 @@ int main(int argc, char** argv){
 		exit(1);
 		}
 	printf ("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
-	
-	send(miSocket,codigo,4,0);
-	send(miSocket,(void *)tamanio,4,0);
+
+	mensaje = codigo_to_mensaje(codigo);
+
+	strcpy(codigo, mensaje.mensaje_extra);
+
+	if(enviarMensaje(miSocket, mensaje) == -1)
+	{
+		perror("Error al enviar Programa");
+		exit(1);
+	}
+
 	free(codigo);
+	free(mensaje.mensaje_extra);
 	//Falta permanecer a la escucha
 	recv(miSocket,codigo,tamanio, 0);
 	//Ver qué hacer dependiendo si el mensaje es una sentencia imprimir o imprimirTexto
-	
+
+
 	return 0;
 }
 
