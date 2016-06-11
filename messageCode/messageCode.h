@@ -14,6 +14,10 @@
 #define RESERVE_MEMORY 210 		// Parametros: TamañoMemoriaReservar ;
 #define RECORD_DATA 215 		// Parametros: numero_pagina, desplazamiento, tamañano, data
 
+//CONSOLA -> NUCLEO
+#define NUEVO_PROGRAMA 100
+#define SALIDA_PROGRAMA 101
+
 // NUCLEO <- CPU
 #define STRUCT_PCB 300 			// Utilizar la funcion: mensaje_to_pcb() y pcb_to_mensaje() segun corresponda
 #define FIN_QUANTUM 301
