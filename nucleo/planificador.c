@@ -1,7 +1,7 @@
 #include "planificador.h"
 
 int imprimir = 1, vuelta = 0;
-void roundRobin(const unsigned short int quantum, t_queue *listos, t_queue *bloqueados, t_queue *salida)
+void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_queue *listos, t_queue *bloqueados, t_queue *salida)
 {
 	t_PCB *proceso;
 	int cpu_explorer;
@@ -10,7 +10,6 @@ void roundRobin(const unsigned short int quantum, t_queue *listos, t_queue *bloq
 		escribirLog("Ha iniciado el planificador\n");
 		imprimir = 0;
 	}
-
 
 	while(1)
 	{
@@ -33,8 +32,8 @@ void roundRobin(const unsigned short int quantum, t_queue *listos, t_queue *bloq
 				//Establecer que la cpu ya no está libre
 				FD_CLR(cpu_explorer, &conjunto_cpus_libres);
 				//Ejecutar proceso
-				ejecutar(*proceso, quantum, cpu_explorer);
-				escribirLog("Se ejecutó el proceso %d en la cpu:fd[%d]\n", proceso->pid, cpu_explorer);
+				ejecutar(*proceso, quantum, quantumSleep, cpu_explorer);
+
 				break;
 			}
 			else escribirLog("Nada\n");
@@ -52,21 +51,29 @@ void esperaPorProcesos(t_queue* cola)
 	while(queue_is_empty(cola));
 }
 
-void ejecutar(t_PCB proceso, int quantum, int cpu)
+void ejecutar(t_PCB proceso, unsigned short int quantum, unsigned int qSleep, int cpu)
 {
 	t_mensaje mensaje_PCB = pcb_to_mensaje(proceso,EJECUTAR);
-	t_mensaje mensaje_quantum = quantum_to_mensaje(quantum);
+	t_mensaje mensaje_quantum = quantum_to_mensaje(quantum, qSleep);
+
 	enviarMensaje(cpu, mensaje_PCB);
 	enviarMensaje(cpu, mensaje_quantum);
+	free(mensaje_quantum.parametros);
 	actualizarMaster();
+	escribirLog("Se ejecutó el proceso %d en la cpu:fd[%d]\n", proceso.pid, cpu);
+	escribirLog("Quantum:%d\n", quantum);
+	escribirLog("Quantum Sleep:%d\n", qSleep);
 }
 
-t_mensaje quantum_to_mensaje(unsigned short int quantum)
+t_mensaje quantum_to_mensaje(unsigned short int quantum, unsigned int qSleep)
 {
-	t_mensajeHead head_quantum = {QUANTUM, 0, sizeof(unsigned short int)};
-	unsigned short int *q = (unsigned short int*) malloc(sizeof(unsigned short int));
-	*q = quantum;
-	t_mensaje mensaje_quantum = {head_quantum, NULL, (char*) q};
+	t_mensajeHead head_quantum = {QUANTUM, 2, 0};
+	t_mensaje mensaje_quantum;
+	mensaje_quantum.head = head_quantum;
+	mensaje_quantum.parametros = malloc(2*sizeof(unsigned));
+	mensaje_quantum.parametros[0] = quantum;
+	mensaje_quantum.parametros[1] = qSleep;
+	mensaje_quantum.mensaje_extra = NULL;
 	return mensaje_quantum;
 }
 

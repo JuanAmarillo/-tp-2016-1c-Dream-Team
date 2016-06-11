@@ -6,13 +6,23 @@
  * Descripcion: Procedimiento que lee el archivo config.conf y lo carga en la variable infoConfig
  * Return: -
  */
-void leerArchivoConfig(void)
+void leerArchivoConfig(char *ruta)
 {
-	t_config *config = config_create("config.conf");
+	char *ruta_aux = (char*) malloc(100);
+	if(ruta)
+		strcpy(ruta_aux, ruta);
+	else
+	{
+		printf("No se ingresó la ruta del archivo de configuracion, ingresela ahora: ");
+		scanf("%s", ruta_aux);
+	}
+	escribirLog("Ruta archivo de configuración: %s\n", ruta_aux);
+	t_config *config = config_create(ruta_aux);
 
 	if (config == NULL)
 	{
 		free(config);
+		free(ruta_aux);
 		abort();
 	}
 	// Guardo los datos en una variable global
@@ -25,6 +35,7 @@ void leerArchivoConfig(void)
 	// No uso config_destroy(config) porque bugea
 	free(config->path);
 	free(config);
+	free(ruta_aux);
 }
 
 void inicializarDirecciones(void)
@@ -49,7 +60,48 @@ void inicializarDirecciones(void)
 void conectar_a_umc(void)
 {
 	fd_umc = socket(AF_INET, SOCK_STREAM, 0);
-	connect(fd_umc, (struct sockaddr*) &direccionUMC, sizeof(struct sockaddr));
+	if(connect(fd_umc, (struct sockaddr*) &direccionUMC, sizeof(struct sockaddr)) == -1)
+	{
+		perror("Error al conectar a la UMC");
+		abort();
+	}
+}
+
+unsigned int mensaje_to_tamPag(t_mensaje *mensaje)
+{
+	unsigned int tam;
+	memcpy((void*) &tam, (void*) (mensaje->parametros), sizeof(unsigned int));
+	return tam;
+}
+
+void recibirTamPaginas(void)
+{
+
+	int tamMsg;
+	t_mensaje *mensaje = malloc(sizeof(t_mensaje));
+
+	if((tamMsg = recibirMensaje(fd_umc, mensaje)) <= 0)
+	{
+		if(tamMsg == 0)
+			printf("Se desconecto la umc\n");
+		if(tamMsg < 0)
+		{
+			perror("Falla al recibir tamaño de paginas");
+			abort();
+		}
+	}
+
+	if(mensaje->head.codigo == RETURN_TAM_PAGINA)
+	{
+		tamPaginas = mensaje_to_tamPag(mensaje);
+		escribirLog("Se recibio el tamaño de paginas: %d\n", tamPaginas);
+	}
+	else
+	{
+		perror("El mensaje recibido no corresponde al tamaño de pagina");
+		abort();
+	}
+	free(mensaje);
 }
 
 void abrirPuertos(void)
@@ -217,14 +269,17 @@ void administrarConexiones(void)
 							t_PCB *pcb = malloc(sizeof(t_PCB));
 							escribirLog("Tamaño recibido: %d\n", nbytes);
 
-							*pcb = mensaje_to_pcb(mensajeConsola);
+							*pcb = crearPCB(mensajeConsola, ++max_proceso, tamPaginas);
+							escribirLog("Se creo el PCB de pid:%d\n", pcb->pid);
+							escribirLog("Cantidad de paginas que ocupa:%d\n", pcb->cantidadPaginas);
+							//*pcb = mensaje_to_pcb(mensajeConsola);
 
 							//Asignar PID
-							pcb->pid = ++max_proceso;
+						//	pcb->pid = ++max_proceso;
 							//Asignar estado
-							pcb->estado = 0;
+						//	pcb->estado = 0;
 							//Asignar pc
-							pcb->pc = 0;
+						//	pcb->pc = 0;
 							//
 							//Agregar el PCB a Lista Master
 							list_add(lista_master_procesos, pcb);
@@ -305,7 +360,8 @@ void administrarConexiones(void)
 void* llamar_RoundRobin(void *data)
 {
 	unsigned short int quantum = (unsigned short int) atoi(infoConfig.quantum);
-	roundRobin(quantum,cola_listos, cola_bloqueados, NULL);
+	unsigned int quantumSleep = (unsigned short int) atoi(infoConfig.quantum_sleep);
+	roundRobin(quantum, quantumSleep, cola_listos, cola_bloqueados, NULL);
 	return NULL;
 }
 

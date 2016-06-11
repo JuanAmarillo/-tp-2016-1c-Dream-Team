@@ -40,15 +40,17 @@ struct t_infoConfig
 t_infoConfig infoConfig; //archivo de configuración
 
 struct sockaddr_in direccionParaConsola, direccionParaCPU, direccionUMC; //Direcciones propia
-struct sockaddr_in direccionCliente;//direccion del cliente
+struct sockaddr_in direccionCliente;//direccion de cualquier cliente que se conecte
 
 //file descriptor para escuchar (listener), para una nueva conexión (new) y para explorar conexiones (explorer)
 int fd_umc, fd_listener_consola, fd_listener_cpu, fd_new, fd_explorer;
+unsigned int tamPaginas;
 
 //buffers para datos recibidos de los clientes
 t_mensaje mensajeConsola, mensajeCPU;
 
 //FUNCIONES
 void estado_to_string(int estado, char *string);
+unsigned int mensaje_to_tamPag(t_mensaje*);
 #endif /* NUCLEO_5_FUNCIONES_NUCLEO_H_ */
 

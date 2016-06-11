@@ -1,15 +1,17 @@
 #include "nucleo.h"
 
 //ACORDATE DE QUE FALTAN LOS MUTEX
-int main(void)
+int main(int numArgs, char**argsVec)
 {
-	leerArchivoConfig();
+	leerArchivoConfig(argsVec[1]);
 	
 	crearLog();
 
 	inicializarDirecciones();
 	
 	conectar_a_umc();
+
+	recibirTamPaginas();
 
 	abrirPuertos();
 

@@ -303,6 +303,42 @@ void freePCB(t_PCB *pcb){
 	free(pcb->indiceEtiquetas);
 }
 
+
+t_PCB crearPCB(t_mensaje programa, unsigned int pid, unsigned int tamPag)
+{
+	t_PCB pcb;
+	unsigned int tamCod = programa.head.tam_extra;
+	char *codigo = malloc(tamCod);
+	strcpy(codigo, programa.mensaje_extra);
+	pcb.pid = pid;
+	pcb.pc = 0;
+	pcb.sp = 0;//Valor Provisorio
+	pcb.cantidadPaginas = (tamCod/tamPag) + 1;
+	pcb.estado = 0;//Nuevo
+
+	char *etiquetas = malloc(5);
+		etiquetas[0] = 'h';
+		etiquetas[1] = 'o';
+		etiquetas[2] = 'l';
+		etiquetas[3] = 'a';
+		etiquetas[4] = '\0';
+
+	pcb.indiceEtiquetas = etiquetas;
+	pcb.tam_indiceEtiquetas = 5;
+	pcb.total_instrucciones = 3;
+
+	t_indiceCodigo *indC = malloc(2*sizeof(t_indiceCodigo));
+	indC[0].offset_fin = 53;
+	indC[0].offset_inicio = 54;
+	indC[1].offset_fin = 55;
+	indC[1].offset_inicio = 56;
+
+	pcb.indiceCodigo = indC;
+	pcb.indiceStack = list_create();
+	return pcb;
+}
+
+
 /*
  * testCrearPCB();
  */
