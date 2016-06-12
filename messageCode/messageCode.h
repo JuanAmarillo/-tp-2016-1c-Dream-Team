@@ -16,8 +16,10 @@
 
 //CONSOLA -> NUCLEO
 #define NUEVO_PROGRAMA 100
-//CONSOLA <- NUCLEO
-#define SALIDA_PROGRAMA 101
+//NUCLEO -> CONSOLA
+//#define SALIDA_PROGRAMA 101
+#define IMPRIMIR_PROGRAMA 101
+#define IMPRIMIR_TEXTO_PROGAMA 102
 
 // NUCLEO <- CPU
 #define STRUCT_PCB 300 			// Utilizar la funcion: mensaje_to_pcb() y pcb_to_mensaje() segun corresponda
