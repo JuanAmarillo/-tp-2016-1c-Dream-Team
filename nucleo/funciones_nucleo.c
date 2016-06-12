@@ -316,7 +316,7 @@ void administrarConexiones(void)
 						}
 						else//No hubo error ni desconexion
 						{
-							if(mensajeCPU.head.codigo == FIN_QUANTUM)
+							if(mensajeCPU.head.codigo == FIN_QUANTUM)//Termino el quantum, poner en cola de listos
 							{
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
@@ -326,7 +326,7 @@ void administrarConexiones(void)
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
 							}
 
-							if(mensajeCPU.head.codigo == BLOQUEADO)
+							if(mensajeCPU.head.codigo == BLOQUEADO)//Pidio I/O, Bloquear
 							{
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
@@ -337,7 +337,7 @@ void administrarConexiones(void)
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
 							}
 
-							if(mensajeCPU.head.codigo == FIN_PROGRAMA)
+							if(mensajeCPU.head.codigo == FIN_PROGRAMA)//Termino el programa
 							{
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
