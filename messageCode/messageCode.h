@@ -23,8 +23,8 @@
 #define FIN_QUANTUM 301
 #define FIN_PROGRAMA 302
 // NUCLEO -> CPU
-#define EJECUTAR 303
-#define QUANTUM 304
+#define EJECUTAR 303        //PCB para ejecutar
+#define QUANTUM 304         //Parámetros: quantum, quantumSleep(retardo de cada instruccion, usar sleep(quantumSleep);)
 
 //NUCLEO -> UMC
 #define INIT_PROG 300
