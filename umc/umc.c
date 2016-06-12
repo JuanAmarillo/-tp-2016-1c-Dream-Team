@@ -60,23 +60,44 @@ void clienteDesconectado(int clienteUMC)
 	return;
 }
 
+t_mensaje pedirReservaDeEspacio(unsigned pid,unsigned paginasSolicitadas) {
+	//Reservar espacio en el SWAP
+	t_mensaje reserva;
+	unsigned parametrosParaReservar [2];
+	reserva.head.codigo = RESERVE_SPACE;
+	reserva.head.cantidad_parametros = 2;
+	parametrosParaReservar[0] = pid;
+	parametrosParaReservar[1] = paginasSolicitadas;
+	reserva.head.tam_extra = 0;
+	reserva.mensaje_extra = NULL;
+	reserva.parametros = parametrosParaReservar;
+	return reserva;
+}
+
 void enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigned pid,unsigned tamanioCodigo)
 {
 	unsigned byte;
 	unsigned pagina;
-
+	t_mensaje reserva, codigo;
 	char buffer[infoMemoria.tamanioDeMarcos];
-
+	unsigned respuesta;
+	unsigned parametrosParaEnviar[1];
 	//Reservar espacio en el SWAP
-	enviar(RESERVE_SPACE,clienteSWAP);
-	enviar(pid,clienteSWAP);
-	enviar(paginasSolicitadas,clienteSWAP);
-
+	pedirReservaDeEspacio(pid, paginasSolicitadas,&reserva);
 	//fijarse si pudo reservar
 
+	recv(clienteSWAP,&respuesta,4,0);
+	if(respuesta == NOT_ENOUGH_SPACE)
+		perror("El SWAP no tiene espacio disponible para almacenar el nuevo programa");
+	else
+		//El programa se puede albergar en el SWAP
+
 	//Enviar programa al SWAP
-	enviar(SAVE_PROGRAM);
-	enviar(pid);
+	codigo.head.codigo = SAVE_PROGRAM;
+	codigo.head.cantidad_parametros = 1;
+	parametrosParaEnviar[0] = pid;
+	codigo.head.tam_extra = paginasSolicitadas * infoMemoria.tamanioDeMarcos;
+
 	for(pagina=0;pagina<paginasSolicitadas;pagina++)
 	{
 		for(byte=0;byte<infoMemoria.tamanioDeMarcos;byte++)
@@ -290,7 +311,7 @@ void traerPaginaAMemoria(unsigned pagina)
 	if(aRecibir.head.codigo != SWAP_SENDS_PAGE)
 		perror("No hay espacio suficiente"); //modificar
 
-	algoritmoClock(codigoPrograma,pagina);
+	algoritmoClock(aRecibir.mensaje_extra,pagina);
 
 
 	return;
