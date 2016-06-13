@@ -44,7 +44,6 @@ void inicializarEstructuras()
 	return;
 }
 
-
 void clienteDesconectado(int clienteUMC)
 {
 	perror("El cliente se desconecto\n");
@@ -60,7 +59,7 @@ void clienteDesconectado(int clienteUMC)
 	return;
 }
 
-t_mensaje pedirReservaDeEspacio(unsigned pid,unsigned paginasSolicitadas) {
+void pedirReservaDeEspacio(unsigned pid,unsigned paginasSolicitadas) {
 	//Reservar espacio en el SWAP
 	t_mensaje reserva;
 	unsigned parametrosParaReservar [2];
@@ -71,54 +70,42 @@ t_mensaje pedirReservaDeEspacio(unsigned pid,unsigned paginasSolicitadas) {
 	reserva.head.tam_extra = 0;
 	reserva.mensaje_extra = NULL;
 	reserva.parametros = parametrosParaReservar;
-	return reserva;
+	enviarMensaje(clienteSWAP,reserva);
+}
+
+void enviarProgramaAlSWAP(unsigned pid, unsigned paginasSolicitadas,
+		unsigned tamanioCodigo, char* codigoPrograma) {
+	t_mensaje codigo;
+	unsigned parametrosParaEnviar[1];
+	unsigned byte;
+	//Enviar programa al SWAP
+	codigo->head.codigo = SAVE_PROGRAM;
+	codigo->head.cantidad_parametros = 1;
+	parametrosParaEnviar[0] = pid;
+	codigo->head.tam_extra = paginasSolicitadas * infoMemoria.tamanioDeMarcos;
+	for (byte = 0; byte < infoMemoria.tamanioDeMarcos * paginasSolicitadas;
+			byte++) {
+		if (byte < tamanioCodigo)
+			codigo->mensaje_extra[byte] = codigoPrograma[byte];
+		else
+			codigo->mensaje_extra[byte] = '\0';
+	}
+	enviarMensaje(clienteSWAP, codigo);
 }
 
 void enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigned pid,unsigned tamanioCodigo)
 {
-	unsigned byte;
-	unsigned pagina;
-	t_mensaje reserva, codigo;
-	char buffer[infoMemoria.tamanioDeMarcos];
 	unsigned respuesta;
-	unsigned parametrosParaEnviar[1];
 	//Reservar espacio en el SWAP
-	pedirReservaDeEspacio(pid, paginasSolicitadas,&reserva);
-	//fijarse si pudo reservar
+	pedirReservaDeEspacio(pid, paginasSolicitadas);
 
+	//fijarse si pudo reservar
 	recv(clienteSWAP,&respuesta,4,0);
 	if(respuesta == NOT_ENOUGH_SPACE)
 		perror("El SWAP no tiene espacio disponible para almacenar el nuevo programa");
-	else
 		//El programa se puede albergar en el SWAP
-
 	//Enviar programa al SWAP
-	codigo.head.codigo = SAVE_PROGRAM;
-	codigo.head.cantidad_parametros = 1;
-	parametrosParaEnviar[0] = pid;
-	codigo.head.tam_extra = paginasSolicitadas * infoMemoria.tamanioDeMarcos;
-
-	for(pagina=0;pagina<paginasSolicitadas;pagina++)
-	{
-		for(byte=0;byte<infoMemoria.tamanioDeMarcos;byte++)
-		{
-			if(byte+pagina*infoMemoria.tamanioDeMarcos != tamanioCodigo)
-				buffer[byte] = codigoPrograma[byte + pagina*infoMemoria.tamanioDeMarcos];
-
-			else
-			{
-				buffer[byte] = codigoPrograma[byte + pagina*infoMemoria.tamanioDeMarcos];
-				enviar(buffer,clienteSWAP);
-				return;
-			}
-		}
-		//Envia la pagina con el codigo correspondiente
-		enviar(buffer,clienteSWAP);
-		memset(buffer, '\0', infoMemoria.tamanioDeMarcos);
-
-
-	}
-	return;
+	enviarProgramaAlSWAP(pid, paginasSolicitadas, tamanioCodigo, codigoPrograma);
 }
 
 void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
@@ -149,7 +136,6 @@ void cambioProcesoActivo(unsigned pid)
 	//borrar cache
 	return;
 }
-
 
 void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 {
@@ -194,13 +180,19 @@ int eliminarDeMemoria(unsigned pid)
 	return 0;
 }
 
-void finPrograma(t_mensaje mensaje)
+void finPrograma(unsigned pid)
 {
-	unsigned pid = mensaje.parametros[0];
+	t_mensaje finalizarProg;
+	finalizarProg.head.codigo = END_PROGRAM;
+	finalizarProg.head.cantidad_parametros = 1;
+	unsigned parametros[1];
+	parametros[0] = pid;
+	finalizarProg.parametros = parametros;
+	finalizarProg.head.tam_extra = 0;
+	finalizarProg.mensaje_extra = NULL;
 	if(eliminarDeMemoria(pid) == 0)
 	{
-		enviar(END_PROGRAM,clienteSWAP);
-		enviar(pid,clienteSWAP);
+		enviarMensaje(clienteSWAP,finalizarProg);
 	}
 	return;
 }
@@ -287,13 +279,9 @@ void algoritmoClock(void* codigoPrograma,unsigned pagina)
 	return;
 }
 
-void traerPaginaAMemoria(unsigned pagina)
-{
-	unsigned codigo;
-	void* codigoPrograma;
-	t_mensaje aEnviar, aRecibir;
-
+void pedirPagAlSWAP(unsigned pagina) {
 	//Pedimos pagina al SWAP
+	t_mensaje aEnviar;
 	aEnviar.head.codigo = BRING_PAGE_TO_UMC;
 	unsigned parametros[2];
 	parametros[0] = procesoActivo;
@@ -303,19 +291,26 @@ void traerPaginaAMemoria(unsigned pagina)
 	aEnviar.mensaje_extra = NULL;
 	aEnviar.head.tam_extra = 0;
 	enviarMensaje(clienteSWAP, aEnviar);
-	free(aEnviar);
+}
 
+void traerPaginaAMemoria(unsigned pagina)
+{
+	t_mensaje aRecibir;
+
+	//Pedimos pagina al SWAP
+	pedirPagAlSWAP(pagina);
 	//Recibimos pagina del SWAP
 
 	recibirMensaje(clienteSWAP, &aRecibir);
-	if(aRecibir.head.codigo != SWAP_SENDS_PAGE)
+	if(aRecibir.head.codigo == SWAP_SENDS_PAGE)
 		perror("No hay espacio suficiente"); //modificar
-
+// ACA SOLO PUEDO DEVOLVER ESTO, YA TENGO EL ESPACIO RESERVADO PARFA ESA PAGINA
 	algoritmoClock(aRecibir.mensaje_extra,pagina);
 
 
 	return;
 }
+
 void actualizarTLB(t_entradaTablaPaginas entradaDePaginas,unsigned pagina)
 {
 	//LRU
@@ -335,6 +330,7 @@ void actualizarTLB(t_entradaTablaPaginas entradaDePaginas,unsigned pagina)
 
 	return;
 }
+
 int buscarEnTLB(unsigned paginaBuscada)
 {
 	int indice;
@@ -453,6 +449,7 @@ void enviarBytesDeUnaPagina(t_mensaje mensaje,int clienteUMC)
 
 	return;
 }
+
 void enviarTamanioDePagina(int clienteUMC)
 {
 	t_mensaje mensaje;
@@ -471,7 +468,7 @@ void accionSegunCabecera(int cabeceraDelMensaje,t_mensaje mensaje,int clienteUMC
 	switch(cabeceraDelMensaje){
 		case INIT_PROG: inicializarPrograma(mensaje,clienteUMC);
 			break;
-		case FIN_PROG:  finPrograma(mensaje);
+		case FIN_PROG:  finPrograma(mensaje.parametros[0]);
 			break;
 		case GET_DATA:  enviarBytesDeUnaPagina(mensaje,clienteUMC);
 			break;
@@ -484,7 +481,6 @@ void accionSegunCabecera(int cabeceraDelMensaje,t_mensaje mensaje,int clienteUMC
 	}
 	return;
 }
-
 
 void gestionarSolicitudesDeOperacion(int clienteUMC)
 {
@@ -550,6 +546,7 @@ void conectarAlSWAP()
 		}
 		return ;
 }
+
 void enviar(void *buffer,int cliente)
 {
 	send(cliente, buffer, sizeof(buffer), 0);
@@ -637,12 +634,5 @@ int main(){
 	cantidad = list_size(hola);
 	printf("%d",aux->pid);
 */
-
-
-
-
-
 	return 0;
 }
-
-
