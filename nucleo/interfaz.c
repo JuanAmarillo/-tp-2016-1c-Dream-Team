@@ -63,12 +63,12 @@ void* master_imprimirProceso(void *pcb)
 	estado_to_string(aux_pcb->estado, estado);
 	estado[10] = '\0';
 
-	printf("%04d  |  ", pid);
 	if(aux_pcb->estado == 1) system("tput setaf 4");
 	if(aux_pcb->estado == 2) system("tput setaf 2");
 	if(aux_pcb->estado == 3) system("tput setaf 1");
+	if(aux_pcb->estado == 4) system("tput setaf 9");
+	printf("%04d  |  ", pid);
 	printf("%s\n", estado);
-	system("tput setaf 9");
 	return NULL;
 }
 
@@ -78,4 +78,5 @@ void imprimirMaster(void)
 	printf("PID   |  Estado\n");
 	printf("-------------------\n");
 	list_map(lista_master_procesos, master_imprimirProceso);
+	system("tput setaf 9");
 }
