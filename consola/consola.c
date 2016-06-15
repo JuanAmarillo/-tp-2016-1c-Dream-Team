@@ -74,6 +74,9 @@ int main(int argc, char** argv){
 	free(codigo);
 	free(mensaje.mensaje_extra);
 	//Falta permanecer a la escucha
+	// 1. dónde está definido t_mensajeHead? 
+	// 2. Qué formato de mensajo recibe esto? Está empaquetado? (calculo que sí)
+	// 3. Si el mensaje es algo del estilo imprimir(cosa), habría que guardar eso en una variable, pasarlo por el parser y ahí finalmente imprimir?
 	recv(miSocket,codigo,tamanio, 0);
 	//Ver qué hacer dependiendo si el mensaje es una sentencia imprimir o imprimirTexto
 

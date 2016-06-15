@@ -9,6 +9,8 @@
 #define SWAP_H_
 
 #include <commons/collections/list.h>
+#include <commons/bitarray.h>
+#include <sys/socket.h>
 
 //DECLARACION DE ESTRUCTURAS
 typedef struct{
@@ -35,6 +37,7 @@ FILE* SWAPFILE;
 t_bitarray* DISP_PAGINAS;
 t_list *INFO_PROG;
 char* paginaMultiProposito;
+t_mensaje received;
 
 
 //ACCIONES DEL SWAP
@@ -43,7 +46,6 @@ void unSetPage(unsigned);
 void getPage();
 void savePage(unsigned);
 int recibirCabecera();
-void overWritePage(int);
 void saveProgram();
 void returnPage();
 void endProgram();
