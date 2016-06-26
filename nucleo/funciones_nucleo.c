@@ -265,6 +265,7 @@ void administrarConexiones(void)
 						else//No hubo error ni desconexion
 						{
 							escribirLog("Se ha recibido un programa de una Consola (fd[%d])\n", fd_explorer);
+
 							//Crear PCB
 							t_PCB *pcb = malloc(sizeof(t_PCB));
 							escribirLog("Tamaño recibido: %d\n", nbytes);
