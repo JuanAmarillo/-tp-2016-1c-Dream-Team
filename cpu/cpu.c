@@ -768,8 +768,22 @@ void parser_asignar(t_puntero direccion_variable, t_valor_variable valor) {
 
 // t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable);
 // t_valor_variable parser_asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor);
-// void parser_irAlLabel(t_nombre_etiqueta etiqueta)
-// void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta)
+void parser_irAlLabel(t_nombre_etiqueta etiqueta){
+	unsigned intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
+	pcb_global.pc = intruction;
+}
+
+void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta){
+	// Busco PC de la primera instruccion de la funcion
+	unsigned pc_first_intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
+
+	// Creo nuevo contexto, y guardo retPos
+	list_add(pcb_global.indiceStack, stack_create(pcb_global.pc, 0, 0, 0));
+
+	// Cambio el PC actual
+	pcb_global.pc = pc_first_intruction;
+}
+
 void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar){
 
 	// Busco PC de la primera instruccion de la funcion
@@ -782,8 +796,59 @@ void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retorna
 	pcb_global.pc = pc_first_intruction;
 
 }
-// void parser_finalizar()
-// void parser_retornar(t_valor_variable retorno)
+
+void parser_finalizar(){
+	int lastStack = list_size(pcb_global.indiceStack);
+	t_puntero puntero_variable;
+	t_indiceStack *aux_stack;
+
+	// Si es el contexto principal => Finalizo programa
+	if(lastStack == 1){
+		estado_ejecucion = 1; // Pongo el estado de ejecucion en "Finalizado"
+		return;
+	}
+
+	// Obtengo datos
+	aux_stack = list_get(pcb_global.indiceStack, lastStack);
+
+	// Actualizo PC
+	pcb_global.pc = aux_stack->retPos;
+
+	// Borro contexto
+	aux_stack = list_remove(pcb_global.indiceStack, (lastStack-1));
+
+	// Destruyo los args
+	list_destroy_and_destroy_elements(aux_stack->args, (void*) args_destroy);
+	// Destruyo los vars
+	list_destroy_and_destroy_elements(aux_stack->vars, (void*) vars_destroy);
+	// Destruyo el contexto
+	stack_destroy(aux_stack);
+}
+
+void parser_retornar(t_valor_variable retorno){
+	int lastStack = list_size(pcb_global.indiceStack);
+	t_puntero puntero_variable;
+	t_indiceStack *aux_stack;
+
+	// Obtengo datos
+	aux_stack = list_get(pcb_global.indiceStack, lastStack);
+
+	// Actualizo PC
+	pcb_global.pc = aux_stack->retPos;
+
+	// Asigno lo devuelto en la varaible correspondiente
+	parser_asignar(aux_stack->retVar, retorno);
+
+	// Borro contexto
+	aux_stack = list_remove(pcb_global.indiceStack, (lastStack-1));
+
+	// Destruyo los args
+	list_destroy_and_destroy_elements(aux_stack->args, (void*) args_destroy);
+	// Destruyo los vars
+	list_destroy_and_destroy_elements(aux_stack->vars, (void*) vars_destroy);
+	// Destruyo el contexto
+	stack_destroy(aux_stack);
+}
 // void parser_imprimir(t_valor_variable valor_mostrar)
 // void parser_imprimirTexto(char* texto)
 // void parser_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo)
