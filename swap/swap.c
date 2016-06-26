@@ -23,7 +23,6 @@
 int main(){
 	initialConf();
 	socketConf();
-	int cabecera = recibirCabecera();
 	while(1){
 		recibirMensaje(socketCliente,&received);
 		switch(received.head.codigo){
@@ -38,7 +37,6 @@ int main(){
 			case BRING_PAGE_TO_UMC: returnPage();
 				break;
 		}
-		cabecera = recibirCabecera();
 	}
 	accionesDeFinalizacion();
 	return 0;
@@ -58,17 +56,20 @@ void initialConf() {
 
 void setNewPage(unsigned nroPag){
 	bitarray_set_bit(DISP_PAGINAS, nroPag);
+	msj_Set_Page(nroPag);
 }
 
 void unSetPage(unsigned nroPag){
 	bitarray_clean_bit(DISP_PAGINAS,nroPag);
+	msj_Unset_Page(nroPag);
 }
 
-void *getPage(unsigned nroPag){
+char *getPage(unsigned nroPag){
 	void * pagina = malloc(TAMANIO_PAGINA);
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
 	sleep(RETARDO_ACCESO);
 	fread(pagina,TAMANIO_PAGINA,1,SWAPFILE);
+	msj_Get_Page(nroPag);
 	return pagina;
 }
 
@@ -76,16 +77,21 @@ void savePage(unsigned nroPag,char* pagina){
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
 	sleep(RETARDO_ACCESO);
 	fwrite(pagina,TAMANIO_PAGINA,1,SWAPFILE);
+	msj_Save_Page(nroPag);
 }
 
 void saveProgram(){
 	int espacio, pagInicial, cantidadGuardada=0;
+	char* pagina = malloc(TAMANIO_PAGINA);
 	espacio = buscarLongPrograma(received.parametros[0]);
 	pagInicial = buscarPagInicial(received.parametros[0]);
 	while(cantidadGuardada<espacio){
-		savePage(pagInicial+cantidadGuardada,received.mensaje_extra[cantidadGuardada*TAMANIO_PAGINA]);
+		strncpy(pagina,received.mensaje_extra,TAMANIO_PAGINA);
+		savePage(pagInicial+cantidadGuardada,pagina);
 		cantidadGuardada++;
 	}
+	free(pagina);
+	msj_Save_Program(received.parametros[0],pagInicial,espacio);
 }
 
 void returnPage(){
@@ -94,13 +100,18 @@ void returnPage(){
 	aEnviar.head.cantidad_parametros = 0;
 	aEnviar.head.tam_extra = TAMANIO_PAGINA;
 	aEnviar.mensaje_extra = getPage(buscarPagInicial(received.parametros[0])+received.parametros[1]);
+	enviarMensaje(socketCliente, aEnviar);
 }
 
 void endProgram(){
-	int longitud, inicial, contador=1;
+	int longitud, inicial,contador= 0;
 	longitud = buscarLongPrograma(received.parametros[0]);
 	inicial = buscarPagInicial(received.parametros[0]);
+	while(contador<longitud){
+		unSetPage(inicial+contador);
+	}
 	eliminarSegunPID(received.parametros[0]);
+	msj_End_Program(received.parametros[0]);
 }
 
 void saveNewPage(){
@@ -111,13 +122,15 @@ void saveNewPage(){
 
 void replacePages(int longitudPrograma, int inicioProg,int inicioEspacioBlanco) {
 	int contador=0;
+	char* pagina = malloc(TAMANIO_PAGINA);
 	while (contador <= longitudPrograma) {
-		getPage(inicioProg + contador);
-		savePage(inicioEspacioBlanco + contador);
+		pagina = getPage(inicioProg + contador);
+		savePage(inicioEspacioBlanco + contador, pagina);
 		unSetPage(inicioProg + contador);
 		setNewPage(inicioEspacioBlanco + contador);
 		contador++;
 	}
+	free(pagina);
 }
 
 void new_Or_Replace_t_infoProg(int pid, int longitudPrograma, int inicioProg,int eliminar) {
@@ -143,11 +156,13 @@ void asignarEspacio(unsigned pid, int lugar, unsigned tamanio){
 void reservarEspacio(){
 	int lugar = searchSpace(received.parametros[1]);
 	if(lugar == -1){
+		msj_A_Compactar(received.parametros[0]);
 		deleteEmptySpaces();
 		lugar = searchSpace(received.parametros[1]);
 	}
 	if(lugar == -2){
-		negarEjecucion(received.parametros[0]);
+		negarEjecucion();
+		msj_No_Hay_Lugar(received.parametros[0]);
 		return;
 	}
 	else

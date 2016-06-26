@@ -11,6 +11,7 @@
 #include <commons/collections/list.h>
 #include <commons/bitarray.h>
 #include <sys/socket.h>
+#include "../cpu/protocolo_mensaje.h"
 
 //DECLARACION DE ESTRUCTURAS
 typedef struct{
@@ -41,10 +42,12 @@ t_mensaje received;
 
 
 //ACCIONES DEL SWAP
+void socketConf();
+void initialConf();
 void setPage(unsigned);
 void unSetPage(unsigned);
-void getPage();
-void savePage(unsigned);
+char* getPage();
+void savePage(unsigned, char*);
 int recibirCabecera();
 void saveProgram();
 void returnPage();

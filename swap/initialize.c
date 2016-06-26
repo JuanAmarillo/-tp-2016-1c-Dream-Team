@@ -22,7 +22,6 @@ void readConfigFile(){
 	t_config *config = config_create("config.conf");
 		if (config == NULL) {
 			free(config);
-			printf("1");
 			abort();
 		}
 	PUERTO_ESCUCHA = atoi(config_get_string_value(config, "PUERTO_ESCUCHA"));
@@ -31,16 +30,21 @@ void readConfigFile(){
 	TAMANIO_PAGINA= atoi(config_get_string_value(config, "TAMANIO_PAGINA"));
 	RETARDO_ACCESO= atoi(config_get_string_value(config, "RETARDO_ACCESO"));
 	RETARDO_COMPACTACION= atoi(config_get_string_value(config, "RETARDO_COMPACTACION"));
+	mostrarMensaje("Se leyo el archivo de configuracion");
 }
 
 void crearArchivoSWAP(){
 	char comandoCreacion[100];
+	char* mensaje;
 	sprintf(comandoCreacion, "dd if=/dev/zero of=%s bs=%i count=%i", NOMBRE_SWAP, TAMANIO_PAGINA, CANTIDAD_PAGINAS);
 	if (system(comandoCreacion)){
-		printf("No se pudo crear el archivo %s\n", NOMBRE_SWAP);
+		mensaje = "No se pudo crear el archivo";
 		exit(1);
 	}
+	else
+		mensaje = "Se creo el archivo SWAP";
 	SWAPFILE= fopen(NOMBRE_SWAP, "r+");
+	mostrarMensaje(mensaje);
 }
 
 void crearEstructurasDeManejo(){

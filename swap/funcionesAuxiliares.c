@@ -41,6 +41,9 @@ int buscarPagInicial(int pid){
 void eliminarSegunPID(int pid){
 	PIDBUSCADOR= pid;
 	list_remove_by_condition(INFO_PROG, (void*)returnWhenSamePID);
+	char* mensaje;
+	sprintf(mensaje,"Se elimino el proceso %d", pid);
+	mostrarMensaje(mensaje);
 }
 
 int searchSpace(unsigned programSize){
@@ -69,6 +72,11 @@ void negarEjecucion(){
 	send(socketCliente,(void*) NOT_ENOUGH_SPACE,sizeof(NOT_ENOUGH_SPACE),0);
 }
 
+void mostrarMensaje(char* mensaje){
+	printf("%s\n", mensaje);
+	free(mensaje);
+}
+
 void permitirEjecucion(){
 	send(socketCliente,(void*) ENOUGH_SPACE,sizeof(ENOUGH_SPACE),0);
 }
@@ -85,4 +93,52 @@ int returnWhenSameInitPage (t_infoProg *programa){
 int returnWhenSamePID(t_infoProg *programa){
 	int x = programa->PID == PIDBUSCADOR;
 	return x;
+}
+
+void msj_Set_Page(int pagina){
+	char* mensaje;
+	sprintf(mensaje,"Se ocupo la pagina %d", pagina);
+	mostrarMensaje(mensaje);
+}
+
+void msj_Unset_Page(int pagina){
+	char* mensaje;
+	sprintf(mensaje,"Se desocupo la pagina %d", pagina);
+	mostrarMensaje(mensaje);
+}
+
+void msj_Get_Page(int pagina){
+	char* mensaje;
+	sprintf(mensaje,"Se leyo la pagina %d", pagina);
+	mostrarMensaje(mensaje);
+}
+
+void msj_Save_Page(int pagina){
+	char* mensaje;
+	sprintf(mensaje,"Se guardo la pagina %d", pagina);
+	mostrarMensaje(mensaje);
+}
+
+void msj_Save_Program(int pid,int pagInicial,int espacio){
+	char* mensaje;
+	sprintf(mensaje,"Se guardo el programa %d desde la pagina %d, hasta la pagina %d", pid,pagInicial,pagInicial+espacio);
+	mostrarMensaje(mensaje);
+}
+
+void msj_End_Program(int pid){
+	char* mensaje;
+	sprintf(mensaje,"El programa %d ha sido concluido", pid);
+	mostrarMensaje(mensaje);
+}
+
+void msj_A_Compactar(int pid){
+	char* mensaje;
+	sprintf(mensaje, "Para albergar el programa %d, se va a proceder a la compactacion",pid);
+	mostrarMensaje(mensaje);
+}
+
+void msj_No_Hay_Lugar(int pid){
+	char* mensaje;
+	sprintf(mensaje,"El programa %d no se puede albergar", pid);
+	mostrarMensaje(mensaje);
 }
