@@ -18,7 +18,7 @@ int socketUMC, socketNucleo;
 int notificacion_signal_sigusr1 = 0; // Bandera de señal SIGUSR1
 t_infoConfig infoConfig;
 t_PCB pcb_global;
-int estado_ejecucion; // 1- Fin del Programa ;
+int estado_ejecucion; // 0- Todo OK; 1- Fin del Programa ;
 
 /*
  * Funciones / Procedimientos
@@ -34,7 +34,7 @@ int crearConexion(const char *, const char *);
 void signal_sigusr1(int);
 char *obtenerSiguienteIntruccion();
 unsigned obtenerTamanoPaginasUMC();
-void enviarPCBnucleo();
+void enviarPCBnucleo(unsigned);
 int recibirQuantum();
 
 

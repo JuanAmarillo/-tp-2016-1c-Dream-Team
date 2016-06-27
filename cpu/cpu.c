@@ -45,6 +45,10 @@ int main(int argc, char** argv){
 	tamano_pagina_umc = obtenerTamanoPaginasUMC();
 
 	while(1){
+
+		// Seteo estado en ejecucion
+		estado_ejecucion = 0;
+
 		// Recibo el PCB
 		recibirMensajeNucleo(&mensaje_recibido);
 
@@ -70,6 +74,9 @@ int main(int argc, char** argv){
 			// Obtener siguiente instruccion
 			char *instruccion = obtenerSiguienteIntruccion();
 
+			// Actualizar PCB
+			pcb_global.pc++;
+
 			// analizadorLinea (parser)
 			analizadorLinea(instruccion, &functions, &kernel_functions);
 
@@ -77,17 +84,27 @@ int main(int argc, char** argv){
 			free(instruccion);
 
 			// Realizo acciones segun el estado de ejecucion
-
-			// Actualizar PCB
-			pcb_global.pc++;
-
+			if(estado_ejecucion != 0) break;
 		}
 		// FIN LOOP QUANTUM
 
+		switch (estado_programa) {
+		      case 0: // Finalizo el Quantum normalmente
+		        enviarPCBnucleo(STRUCT_PCB);
+		        break;
+		      case 1: // Finalizo el programa
+		    	enviarPCBnucleo(STRUCT_PCB_FIN);
+		        break;
+		      case 2: // Segmenta
+		    	  enviarPCBnucleo(STRUCT_PCB_FIN_ERROR);
+		    	break;
+		      default: // Otro error
+		    	break;
+		}
+
+
 		// Notificar al Nucleo
 		enviarPCBnucleo();
-
-		// Notifico a la UMC de cambio de proceso
 
 		// Libero recursos PCB
 		freePCB(&pcb_global);
@@ -355,9 +372,9 @@ unsigned obtenerTamanoPaginasUMC(){
  * Descripcion: Envia el PCB global al nucleo
  * Return: -
  */
-void enviarPCBnucleo(){
+void enviarPCBnucleo(unsigned codigo){
 	t_mensaje mensaje;
-	mensaje = pcb_to_mensaje(pcb_global,0);
+	mensaje = pcb_to_mensaje(pcb_global, codigo);
 	enviarMensajeNucleo(mensaje);
 	freeMensaje(&mensaje);
 }
@@ -640,7 +657,6 @@ int _is_variableX(t_variable *tmp) {
 }
 
 t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
-	int lastStack = list_size(pcb_global.indiceStack);
 	t_indiceStack *aux_stack;
 
 	// Crear variable en la memoria (Reservar el espacio)
@@ -675,7 +691,7 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 	freeMensaje(&mensaje);
 
 	// Registrar variable en el ultimo Indice Stack
-	aux_stack = list_get(pcb_global.indiceStack, lastStack);
+	aux_stack = list_get(pcb_global.indiceStack, pcb_global.sp);
 	list_add(aux_stack->vars, vars_create(identificador_variable, posicionMemoria.numeroPagina, posicionMemoria.offset, posicionMemoria.size));
 
 	// Devuelvo posicion de la variable en el contexto actual
@@ -684,13 +700,13 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 
 t_puntero parser_obtenerPosicionVariable(t_nombre_variable identificador_variable) {
 	nombreVariable_aBuscar = identificador_variable;
-	int lastStack = list_size(pcb_global.indiceStack);
+
 	t_puntero puntero_variable;
 	t_indiceStack *aux_stack;
 	t_variable *aux_vars;
 
 	// Ingresar al ultimo indice stack
-	aux_stack = list_get(pcb_global.indiceStack, lastStack);
+	aux_stack = list_get(pcb_global.indiceStack, pcb_global.sp);
 	aux_vars = list_find(aux_stack->vars, (void*) _is_variableX);
 
 	puntero_variable = aux_vars->posicionMemoria;
@@ -760,7 +776,7 @@ void parser_asignar(t_puntero direccion_variable, t_valor_variable valor) {
 	// Recibo mensaje
 	recibirMensajeUMC(&mensaje);
 
-	if(mensaje.head.codigo != RECORD_OK){
+	if(mensaje.head.codigo != RETURN_RECORD_DATA){
 		// ERROR
 	}
 
@@ -826,6 +842,7 @@ void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta){
 
 	// Creo nuevo contexto, y guardo retPos
 	list_add(pcb_global.indiceStack, stack_create(pcb_global.pc, 0, 0, 0));
+	pcb_global.sp++;
 
 	// Cambio el PC actual
 	pcb_global.pc = pc_first_intruction;
@@ -838,6 +855,7 @@ void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retorna
 
 	// Creo nuevo contexto, y guardo retPos y retVar
 	list_add(pcb_global.indiceStack, stack_create(pcb_global.pc, donde_retornar.numeroPagina, donde_retornar.offset, donde_retornar.size));
+	pcb_global.sp++;
 
 	// Cambio el PC actual
 	pcb_global.pc = pc_first_intruction;
@@ -845,24 +863,24 @@ void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retorna
 }
 
 void parser_finalizar(){
-	int lastStack = list_size(pcb_global.indiceStack);
 	t_puntero puntero_variable;
 	t_indiceStack *aux_stack;
 
 	// Si es el contexto principal => Finalizo programa
-	if(lastStack == 1){
+	if(pcb_global.sp == 0){
 		estado_ejecucion = 1; // Pongo el estado de ejecucion en "Finalizado"
 		return;
 	}
 
 	// Obtengo datos
-	aux_stack = list_get(pcb_global.indiceStack, lastStack);
+	aux_stack = list_get(pcb_global.indiceStack, pcb_global.sp);
 
 	// Actualizo PC
 	pcb_global.pc = aux_stack->retPos;
 
 	// Borro contexto
-	aux_stack = list_remove(pcb_global.indiceStack, (lastStack-1));
+	aux_stack = list_remove(pcb_global.indiceStack, pcb_global.sp);
+	pcb_global.sp--;
 
 	// Destruyo los args
 	list_destroy_and_destroy_elements(aux_stack->args, (void*) args_destroy);
@@ -873,12 +891,11 @@ void parser_finalizar(){
 }
 
 void parser_retornar(t_valor_variable retorno){
-	int lastStack = list_size(pcb_global.indiceStack);
 	t_puntero puntero_variable;
 	t_indiceStack *aux_stack;
 
 	// Obtengo datos
-	aux_stack = list_get(pcb_global.indiceStack, lastStack);
+	aux_stack = list_get(pcb_global.indiceStack, pcb_global.sp);
 
 	// Actualizo PC
 	pcb_global.pc = aux_stack->retPos;
@@ -887,7 +904,8 @@ void parser_retornar(t_valor_variable retorno){
 	parser_asignar(aux_stack->retVar, retorno);
 
 	// Borro contexto
-	aux_stack = list_remove(pcb_global.indiceStack, (lastStack-1));
+	aux_stack = list_remove(pcb_global.indiceStack, pcb_global.sp);
+	pcb_global.sp--;
 
 	// Destruyo los args
 	list_destroy_and_destroy_elements(aux_stack->args, (void*) args_destroy);
