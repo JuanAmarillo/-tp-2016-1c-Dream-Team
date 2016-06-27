@@ -48,6 +48,11 @@
 #define INIT_PROG 300
 #define FIN_PROG 305
 
+//UMC -> NUCLEO
+#define RETURN_TAM_PAGINA 705
+#define ALMACENAR_OK 310
+#define ALMACENAR_FAILED 320
+
 // DESDE LA UMC, LO QUE RECIBE EL SWAP
 #define RESERVE_SPACE 900 		// Parametros recibidos despues de la cabecera: pid(unsigned), longitud del programa(unsigned)
 #define SAVE_PROGRAM 905		// Parametros recibidos despues de la cabecera: pid(unsigned), paginas(char[TAMANIO_PAGINA])
