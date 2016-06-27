@@ -27,6 +27,9 @@ int main(int argc, char** argv){
 	int quantum;
 	unsigned tamano_pagina_umc;
 
+	//
+	logger = log_create("CPU_TEST.txt", "CPU", 1, LOG_LEVEL_TRACE);
+
 	// Leer archivo config.conf
 	leerArchivoConfig();
 
@@ -35,11 +38,17 @@ int main(int argc, char** argv){
 
 	// Me conecto a la UMC
 	socketUMC = conectarseUMC();
-	if(socketUMC == -1) abort();
+	if(socketUMC == -1) {
+		log_error(logger, "No se pudo conectarse con la UMC");
+		abort();
+	}
 
 	// Me conecto a el Nucleo
 	socketNucleo = conectarseNucleo();
-	if(socketNucleo == -1) abort();
+	if(socketNucleo == -1) {
+		log_error(logger, "No se pudo conectarse con el Nucleo");
+		abort();
+	}
 
 	// Obtener tamaño de paginas UMC
 	tamano_pagina_umc = obtenerTamanoPaginasUMC();
@@ -54,6 +63,7 @@ int main(int argc, char** argv){
 
 		// Si no es el PCB, borro el mensaje
 		if(mensaje_recibido.head.codigo != STRUCT_PCB){
+			log_error(logger, "Se recibio un mensaje diferente a 'STRUCT_PCB'");
 			freeMensaje(&mensaje_recibido);
 			continue;
 		}
@@ -74,6 +84,8 @@ int main(int argc, char** argv){
 			// Obtener siguiente instruccion
 			char *instruccion = obtenerSiguienteIntruccion();
 
+			log_trace(logger, "PID: %i; Quantum %i de %i -> %s", pcb_global.pc, i_quantum, quantum, instruccion);
+
 			// Actualizar PCB
 			pcb_global.pc++;
 
@@ -84,27 +96,26 @@ int main(int argc, char** argv){
 			free(instruccion);
 
 			// Realizo acciones segun el estado de ejecucion
-			if(estado_ejecucion != 0) break;
+			if((estado_ejecucion != 0) || (notificacion_signal_sigusr1 == 1)) break;
 		}
 		// FIN LOOP QUANTUM
 
-		switch (estado_programa) {
+		switch (estado_ejecucion) {
 		      case 0: // Finalizo el Quantum normalmente
+		    	log_trace(logger, "Finalizo el Quantum Normalmente");
 		        enviarPCBnucleo(STRUCT_PCB);
 		        break;
 		      case 1: // Finalizo el programa
+		    	log_trace(logger, "Finalizo el programa");
 		    	enviarPCBnucleo(STRUCT_PCB_FIN);
 		        break;
-		      case 2: // Segmenta
+		      case 2:
+		    	  log_trace(logger, "Ocurrio Segmentation Fault");
 		    	  enviarPCBnucleo(STRUCT_PCB_FIN_ERROR);
 		    	break;
 		      default: // Otro error
 		    	break;
 		}
-
-
-		// Notificar al Nucleo
-		enviarPCBnucleo();
 
 		// Libero recursos PCB
 		freePCB(&pcb_global);
@@ -117,6 +128,8 @@ int main(int argc, char** argv){
 		}
 	}
 
+	log_destroy(logger);
+
 	return EXIT_SUCCESS;
 }
 
@@ -127,10 +140,10 @@ int main(int argc, char** argv){
  * Return: -
  */
 void leerArchivoConfig() {
-
 	t_config *config = config_create("config.conf");
 
 	if (config == NULL) {
+		log_error(logger, "Error al leer archivo config.conf");
 		free(config);
 		abort();
 	}
@@ -284,7 +297,7 @@ int crearConexion(const char *ip, const char *puerto) {
  * Return: -
  */
 void signal_sigusr1(int signal){
-  printf("Recibida señal SIGUSR1.\n");
+  log_trace(logger, "signal_sigusr1();");
   notificacion_signal_sigusr1 = 1;
 }
 
@@ -404,6 +417,14 @@ int recibirQuantum(){
 
 	return quantum;
 }
+
+/*static void log_in_disk(char* temp_file) {
+    log_trace(logger, "LOG A NIVEL %s", "TRACE");
+    log_debug(logger, "LOG A NIVEL %s", "DEBUG");
+    log_info(logger, "LOG A NIVEL %s", "INFO");
+    log_warning(logger, "LOG A NIVEL %s", "WARNING");
+    log_error(logger, "LOG A NIVEL %s", "ERROR");
+}*/
 
 /*
  * FIN CPU.c
@@ -657,6 +678,7 @@ int _is_variableX(t_variable *tmp) {
 }
 
 t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
+	log_trace(logger, "parser_definirVariable();");
 	t_indiceStack *aux_stack;
 
 	// Crear variable en la memoria (Reservar el espacio)
@@ -699,6 +721,7 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 }
 
 t_puntero parser_obtenerPosicionVariable(t_nombre_variable identificador_variable) {
+	log_trace(logger, "parser_obtenerPosicionVariable();");
 	nombreVariable_aBuscar = identificador_variable;
 
 	t_puntero puntero_variable;
@@ -715,7 +738,7 @@ t_puntero parser_obtenerPosicionVariable(t_nombre_variable identificador_variabl
 }
 
 t_valor_variable parser_dereferenciar(t_puntero direccion_variable) {
-
+	log_trace(logger, "parser_dereferenciar();");
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[3];
@@ -754,6 +777,7 @@ t_valor_variable parser_dereferenciar(t_puntero direccion_variable) {
 }
 
 void parser_asignar(t_puntero direccion_variable, t_valor_variable valor) {
+	log_trace(logger, "parser_asignar();");
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[4];
@@ -785,6 +809,7 @@ void parser_asignar(t_puntero direccion_variable, t_valor_variable valor) {
 }
 
 t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable){
+	log_trace(logger, "parser_obtenerValorCompartida();");
 
 	// Variables
 	t_mensaje mensaje;
@@ -812,6 +837,8 @@ t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable){
 }
 
 t_valor_variable parser_asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor){
+	log_trace(logger, "parser_asignarValorCompartida();");
+
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[1];
@@ -832,11 +859,13 @@ t_valor_variable parser_asignarValorCompartida(t_nombre_compartida variable, t_v
 }
 
 void parser_irAlLabel(t_nombre_etiqueta etiqueta){
+	log_trace(logger, "parser_irAlLabel();");
 	unsigned intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
 	pcb_global.pc = intruction;
 }
 
 void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta){
+	log_trace(logger, "parser_llamarSinRetorno();");
 	// Busco PC de la primera instruccion de la funcion
 	unsigned pc_first_intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
 
@@ -849,7 +878,7 @@ void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta){
 }
 
 void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar){
-
+	log_trace(logger, "parser_llamarConRetorno();");
 	// Busco PC de la primera instruccion de la funcion
 	unsigned pc_first_intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
 
@@ -863,6 +892,8 @@ void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retorna
 }
 
 void parser_finalizar(){
+	log_trace(logger, "parser_finalizar();");
+
 	t_puntero puntero_variable;
 	t_indiceStack *aux_stack;
 
@@ -891,6 +922,8 @@ void parser_finalizar(){
 }
 
 void parser_retornar(t_valor_variable retorno){
+	log_trace(logger, "parser_retornar();");
+
 	t_puntero puntero_variable;
 	t_indiceStack *aux_stack;
 
@@ -916,6 +949,8 @@ void parser_retornar(t_valor_variable retorno){
 }
 
 void parser_imprimir(t_valor_variable valor_mostrar){
+	log_trace(logger, "parser_imprimir();");
+
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[1];
@@ -934,6 +969,8 @@ void parser_imprimir(t_valor_variable valor_mostrar){
 }
 
 void parser_imprimirTexto(char* texto){
+	log_trace(logger, "parser_imprimirTexto();");
+
 	// Variables
 	t_mensaje mensaje;
 	mensaje.head.codigo = IMPRIMIR_TEXTO;
@@ -950,6 +987,8 @@ void parser_imprimirTexto(char* texto){
 }
 
 void parser_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
+	log_trace(logger, "parser_entradaSalida();");
+
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[1];
@@ -967,6 +1006,7 @@ void parser_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 	freeMensaje(&mensaje);
 }
 void parser_wait(t_nombre_semaforo identificador_semaforo){
+	log_trace(logger, "parser_wait();");
 
 	// Variables
 	t_mensaje mensaje;
@@ -985,6 +1025,8 @@ void parser_wait(t_nombre_semaforo identificador_semaforo){
 }
 
 void parser_signal(t_nombre_semaforo identificador_semaforo){
+	log_trace(logger, "parser_signal();");
+
 	// Variables
 	t_mensaje mensaje;
 	mensaje.head.codigo = SIGNAL;
