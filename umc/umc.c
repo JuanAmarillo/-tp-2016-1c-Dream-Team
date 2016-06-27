@@ -1,5 +1,5 @@
 #include "umc.h"
-
+#include "../cpu/protocolo_mensaje.h"
 
 void leerArchivoConfig()
 {
@@ -44,79 +44,6 @@ void inicializarEstructuras()
 	return;
 }
 
-t_mensajeHead desempaquetar_head(const void *buffer) {
-
-	// Declaro variables usadas
-	unsigned desplazamiento = 0;
-	t_mensajeHead mensaje_head;
-
-	// Desempaqueto el head
-	memcpy(&mensaje_head.codigo, buffer, sizeof(unsigned));
-	desplazamiento += sizeof(unsigned);
-	memcpy(&mensaje_head.cantidad_parametros, buffer + desplazamiento, sizeof(unsigned));
-	desplazamiento += sizeof(unsigned);
-	memcpy(&mensaje_head.tam_extra, buffer + desplazamiento, sizeof(unsigned));
-
-	return mensaje_head;
-}
-
-t_mensaje desempaquetar_mensaje(const void *buffer) {
-
-	// Declaro variables usadas
-	unsigned i_parametro;
-	unsigned desplazamiento = 0;
-	t_mensaje mensaje_desempaquetado;
-
-	// Desempaqueto el HEAD
-	mensaje_desempaquetado.head = desempaquetar_head(buffer);
-	desplazamiento = sizeof(t_mensajeHead);
-
-	// Creo memoria para los parametros
-	mensaje_desempaquetado.parametros = malloc(sizeof(unsigned) * mensaje_desempaquetado.head.cantidad_parametros);
-
-	// Desempaqueto los parametros
-	for (i_parametro = 0; i_parametro < mensaje_desempaquetado.head.cantidad_parametros; i_parametro++){
-		memcpy(&mensaje_desempaquetado.parametros[i_parametro], buffer + desplazamiento, sizeof(unsigned));
-		desplazamiento += sizeof(unsigned);
-	}
-
-	// Desempaqueto lo extra
-	mensaje_desempaquetado.mensaje_extra = malloc(mensaje_desempaquetado.head.tam_extra);
-	memcpy(mensaje_desempaquetado.mensaje_extra, buffer + desplazamiento, mensaje_desempaquetado.head.tam_extra);
-
-	return mensaje_desempaquetado;
-}
-
-void *empaquetar_mensaje(t_mensaje mensaje) {
-
-	// Variables usadas
-	unsigned desplazamiento = 0;
-	unsigned i_parametro;
-
-	// Creo un bloque en memoria con la tamaño del Head + Payload
-	void *mensaje_empaquetado = malloc(sizeof(t_mensajeHead) + sizeof(unsigned) * mensaje.head.cantidad_parametros + mensaje.head.tam_extra);
-
-	// Copio el head en el bloque de memoria creado
-	memcpy(mensaje_empaquetado + desplazamiento, &mensaje.head.codigo, sizeof(unsigned));
-	desplazamiento += sizeof(unsigned);
-	memcpy(mensaje_empaquetado + desplazamiento, &mensaje.head.cantidad_parametros, sizeof(unsigned));
-	desplazamiento += sizeof(unsigned);
-	memcpy(mensaje_empaquetado + desplazamiento, &mensaje.head.tam_extra, sizeof(unsigned));
-	desplazamiento += sizeof(unsigned);
-
-	// Copio los parametros
-	for (i_parametro = 0; i_parametro < mensaje.head.cantidad_parametros; i_parametro++){
-		memcpy(mensaje_empaquetado + desplazamiento, &mensaje.parametros[i_parametro], sizeof(unsigned));
-		desplazamiento += sizeof(unsigned);
-	}
-
-	// Copio el mensaje_extra
-	memcpy(mensaje_empaquetado + desplazamiento, mensaje.mensaje_extra, mensaje.head.tam_extra);
-
-	// Devuelvo
-	return mensaje_empaquetado;
-}
-
 void clienteDesconectado(int clienteUMC)
 {
 	perror("El cliente se desconecto\n");
@@ -131,87 +58,54 @@ void clienteDesconectado(int clienteUMC)
 
 	return;
 }
-void recibirMensaje(int clienteUMC, t_mensaje *mensaje){
 
-	// Declaro variables
-	t_mensajeHead mensaje_head;
-	int recibir;
-
-
-	// Recibo el HEAD
-	void *buffer_head = malloc(sizeof(unsigned)*3);
-	recibir = recv(clienteUMC, buffer_head, sizeof(unsigned)*3, MSG_WAITALL);
-	if (recibir <= 0){
-		free(buffer_head);
-		clienteDesconectado(clienteUMC);
-		return;
-	}
-
-	// Obtengo los valores del HEAD
-	mensaje_head = desempaquetar_head(buffer_head);
-
-	// Me preparo para recibir el Payload
-	unsigned faltan_recibir = sizeof(unsigned) * mensaje_head.cantidad_parametros + mensaje_head.tam_extra;
-	void *bufferTotal = malloc(sizeof(t_mensajeHead) + faltan_recibir);
-	memcpy(bufferTotal, buffer_head, sizeof(t_mensajeHead));
-
-	// Recibo el Payload
-	recibir = recv(clienteUMC, bufferTotal + sizeof(t_mensajeHead), faltan_recibir,MSG_WAITALL);
-	if(recibir <= 0){
-		free(buffer_head);
-		free(bufferTotal);
-		clienteDesconectado(clienteUMC);
-		return;
-	}
-
-	// Desempaqueto el mensaje
-	*mensaje = desempaquetar_mensaje(bufferTotal);
-
-	// Limpieza
-	free(buffer_head);
-	free(bufferTotal);
-
-	//
-	return;
+void pedirReservaDeEspacio(unsigned pid,unsigned paginasSolicitadas) {
+	//Reservar espacio en el SWAP
+	t_mensaje reserva;
+	unsigned parametrosParaReservar [2];
+	reserva.head.codigo = RESERVE_SPACE;
+	reserva.head.cantidad_parametros = 2;
+	parametrosParaReservar[0] = pid;
+	parametrosParaReservar[1] = paginasSolicitadas;
+	reserva.head.tam_extra = 0;
+	reserva.mensaje_extra = NULL;
+	reserva.parametros = parametrosParaReservar;
+	enviarMensaje(clienteSWAP,reserva);
 }
+
+void enviarProgramaAlSWAP(unsigned pid, unsigned paginasSolicitadas,
+		unsigned tamanioCodigo, char* codigoPrograma) {
+	t_mensaje codigo;
+	unsigned parametrosParaEnviar[1];
+	unsigned byte;
+	//Enviar programa al SWAP
+	codigo->head.codigo = SAVE_PROGRAM;
+	codigo->head.cantidad_parametros = 1;
+	parametrosParaEnviar[0] = pid;
+	codigo->head.tam_extra = paginasSolicitadas * infoMemoria.tamanioDeMarcos;
+	for (byte = 0; byte < infoMemoria.tamanioDeMarcos * paginasSolicitadas;
+			byte++) {
+		if (byte < tamanioCodigo)
+			codigo->mensaje_extra[byte] = codigoPrograma[byte];
+		else
+			codigo->mensaje_extra[byte] = '\0';
+	}
+	enviarMensaje(clienteSWAP, codigo);
+}
+
 void enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigned pid,unsigned tamanioCodigo)
 {
-	unsigned byte;
-	unsigned pagina;
-
-	char buffer[infoMemoria.tamanioDeMarcos];
-
+	unsigned respuesta;
 	//Reservar espacio en el SWAP
-	enviar(RESERVE_SPACE,clienteSWAP);
-	enviar(pid,clienteSWAP);
-	enviar(paginasSolicitadas,clienteSWAP);
+	pedirReservaDeEspacio(pid, paginasSolicitadas);
 
 	//fijarse si pudo reservar
-
+	recv(clienteSWAP,&respuesta,4,0);
+	if(respuesta == NOT_ENOUGH_SPACE)
+		perror("El SWAP no tiene espacio disponible para almacenar el nuevo programa");
+		//El programa se puede albergar en el SWAP
 	//Enviar programa al SWAP
-	enviar(SAVE_PROGRAM);
-	enviar(pid);
-	for(pagina=0;pagina<paginasSolicitadas;pagina++)
-	{
-		for(byte=0;byte<infoMemoria.tamanioDeMarcos;byte++)
-		{
-			if(byte+pagina*infoMemoria.tamanioDeMarcos != tamanioCodigo)
-				buffer[byte] = codigoPrograma[byte + pagina*infoMemoria.tamanioDeMarcos];
-
-			else
-			{
-				buffer[byte] = codigoPrograma[byte + pagina*infoMemoria.tamanioDeMarcos];
-				enviar(buffer,clienteSWAP);
-				return;
-			}
-		}
-		//Envia la pagina con el codigo correspondiente
-		enviar(buffer,clienteSWAP);
-		memset(buffer, '\0', infoMemoria.tamanioDeMarcos);
-
-
-	}
-	return;
+	enviarProgramaAlSWAP(pid, paginasSolicitadas, tamanioCodigo, codigoPrograma);
 }
 
 void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
@@ -233,11 +127,7 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 	return;
 
 }
-void freeMensaje(t_mensaje *mensaje) {
-  free(mensaje->parametros);
-  free(mensaje->mensaje_extra);
-  return;
-}
+
 void cambioProcesoActivo(unsigned pid)
 {
 	pthread_mutex_lock(&mutexProcesoActivo);
@@ -246,7 +136,6 @@ void cambioProcesoActivo(unsigned pid)
 	//borrar cache
 	return;
 }
-
 
 void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 {
@@ -267,6 +156,7 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 	free(codigoPrograma);
 	return;
 }
+
 int eliminarDeMemoria(unsigned pid)
 {
 	t_tablaDePaginas *buscador;
@@ -290,25 +180,39 @@ int eliminarDeMemoria(unsigned pid)
 	return 0;
 }
 
-void finPrograma(t_mensaje mensaje)
+void finPrograma(unsigned pid)
 {
-	unsigned pid = mensaje.parametros[0];
+	t_mensaje finalizarProg;
+	finalizarProg.head.codigo = END_PROGRAM;
+	finalizarProg.head.cantidad_parametros = 1;
+	unsigned parametros[1];
+	parametros[0] = pid;
+	finalizarProg.parametros = parametros;
+	finalizarProg.head.tam_extra = 0;
+	finalizarProg.mensaje_extra = NULL;
 	if(eliminarDeMemoria(pid) == 0)
 	{
-		enviar(END_PROGRAM,clienteSWAP);
-		enviar(pid,clienteSWAP);
+		enviarMensaje(clienteSWAP,finalizarProg);
 	}
 	return;
 }
+
 void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco)
 {
-	enviar(SAVE_PAGE,clienteSWAP);
-	enviar(procesoActivo,clienteSWAP);
-	enviar(pagina,clienteSWAP);
-	enviar(codigoDelMarco,clienteSWAP);
-
+	t_mensaje aEnviar;
+	aEnviar.head.codigo = SAVE_PAGE;
+	unsigned parametros[2];
+	parametros[0] = procesoActivo;
+	parametros[1] = pagina;
+	aEnviar.head.cantidad_parametros = 2;
+	aEnviar.head.tam_extra = infoMemoria.tamanioDeMarcos;
+	aEnviar.parametros = parametros;
+	aEnviar.mensaje_extra = codigoDelMarco;
+	enviarMensaje(clienteSWAP,aEnviar);
+	free(aEnviar);
 	return;
 }
+
 void falloDePagina()
 {
 	t_tablaDePaginas* tablaBuscada;
@@ -358,6 +262,7 @@ void actualizarPagina(unsigned pagina)
 	}
 	return;
 }
+
 void escribirEnMemoria(void* codigoPrograma, unsigned pagina)
 {
 	actualizarPagina(pagina);
@@ -374,29 +279,38 @@ void algoritmoClock(void* codigoPrograma,unsigned pagina)
 	return;
 }
 
+void pedirPagAlSWAP(unsigned pagina) {
+	//Pedimos pagina al SWAP
+	t_mensaje aEnviar;
+	aEnviar.head.codigo = BRING_PAGE_TO_UMC;
+	unsigned parametros[2];
+	parametros[0] = procesoActivo;
+	parametros[1] = pagina;
+	aEnviar.head.cantidad_parametros = 2;
+	aEnviar.parametros = parametros;
+	aEnviar.mensaje_extra = NULL;
+	aEnviar.head.tam_extra = 0;
+	enviarMensaje(clienteSWAP, aEnviar);
+}
+
 void traerPaginaAMemoria(unsigned pagina)
 {
-	unsigned codigo;
-	void* codigoPrograma;
-
+	t_mensaje aRecibir;
 
 	//Pedimos pagina al SWAP
-	enviar(BRING_PAGE_TO_UMC,clienteSWAP);
-	enviar(procesoActivo,clienteSWAP);
-	enviar(pagina,clienteSWAP);
-
+	pedirPagAlSWAP(pagina);
 	//Recibimos pagina del SWAP
-	recibir(&codigo,4,clienteSWAP);
-	if(codigo == SWAP_SENDS_PAGE)
-		recibir(codigoPrograma,clienteSWAP);
-	else
-		perror("No hay espacio suficiente"); //modificar
 
-	algoritmoClock(codigoPrograma,pagina);
+	recibirMensaje(clienteSWAP, &aRecibir);
+	if(aRecibir.head.codigo == SWAP_SENDS_PAGE)
+		perror("No hay espacio suficiente"); //modificar
+// ACA SOLO PUEDO DEVOLVER ESTO, YA TENGO EL ESPACIO RESERVADO PARFA ESA PAGINA
+	algoritmoClock(aRecibir.mensaje_extra,pagina);
 
 
 	return;
 }
+
 void actualizarTLB(t_entradaTablaPaginas entradaDePaginas,unsigned pagina)
 {
 	//LRU
@@ -416,6 +330,7 @@ void actualizarTLB(t_entradaTablaPaginas entradaDePaginas,unsigned pagina)
 
 	return;
 }
+
 int buscarEnTLB(unsigned paginaBuscada)
 {
 	int indice;
@@ -485,6 +400,7 @@ void almacenarBytesEnPagina(t_mensaje mensaje)
 
 	return;
 }
+
 void empaquetarYEnviar(t_mensaje mensaje,int clienteUMC)
 {
 	void *mensaje_empaquetado = empaquetar_mensaje(mensaje);
@@ -509,6 +425,7 @@ void enviarCodigoAlCPU(char* codigoAEnviar, unsigned tamanio,int clienteUMC)
 
 	return;
 }
+
 void enviarBytesDeUnaPagina(t_mensaje mensaje,int clienteUMC)
 {
 	unsigned pagina  = mensaje.parametros[0];
@@ -532,6 +449,7 @@ void enviarBytesDeUnaPagina(t_mensaje mensaje,int clienteUMC)
 
 	return;
 }
+
 void enviarTamanioDePagina(int clienteUMC)
 {
 	t_mensaje mensaje;
@@ -550,7 +468,7 @@ void accionSegunCabecera(int cabeceraDelMensaje,t_mensaje mensaje,int clienteUMC
 	switch(cabeceraDelMensaje){
 		case INIT_PROG: inicializarPrograma(mensaje,clienteUMC);
 			break;
-		case FIN_PROG:  finPrograma(mensaje);
+		case FIN_PROG:  finPrograma(mensaje.parametros[0]);
 			break;
 		case GET_DATA:  enviarBytesDeUnaPagina(mensaje,clienteUMC);
 			break;
@@ -564,7 +482,6 @@ void accionSegunCabecera(int cabeceraDelMensaje,t_mensaje mensaje,int clienteUMC
 	return;
 }
 
-
 void gestionarSolicitudesDeOperacion(int clienteUMC)
 {
 	t_mensaje mensaje;
@@ -573,6 +490,7 @@ void gestionarSolicitudesDeOperacion(int clienteUMC)
 
 	return;
 }
+
 int recibirConexiones()
 {
 
@@ -628,6 +546,7 @@ void conectarAlSWAP()
 		}
 		return ;
 }
+
 void enviar(void *buffer,int cliente)
 {
 	send(cliente, buffer, sizeof(buffer), 0);
@@ -715,12 +634,5 @@ int main(){
 	cantidad = list_size(hola);
 	printf("%d",aux->pid);
 */
-
-
-
-
-
 	return 0;
 }
-
-

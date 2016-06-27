@@ -76,6 +76,8 @@ int main(int argc, char** argv){
 			// Libero memoria de la instruccion
 			free(instruccion);
 
+			// Realizo acciones segun el estado de ejecucion
+
 			// Actualizar PCB
 			pcb_global.pc++;
 
@@ -766,10 +768,69 @@ void parser_asignar(t_puntero direccion_variable, t_valor_variable valor) {
 	freeMensaje(&mensaje);
 }
 
-// t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable);
-// t_valor_variable parser_asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor);
-// void parser_irAlLabel(t_nombre_etiqueta etiqueta)
-// void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta)
+t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable){
+
+	// Variables
+	t_mensaje mensaje;
+	mensaje.head.codigo = OBTENER_COMPARTIDA;
+	mensaje.head.cantidad_parametros = 0;
+	mensaje.head.tam_extra = strlen(variable) + 1;
+	mensaje.parametros = NULL;
+	mensaje.mensaje_extra = variable;
+
+	// Envio al UMC la peticion
+	enviarMensajeNucleo(mensaje);
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
+
+	// Recibo mensaje
+	recibirMensajeNucleo(&mensaje);
+
+	t_valor_variable valor = mensaje.parametros[0];
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
+
+	return valor;
+}
+
+t_valor_variable parser_asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor){
+	// Variables
+	t_mensaje mensaje;
+	unsigned parametros[1];
+	parametros[0] = valor;
+	mensaje.head.codigo = ASIGNAR_COMPARTIDA;
+	mensaje.head.cantidad_parametros = 1;
+	mensaje.head.tam_extra = strlen(variable) + 1;
+	mensaje.parametros = parametros;
+	mensaje.mensaje_extra = variable;
+
+	// Envio al UMC la peticion
+	enviarMensajeNucleo(mensaje);
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
+
+	return valor;
+}
+
+void parser_irAlLabel(t_nombre_etiqueta etiqueta){
+	unsigned intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
+	pcb_global.pc = intruction;
+}
+
+void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta){
+	// Busco PC de la primera instruccion de la funcion
+	unsigned pc_first_intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
+
+	// Creo nuevo contexto, y guardo retPos
+	list_add(pcb_global.indiceStack, stack_create(pcb_global.pc, 0, 0, 0));
+
+	// Cambio el PC actual
+	pcb_global.pc = pc_first_intruction;
+}
+
 void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar){
 
 	// Busco PC de la primera instruccion de la funcion
@@ -782,13 +843,144 @@ void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retorna
 	pcb_global.pc = pc_first_intruction;
 
 }
-// void parser_finalizar()
-// void parser_retornar(t_valor_variable retorno)
-// void parser_imprimir(t_valor_variable valor_mostrar)
-// void parser_imprimirTexto(char* texto)
-// void parser_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo)
-// void parser_wait(t_nombre_semaforo identificador_semaforo)
-// void parser_signal(t_nombre_semaforo identificador_semaforo)
+
+void parser_finalizar(){
+	int lastStack = list_size(pcb_global.indiceStack);
+	t_puntero puntero_variable;
+	t_indiceStack *aux_stack;
+
+	// Si es el contexto principal => Finalizo programa
+	if(lastStack == 1){
+		estado_ejecucion = 1; // Pongo el estado de ejecucion en "Finalizado"
+		return;
+	}
+
+	// Obtengo datos
+	aux_stack = list_get(pcb_global.indiceStack, lastStack);
+
+	// Actualizo PC
+	pcb_global.pc = aux_stack->retPos;
+
+	// Borro contexto
+	aux_stack = list_remove(pcb_global.indiceStack, (lastStack-1));
+
+	// Destruyo los args
+	list_destroy_and_destroy_elements(aux_stack->args, (void*) args_destroy);
+	// Destruyo los vars
+	list_destroy_and_destroy_elements(aux_stack->vars, (void*) vars_destroy);
+	// Destruyo el contexto
+	stack_destroy(aux_stack);
+}
+
+void parser_retornar(t_valor_variable retorno){
+	int lastStack = list_size(pcb_global.indiceStack);
+	t_puntero puntero_variable;
+	t_indiceStack *aux_stack;
+
+	// Obtengo datos
+	aux_stack = list_get(pcb_global.indiceStack, lastStack);
+
+	// Actualizo PC
+	pcb_global.pc = aux_stack->retPos;
+
+	// Asigno lo devuelto en la varaible correspondiente
+	parser_asignar(aux_stack->retVar, retorno);
+
+	// Borro contexto
+	aux_stack = list_remove(pcb_global.indiceStack, (lastStack-1));
+
+	// Destruyo los args
+	list_destroy_and_destroy_elements(aux_stack->args, (void*) args_destroy);
+	// Destruyo los vars
+	list_destroy_and_destroy_elements(aux_stack->vars, (void*) vars_destroy);
+	// Destruyo el contexto
+	stack_destroy(aux_stack);
+}
+
+void parser_imprimir(t_valor_variable valor_mostrar){
+	// Variables
+	t_mensaje mensaje;
+	unsigned parametros[1];
+	parametros[0] = valor_mostrar;	// Valor a imprimir
+	mensaje.head.codigo = IMPRIMIR;
+	mensaje.head.cantidad_parametros = 1;
+	mensaje.head.tam_extra = 0;
+	mensaje.parametros = parametros;
+	mensaje.mensaje_extra = NULL;
+
+	// Envio al UMC la peticion
+	enviarMensajeNucleo(mensaje);
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
+}
+
+void parser_imprimirTexto(char* texto){
+	// Variables
+	t_mensaje mensaje;
+	mensaje.head.codigo = IMPRIMIR_TEXTO;
+	mensaje.head.cantidad_parametros = 0;
+	mensaje.head.tam_extra = strlen(texto) + 1;
+	mensaje.parametros = NULL;
+	mensaje.mensaje_extra = texto;
+
+	// Envio al UMC la peticion
+	enviarMensajeNucleo(mensaje);
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
+}
+
+void parser_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
+	// Variables
+	t_mensaje mensaje;
+	unsigned parametros[1];
+	parametros[0] = tiempo;
+	mensaje.head.codigo = ENTRADA_SALIDA;
+	mensaje.head.cantidad_parametros = 1;
+	mensaje.head.tam_extra = strlen(dispositivo) + 1;
+	mensaje.parametros = parametros;
+	mensaje.mensaje_extra = dispositivo;
+
+	// Envio al UMC la peticion
+	enviarMensajeNucleo(mensaje);
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
+}
+void parser_wait(t_nombre_semaforo identificador_semaforo){
+
+	// Variables
+	t_mensaje mensaje;
+	mensaje.head.codigo = WAIT;
+	mensaje.head.cantidad_parametros = 0;
+	mensaje.head.tam_extra = strlen(identificador_semaforo) + 1;
+	mensaje.parametros = NULL;
+	mensaje.mensaje_extra = identificador_semaforo;
+
+	// Envio al UMC la peticion
+	enviarMensajeNucleo(mensaje);
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
+
+}
+
+void parser_signal(t_nombre_semaforo identificador_semaforo){
+	// Variables
+	t_mensaje mensaje;
+	mensaje.head.codigo = SIGNAL;
+	mensaje.head.cantidad_parametros = 0;
+	mensaje.head.tam_extra = strlen(identificador_semaforo) + 1;
+	mensaje.parametros = NULL;
+	mensaje.mensaje_extra = identificador_semaforo;
+
+	// Envio al UMC la peticion
+	enviarMensajeNucleo(mensaje);
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
+}
 
 /*
  * FIN PRIMITIVAS.c
