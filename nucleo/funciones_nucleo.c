@@ -101,7 +101,33 @@ void recibirTamPaginas(void)
 		perror("El mensaje recibido no corresponde al tamaño de pagina");
 		abort();
 	}
-	free(mensaje);
+	freeMensaje(mensaje);
+}
+
+int enviarInfoUMC(unsigned int pid, unsigned int cantidadPaginas, const char *codigo)
+{
+	int ret;
+	t_mensajeHead head = {INIT_PROG, 2, strlen(codigo)};
+
+	unsigned int *parametros = malloc(2 * sizeof(unsigned int));
+	parametros[0] = pid;
+	parametros[1] = cantidadPaginas;
+
+	char *dupCodigo = strdup(codigo);
+
+	t_mensaje mensaje = {head, parametros, dupCodigo};
+
+	if((ret = enviarMensaje(fd_umc, mensaje)) == -1)
+	{
+		escribirLog("Error al enviar info a la umc\n");
+		perror("Error al enviar info a la umc\n");
+		abort();
+	}
+
+	free(parametros);
+	free(dupCodigo);
+
+	return ret;
 }
 
 void abrirPuertos(void)
@@ -273,15 +299,10 @@ void administrarConexiones(void)
 							*pcb = crearPCB(mensajeConsola, ++max_proceso, tamPaginas);
 							escribirLog("Se creo el PCB de pid:%d\n", pcb->pid);
 							escribirLog("Cantidad de paginas que ocupa:%d\n", pcb->cantidadPaginas);
-							//*pcb = mensaje_to_pcb(mensajeConsola);
 
-							//Asignar PID
-						//	pcb->pid = ++max_proceso;
-							//Asignar estado
-						//	pcb->estado = 0;
-							//Asignar pc
-						//	pcb->pc = 0;
-							//
+							//Enviar a UMC: PID, Cant Paginas, codigo
+							enviarInfoUMC(pcb->pid, pcb->cantidadPaginas, mensajeConsola.mensaje_extra);
+
 							//Agregar el PCB a Lista Master
 							list_add(lista_master_procesos, pcb);
 							//Agregar el PCB a Cola de Listos

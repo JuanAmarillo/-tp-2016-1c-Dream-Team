@@ -52,5 +52,6 @@ t_mensaje mensajeConsola, mensajeCPU;
 //FUNCIONES
 void estado_to_string(int estado, char *string);
 unsigned int mensaje_to_tamPag(t_mensaje*);
+int enviarInfoUMC(unsigned int pid, unsigned int cantidadPaginas, const char *codigo);
 #endif /* NUCLEO_5_FUNCIONES_NUCLEO_H_ */
 

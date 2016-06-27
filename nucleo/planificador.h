@@ -39,6 +39,7 @@ typedef struct par_PCBs
 
 //Con la UMC
 #define RETURN_TAM_PAGINA 206
+#define INIT_PROG 300
 
 int max_cpu, max_proceso;
 t_PCB PCB_actualizado;
