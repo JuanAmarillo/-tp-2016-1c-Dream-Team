@@ -26,11 +26,9 @@ void *empaquetar_mensaje(t_mensaje mensaje) {
 	desplazamiento += sizeof(unsigned);
 
 	// Copio los parametros
-	if(mensaje.head.cantidad_parametros > 0){
-		for (i_parametro = 0; i_parametro < mensaje.head.cantidad_parametros; i_parametro++){
+	for (i_parametro = 0; i_parametro < mensaje.head.cantidad_parametros; i_parametro++){
 			memcpy(mensaje_empaquetado + desplazamiento, &mensaje.parametros[i_parametro], sizeof(unsigned));
 			desplazamiento += sizeof(unsigned);
-		}
 	}
 
 	// Copio el mensaje_extra
@@ -85,18 +83,14 @@ t_mensaje desempaquetar_mensaje(const void *buffer) {
 	mensaje_desempaquetado.parametros = malloc(sizeof(unsigned) * mensaje_desempaquetado.head.cantidad_parametros);
 
 	// Desempaqueto los parametros
-	if(mensaje_desempaquetado.head.cantidad_parametros > 0){
-		for (i_parametro = 0; i_parametro < mensaje_desempaquetado.head.cantidad_parametros; i_parametro++){
-			memcpy(&mensaje_desempaquetado.parametros[i_parametro], buffer + desplazamiento, sizeof(unsigned));
-			desplazamiento += sizeof(unsigned);
-		}
+	for (i_parametro = 0; i_parametro < mensaje_desempaquetado.head.cantidad_parametros; i_parametro++){
+		memcpy(&mensaje_desempaquetado.parametros[i_parametro], buffer + desplazamiento, sizeof(unsigned));
+		desplazamiento += sizeof(unsigned);
 	}
 
 	// Desempaqueto lo extra
-	if(mensaje_desempaquetado.head.tam_extra > 0){
-		mensaje_desempaquetado.mensaje_extra = malloc(mensaje_desempaquetado.head.tam_extra);
-		memcpy(mensaje_desempaquetado.mensaje_extra, buffer + desplazamiento, mensaje_desempaquetado.head.tam_extra);
-	}
+	mensaje_desempaquetado.mensaje_extra = malloc(mensaje_desempaquetado.head.tam_extra);
+	if(mensaje_desempaquetado.head.tam_extra > 0) memcpy(mensaje_desempaquetado.mensaje_extra, buffer + desplazamiento, mensaje_desempaquetado.head.tam_extra);
 
 	return mensaje_desempaquetado;
 }
@@ -114,7 +108,7 @@ t_mensaje desempaquetar_mensaje(const void *buffer) {
 int enviarMensaje(int serverSocket, t_mensaje mensaje){
 
 	void *mensaje_empaquetado = empaquetar_mensaje(mensaje);
-	unsigned tamano_mensaje = sizeof(unsigned)*3 + sizeof(unsigned) * mensaje.head.cantidad_parametros + mensaje.head.tam_extra;
+	unsigned tamano_mensaje = sizeof(t_mensajeHead) + sizeof(unsigned) * mensaje.head.cantidad_parametros + mensaje.head.tam_extra;
 
 	int enviar = send(serverSocket, mensaje_empaquetado, tamano_mensaje, MSG_NOSIGNAL);
 
