@@ -18,7 +18,7 @@
 // CPU -> UMC
 #define GET_TAM_PAGINA 700 
 #define GET_DATA 701
-#define RESERVE_MEMORY 702
+#define CAMBIO_PROCESO 702
 #define RECORD_DATA 703
 
 // UMC -> CPU
