@@ -26,13 +26,15 @@ void *empaquetar_mensaje(t_mensaje mensaje) {
 	desplazamiento += sizeof(unsigned);
 
 	// Copio los parametros
-	for (i_parametro = 0; i_parametro < mensaje.head.cantidad_parametros; i_parametro++){
-		memcpy(mensaje_empaquetado + desplazamiento, &mensaje.parametros[i_parametro], sizeof(unsigned));
-		desplazamiento += sizeof(unsigned);
+	if(mensaje.head.cantidad_parametros > 0){
+		for (i_parametro = 0; i_parametro < mensaje.head.cantidad_parametros; i_parametro++){
+			memcpy(mensaje_empaquetado + desplazamiento, &mensaje.parametros[i_parametro], sizeof(unsigned));
+			desplazamiento += sizeof(unsigned);
+		}
 	}
 
 	// Copio el mensaje_extra
-	memcpy(mensaje_empaquetado + desplazamiento, mensaje.mensaje_extra, mensaje.head.tam_extra);
+	if(mensaje.mensaje_extra > 0) memcpy(mensaje_empaquetado + desplazamiento, mensaje.mensaje_extra, mensaje.head.tam_extra);
 
 	// Devuelvo
 	return mensaje_empaquetado;
@@ -83,14 +85,18 @@ t_mensaje desempaquetar_mensaje(const void *buffer) {
 	mensaje_desempaquetado.parametros = malloc(sizeof(unsigned) * mensaje_desempaquetado.head.cantidad_parametros);
 
 	// Desempaqueto los parametros
-	for (i_parametro = 0; i_parametro < mensaje_desempaquetado.head.cantidad_parametros; i_parametro++){
-		memcpy(&mensaje_desempaquetado.parametros[i_parametro], buffer + desplazamiento, sizeof(unsigned));
-		desplazamiento += sizeof(unsigned);
+	if(mensaje_desempaquetado.head.cantidad_parametros > 0){
+		for (i_parametro = 0; i_parametro < mensaje_desempaquetado.head.cantidad_parametros; i_parametro++){
+			memcpy(&mensaje_desempaquetado.parametros[i_parametro], buffer + desplazamiento, sizeof(unsigned));
+			desplazamiento += sizeof(unsigned);
+		}
 	}
 
 	// Desempaqueto lo extra
-	mensaje_desempaquetado.mensaje_extra = malloc(mensaje_desempaquetado.head.tam_extra);
-	memcpy(mensaje_desempaquetado.mensaje_extra, buffer + desplazamiento, mensaje_desempaquetado.head.tam_extra);
+	if(mensaje_desempaquetado.head.tam_extra > 0){
+		mensaje_desempaquetado.mensaje_extra = malloc(mensaje_desempaquetado.head.tam_extra);
+		memcpy(mensaje_desempaquetado.mensaje_extra, buffer + desplazamiento, mensaje_desempaquetado.head.tam_extra);
+	}
 
 	return mensaje_desempaquetado;
 }
