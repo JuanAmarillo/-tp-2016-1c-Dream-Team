@@ -25,7 +25,6 @@ int main(int argc, char** argv){
 	t_mensaje mensaje_recibido;
 	int i_quantum;
 	int quantum;
-	unsigned tamano_pagina_umc;
 
 	//
 	logger = log_create("CPU_TEST.txt", "CPU", 1, LOG_LEVEL_TRACE);
@@ -95,6 +94,8 @@ int main(int argc, char** argv){
 			// Libero memoria de la instruccion
 			free(instruccion);
 
+			// Sleep
+
 			// Realizo acciones segun el estado de ejecucion
 			if((estado_ejecucion != 0) || (notificacion_signal_sigusr1 == 1)) break;
 		}
@@ -128,6 +129,7 @@ int main(int argc, char** argv){
 		}
 	}
 
+	log_trace(logger, "Fin CPU");
 	log_destroy(logger);
 
 	return EXIT_SUCCESS;
@@ -680,37 +682,42 @@ int _is_variableX(t_variable *tmp) {
 t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 	log_trace(logger, "parser_definirVariable();");
 	t_indiceStack *aux_stack;
-
-	// Crear variable en la memoria (Reservar el espacio)
+	t_variable *aux_vars;
 	t_posicionDeMemoria posicionMemoria;
-	t_mensaje mensaje;
-	unsigned parametros[1];
-	parametros[0] = sizeof(t_valor_variable);	// Tamaño a reservar
-	mensaje.head.codigo = RESERVE_MEMORY;
-	mensaje.head.cantidad_parametros = 1;
-	mensaje.head.tam_extra = 0;
-	mensaje.parametros = parametros;
-	mensaje.mensaje_extra = NULL;
+	int cantidad_vars;
+	unsigned sp_tmp = pcb_global.sp;
 
-	// Envio al UMC la peticion
-	enviarMensajeUMC(mensaje);
 
-	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
-
-	// Recibo mensaje
-	recibirMensajeUMC(&mensaje);
-
-	if(mensaje.head.codigo != RETURN_POS){
-		// ERROR
+	// Obtengo la ultima direccion de memoria que se encuentra guardada
+	while(1){
+		aux_stack = list_get(pcb_global.indiceStack, sp_tmp);
+		if(sp_tmp == 0){
+			cantidad_vars = list_size(aux_stack->vars);
+			if(cantidad_vars == 0){
+				aux_vars->posicionMemoria.numeroPagina = 0;
+				aux_vars->posicionMemoria.offset = 0;
+				aux_vars->posicionMemoria.size = 0;
+			} else {
+				aux_vars = list_get(aux_stack->vars, cantidad_vars-1);
+			}
+		} else {
+			cantidad_vars = list_size(aux_stack->vars);
+			if(cantidad_vars == 0){ sp_tmp--; continue; }
+			aux_vars = list_get(aux_stack->vars, cantidad_vars-1);
+		}
+		break;
 	}
 
-	posicionMemoria.numeroPagina = mensaje.parametros[0];
-	posicionMemoria.offset = mensaje.parametros[1];
-	posicionMemoria.size = mensaje.parametros[2];
+	// Calculo la nueva direccion de memoria
+	if((aux_vars->posicionMemoria.offset + 8) > tamano_pagina_umc){
+		posicionMemoria.numeroPagina = aux_vars->posicionMemoria.numeroPagina + 1;
+		posicionMemoria.offset = 0;
+	} else {
+		posicionMemoria.numeroPagina = aux_vars->posicionMemoria.numeroPagina;
+		posicionMemoria.offset = aux_vars->posicionMemoria.offset + 4;
+	}
 
-	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
+	posicionMemoria.size = 4;
 
 	// Registrar variable en el ultimo Indice Stack
 	aux_stack = list_get(pcb_global.indiceStack, pcb_global.sp);
