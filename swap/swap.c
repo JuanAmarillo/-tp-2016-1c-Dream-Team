@@ -19,6 +19,7 @@
 #include "initialize.h"
 #include "funcionesAuxiliares.h"
 #include "../cpu/protocolo_mensaje.h"
+//#include "protocolo_mensaje.h"
 
 int main(){
 	initialConf();
@@ -32,7 +33,7 @@ int main(){
 				break;
 			case SAVE_PAGE: saveNewPage();
 				break;
-			case END_PROGRAM: endProgram();
+			case FIN_PROG: endProgram();
 				break;
 			case BRING_PAGE_TO_UMC: returnPage();
 				break;

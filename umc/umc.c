@@ -1,6 +1,7 @@
 #include "umc.h"
 #include "../cpu/protocolo_mensaje.h"
 
+
 void leerArchivoConfig()
 {
 
@@ -79,16 +80,17 @@ void enviarProgramaAlSWAP(unsigned pid, unsigned paginasSolicitadas,
 	unsigned parametrosParaEnviar[1];
 	unsigned byte;
 	//Enviar programa al SWAP
-	codigo->head.codigo = SAVE_PROGRAM;
-	codigo->head.cantidad_parametros = 1;
+	codigo.head.codigo = SAVE_PROGRAM;
+	codigo.head.cantidad_parametros = 1;
 	parametrosParaEnviar[0] = pid;
-	codigo->head.tam_extra = paginasSolicitadas * infoMemoria.tamanioDeMarcos;
+	codigo.parametros = parametrosParaEnviar;
+	codigo.head.tam_extra = paginasSolicitadas * infoMemoria.tamanioDeMarcos;
 	for (byte = 0; byte < infoMemoria.tamanioDeMarcos * paginasSolicitadas;
 			byte++) {
 		if (byte < tamanioCodigo)
-			codigo->mensaje_extra[byte] = codigoPrograma[byte];
+			codigo.mensaje_extra[byte] = codigoPrograma[byte];
 		else
-			codigo->mensaje_extra[byte] = '\0';
+			codigo.mensaje_extra[byte] = '\0';
 	}
 	enviarMensaje(clienteSWAP, codigo);
 }
@@ -209,7 +211,6 @@ void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco)
 	aEnviar.parametros = parametros;
 	aEnviar.mensaje_extra = codigoDelMarco;
 	enviarMensaje(clienteSWAP,aEnviar);
-	free(aEnviar);
 	return;
 }
 

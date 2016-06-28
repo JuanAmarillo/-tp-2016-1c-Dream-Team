@@ -25,7 +25,10 @@ int main(int argc, char** argv){
 	t_mensaje mensaje_recibido;
 	int i_quantum;
 	int quantum;
-	unsigned tamano_pagina_umc;
+	int quantum_sleep;
+
+	//
+	logger = log_create("CPU_TEST.txt", "CPU", 1, LOG_LEVEL_TRACE);
 
 	// Leer archivo config.conf
 	leerArchivoConfig();
@@ -35,34 +38,45 @@ int main(int argc, char** argv){
 
 	// Me conecto a la UMC
 	socketUMC = conectarseUMC();
-	if(socketUMC == -1) abort();
+	if(socketUMC == -1) {
+		log_error(logger, "No se pudo conectarse con la UMC");
+		abort();
+	}
 
 	// Me conecto a el Nucleo
 	socketNucleo = conectarseNucleo();
-	if(socketNucleo == -1) abort();
+	if(socketNucleo == -1) {
+		log_error(logger, "No se pudo conectarse con el Nucleo");
+		abort();
+	}
 
 	// Obtener tamaño de paginas UMC
 	tamano_pagina_umc = obtenerTamanoPaginasUMC();
 
 	while(1){
+
+		// Seteo estado en ejecucion
+		estado_ejecucion = 0;
+
 		// Recibo el PCB
 		recibirMensajeNucleo(&mensaje_recibido);
 
 		// Si no es el PCB, borro el mensaje
 		if(mensaje_recibido.head.codigo != STRUCT_PCB){
+			log_error(logger, "Se recibio un mensaje diferente a 'STRUCT_PCB'");
 			freeMensaje(&mensaje_recibido);
 			continue;
 		}
 
 		// Recibir Quantum
-		quantum = recibirQuantum();
+		recibirQuantum(&quantum, &quantum_sleep);
 
 		// Convierto el mensaje en un PCB, y borro el mensaje
 		pcb_global = mensaje_to_pcb(mensaje_recibido);
 		freeMensaje(&mensaje_recibido);
 
 		// Notifico a la UMC de cambio de proceso
-
+		notificarCambioProceso();
 
 		// LOOP QUANTUM
 		for(i_quantum = 0; i_quantum < quantum; i_quantum++){
@@ -70,24 +84,40 @@ int main(int argc, char** argv){
 			// Obtener siguiente instruccion
 			char *instruccion = obtenerSiguienteIntruccion();
 
+			log_trace(logger, "PID: %i; Quantum %i de %i -> %s", pcb_global.pc, i_quantum, quantum, instruccion);
+
+			// Actualizar PCB
+			pcb_global.pc++;
+
 			// analizadorLinea (parser)
 			analizadorLinea(instruccion, &functions, &kernel_functions);
 
 			// Libero memoria de la instruccion
 			free(instruccion);
 
+			// Sleep
+
 			// Realizo acciones segun el estado de ejecucion
-
-			// Actualizar PCB
-			pcb_global.pc++;
-
+			if((estado_ejecucion != 0) || (notificacion_signal_sigusr1 == 1)) break;
 		}
 		// FIN LOOP QUANTUM
 
-		// Notificar al Nucleo
-		enviarPCBnucleo();
-
-		// Notifico a la UMC de cambio de proceso
+		switch (estado_ejecucion) {
+		      case 0: // Finalizo el Quantum normalmente
+		    	log_trace(logger, "Finalizo el Quantum Normalmente");
+		        enviarPCBnucleo(STRUCT_PCB);
+		        break;
+		      case 1: // Finalizo el programa
+		    	log_trace(logger, "Finalizo el programa");
+		    	enviarPCBnucleo(STRUCT_PCB_FIN);
+		        break;
+		      case 2:
+		    	  log_trace(logger, "Ocurrio Segmentation Fault");
+		    	  enviarPCBnucleo(STRUCT_PCB_FIN_ERROR);
+		    	break;
+		      default: // Otro error
+		    	break;
+		}
 
 		// Libero recursos PCB
 		freePCB(&pcb_global);
@@ -100,6 +130,9 @@ int main(int argc, char** argv){
 		}
 	}
 
+	log_trace(logger, "Fin CPU");
+	log_destroy(logger);
+
 	return EXIT_SUCCESS;
 }
 
@@ -110,10 +143,10 @@ int main(int argc, char** argv){
  * Return: -
  */
 void leerArchivoConfig() {
-
 	t_config *config = config_create("config.conf");
 
 	if (config == NULL) {
+		log_error(logger, "Error al leer archivo config.conf");
 		free(config);
 		abort();
 	}
@@ -267,7 +300,7 @@ int crearConexion(const char *ip, const char *puerto) {
  * Return: -
  */
 void signal_sigusr1(int signal){
-  printf("Recibida señal SIGUSR1.\n");
+  log_trace(logger, "signal_sigusr1();");
   notificacion_signal_sigusr1 = 1;
 }
 
@@ -355,9 +388,9 @@ unsigned obtenerTamanoPaginasUMC(){
  * Descripcion: Envia el PCB global al nucleo
  * Return: -
  */
-void enviarPCBnucleo(){
+void enviarPCBnucleo(unsigned codigo){
 	t_mensaje mensaje;
-	mensaje = pcb_to_mensaje(pcb_global,0);
+	mensaje = pcb_to_mensaje(pcb_global, codigo);
 	enviarMensajeNucleo(mensaje);
 	freeMensaje(&mensaje);
 }
@@ -368,9 +401,8 @@ void enviarPCBnucleo(){
  * Descripcion: Obtiene la cantidad de quantum a ejecutar
  * Return: cantidad de quantum
  */
-int recibirQuantum(){
+void recibirQuantum(int *quantum, int *quantum_sleep){
 	t_mensaje mensaje;
-	int quantum;
 
 	// Recibo mensaje
 	recibirMensajeNucleo(&mensaje);
@@ -381,11 +413,28 @@ int recibirQuantum(){
 
 	// Tamaño de pagina
 	quantum = mensaje.parametros[0];
+	quantum_sleep = mensaje.parametros[1];
 
 	// Libero memoria de mensaje
 	freeMensaje(&mensaje);
 
-	return quantum;
+}
+
+void notificarCambioProceso(){
+	t_mensaje mensaje;
+	unsigned parametros[1];
+	parametros[0] = pcb_global.pid;
+	mensaje.head.codigo = CAMBIO_PROCESO;
+	mensaje.head.cantidad_parametros = 1;
+	mensaje.head.tam_extra = 0;
+	mensaje.parametros = parametros;
+	mensaje.mensaje_extra = NULL;
+
+	// Envio al UMC la peticion
+	enviarMensajeUMC(mensaje);
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
 }
 
 /*
@@ -552,7 +601,7 @@ int recibirMensaje(int serverSocket, t_mensaje *mensaje){
 	memcpy(bufferTotal, buffer_head, sizeof(t_mensajeHead));
 
 	// Recibo el Payload
-	recibir = recibirBytes(serverSocket, bufferTotal + desplazamiento, faltan_recibir);
+	if(faltan_recibir > 0) recibir = recibirBytes(serverSocket, bufferTotal + desplazamiento, faltan_recibir);
 
 	// Desempaqueto el mensaje
 	*mensaje = desempaquetar_mensaje(bufferTotal);
@@ -640,42 +689,47 @@ int _is_variableX(t_variable *tmp) {
 }
 
 t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
-	int lastStack = list_size(pcb_global.indiceStack);
+	log_trace(logger, "parser_definirVariable();");
 	t_indiceStack *aux_stack;
-
-	// Crear variable en la memoria (Reservar el espacio)
+	t_variable *aux_vars;
 	t_posicionDeMemoria posicionMemoria;
-	t_mensaje mensaje;
-	unsigned parametros[1];
-	parametros[0] = sizeof(t_valor_variable);	// Tamaño a reservar
-	mensaje.head.codigo = RESERVE_MEMORY;
-	mensaje.head.cantidad_parametros = 1;
-	mensaje.head.tam_extra = 0;
-	mensaje.parametros = parametros;
-	mensaje.mensaje_extra = NULL;
+	int cantidad_vars;
+	unsigned sp_tmp = pcb_global.sp;
 
-	// Envio al UMC la peticion
-	enviarMensajeUMC(mensaje);
 
-	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
-
-	// Recibo mensaje
-	recibirMensajeUMC(&mensaje);
-
-	if(mensaje.head.codigo != RETURN_POS){
-		// ERROR
+	// Obtengo la ultima direccion de memoria que se encuentra guardada
+	while(1){
+		aux_stack = list_get(pcb_global.indiceStack, sp_tmp);
+		if(sp_tmp == 0){
+			cantidad_vars = list_size(aux_stack->vars);
+			if(cantidad_vars == 0){
+				aux_vars->posicionMemoria.numeroPagina = 0;
+				aux_vars->posicionMemoria.offset = 0;
+				aux_vars->posicionMemoria.size = 0;
+			} else {
+				aux_vars = list_get(aux_stack->vars, cantidad_vars-1);
+			}
+		} else {
+			cantidad_vars = list_size(aux_stack->vars);
+			if(cantidad_vars == 0){ sp_tmp--; continue; }
+			aux_vars = list_get(aux_stack->vars, cantidad_vars-1);
+		}
+		break;
 	}
 
-	posicionMemoria.numeroPagina = mensaje.parametros[0];
-	posicionMemoria.offset = mensaje.parametros[1];
-	posicionMemoria.size = mensaje.parametros[2];
+	// Calculo la nueva direccion de memoria
+	if((aux_vars->posicionMemoria.offset + 8) > tamano_pagina_umc){
+		posicionMemoria.numeroPagina = aux_vars->posicionMemoria.numeroPagina + 1;
+		posicionMemoria.offset = 0;
+	} else {
+		posicionMemoria.numeroPagina = aux_vars->posicionMemoria.numeroPagina;
+		posicionMemoria.offset = aux_vars->posicionMemoria.offset + 4;
+	}
 
-	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
+	posicionMemoria.size = 4;
 
 	// Registrar variable en el ultimo Indice Stack
-	aux_stack = list_get(pcb_global.indiceStack, lastStack);
+	aux_stack = list_get(pcb_global.indiceStack, pcb_global.sp);
 	list_add(aux_stack->vars, vars_create(identificador_variable, posicionMemoria.numeroPagina, posicionMemoria.offset, posicionMemoria.size));
 
 	// Devuelvo posicion de la variable en el contexto actual
@@ -683,14 +737,15 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 }
 
 t_puntero parser_obtenerPosicionVariable(t_nombre_variable identificador_variable) {
+	log_trace(logger, "parser_obtenerPosicionVariable();");
 	nombreVariable_aBuscar = identificador_variable;
-	int lastStack = list_size(pcb_global.indiceStack);
+
 	t_puntero puntero_variable;
 	t_indiceStack *aux_stack;
 	t_variable *aux_vars;
 
 	// Ingresar al ultimo indice stack
-	aux_stack = list_get(pcb_global.indiceStack, lastStack);
+	aux_stack = list_get(pcb_global.indiceStack, pcb_global.sp);
 	aux_vars = list_find(aux_stack->vars, (void*) _is_variableX);
 
 	puntero_variable = aux_vars->posicionMemoria;
@@ -699,7 +754,7 @@ t_puntero parser_obtenerPosicionVariable(t_nombre_variable identificador_variabl
 }
 
 t_valor_variable parser_dereferenciar(t_puntero direccion_variable) {
-
+	log_trace(logger, "parser_dereferenciar();");
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[3];
@@ -738,6 +793,7 @@ t_valor_variable parser_dereferenciar(t_puntero direccion_variable) {
 }
 
 void parser_asignar(t_puntero direccion_variable, t_valor_variable valor) {
+	log_trace(logger, "parser_asignar();");
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[4];
@@ -760,7 +816,7 @@ void parser_asignar(t_puntero direccion_variable, t_valor_variable valor) {
 	// Recibo mensaje
 	recibirMensajeUMC(&mensaje);
 
-	if(mensaje.head.codigo != RECORD_OK){
+	if(mensaje.head.codigo != RETURN_RECORD_DATA){
 		// ERROR
 	}
 
@@ -769,6 +825,7 @@ void parser_asignar(t_puntero direccion_variable, t_valor_variable valor) {
 }
 
 t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable){
+	log_trace(logger, "parser_obtenerValorCompartida();");
 
 	// Variables
 	t_mensaje mensaje;
@@ -796,6 +853,8 @@ t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable){
 }
 
 t_valor_variable parser_asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor){
+	log_trace(logger, "parser_asignarValorCompartida();");
+
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[1];
@@ -816,28 +875,32 @@ t_valor_variable parser_asignarValorCompartida(t_nombre_compartida variable, t_v
 }
 
 void parser_irAlLabel(t_nombre_etiqueta etiqueta){
+	log_trace(logger, "parser_irAlLabel();");
 	unsigned intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
 	pcb_global.pc = intruction;
 }
 
 void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta){
+	log_trace(logger, "parser_llamarSinRetorno();");
 	// Busco PC de la primera instruccion de la funcion
 	unsigned pc_first_intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
 
 	// Creo nuevo contexto, y guardo retPos
 	list_add(pcb_global.indiceStack, stack_create(pcb_global.pc, 0, 0, 0));
+	pcb_global.sp++;
 
 	// Cambio el PC actual
 	pcb_global.pc = pc_first_intruction;
 }
 
 void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar){
-
+	log_trace(logger, "parser_llamarConRetorno();");
 	// Busco PC de la primera instruccion de la funcion
 	unsigned pc_first_intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
 
 	// Creo nuevo contexto, y guardo retPos y retVar
 	list_add(pcb_global.indiceStack, stack_create(pcb_global.pc, donde_retornar.numeroPagina, donde_retornar.offset, donde_retornar.size));
+	pcb_global.sp++;
 
 	// Cambio el PC actual
 	pcb_global.pc = pc_first_intruction;
@@ -845,24 +908,26 @@ void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retorna
 }
 
 void parser_finalizar(){
-	int lastStack = list_size(pcb_global.indiceStack);
+	log_trace(logger, "parser_finalizar();");
+
 	t_puntero puntero_variable;
 	t_indiceStack *aux_stack;
 
 	// Si es el contexto principal => Finalizo programa
-	if(lastStack == 1){
+	if(pcb_global.sp == 0){
 		estado_ejecucion = 1; // Pongo el estado de ejecucion en "Finalizado"
 		return;
 	}
 
 	// Obtengo datos
-	aux_stack = list_get(pcb_global.indiceStack, lastStack);
+	aux_stack = list_get(pcb_global.indiceStack, pcb_global.sp);
 
 	// Actualizo PC
 	pcb_global.pc = aux_stack->retPos;
 
 	// Borro contexto
-	aux_stack = list_remove(pcb_global.indiceStack, (lastStack-1));
+	aux_stack = list_remove(pcb_global.indiceStack, pcb_global.sp);
+	pcb_global.sp--;
 
 	// Destruyo los args
 	list_destroy_and_destroy_elements(aux_stack->args, (void*) args_destroy);
@@ -873,12 +938,13 @@ void parser_finalizar(){
 }
 
 void parser_retornar(t_valor_variable retorno){
-	int lastStack = list_size(pcb_global.indiceStack);
+	log_trace(logger, "parser_retornar();");
+
 	t_puntero puntero_variable;
 	t_indiceStack *aux_stack;
 
 	// Obtengo datos
-	aux_stack = list_get(pcb_global.indiceStack, lastStack);
+	aux_stack = list_get(pcb_global.indiceStack, pcb_global.sp);
 
 	// Actualizo PC
 	pcb_global.pc = aux_stack->retPos;
@@ -887,7 +953,8 @@ void parser_retornar(t_valor_variable retorno){
 	parser_asignar(aux_stack->retVar, retorno);
 
 	// Borro contexto
-	aux_stack = list_remove(pcb_global.indiceStack, (lastStack-1));
+	aux_stack = list_remove(pcb_global.indiceStack, pcb_global.sp);
+	pcb_global.sp--;
 
 	// Destruyo los args
 	list_destroy_and_destroy_elements(aux_stack->args, (void*) args_destroy);
@@ -898,6 +965,8 @@ void parser_retornar(t_valor_variable retorno){
 }
 
 void parser_imprimir(t_valor_variable valor_mostrar){
+	log_trace(logger, "parser_imprimir();");
+
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[1];
@@ -916,6 +985,8 @@ void parser_imprimir(t_valor_variable valor_mostrar){
 }
 
 void parser_imprimirTexto(char* texto){
+	log_trace(logger, "parser_imprimirTexto();");
+
 	// Variables
 	t_mensaje mensaje;
 	mensaje.head.codigo = IMPRIMIR_TEXTO;
@@ -932,6 +1003,8 @@ void parser_imprimirTexto(char* texto){
 }
 
 void parser_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
+	log_trace(logger, "parser_entradaSalida();");
+
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[1];
@@ -949,6 +1022,7 @@ void parser_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 	freeMensaje(&mensaje);
 }
 void parser_wait(t_nombre_semaforo identificador_semaforo){
+	log_trace(logger, "parser_wait();");
 
 	// Variables
 	t_mensaje mensaje;
@@ -967,6 +1041,8 @@ void parser_wait(t_nombre_semaforo identificador_semaforo){
 }
 
 void parser_signal(t_nombre_semaforo identificador_semaforo){
+	log_trace(logger, "parser_signal();");
+
 	// Variables
 	t_mensaje mensaje;
 	mensaje.head.codigo = SIGNAL;
