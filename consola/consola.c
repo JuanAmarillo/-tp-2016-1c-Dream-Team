@@ -10,11 +10,13 @@
 #include <netdb.h>
 #include <unistd.h>
 #include "consola.h"
+#include "protocolo_mensaje.h"
+#include "../messageCode/messageCode.h"
 #define MSG_SIZE 50+1
 
 struct sockaddr_in direccionNucleo;
 
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
 	t_mensaje mensaje;
 
 	// Verifica cantidad de parámetros
@@ -67,23 +69,32 @@ int main(int argc, char** argv){
 
 	if(enviarMensaje(miSocket, mensaje) == -1)
 	{
-		perror("Error al enviar Programa");
+		perror("Error al enviar Programa\n");
 		exit(1);
 	}
 
 	free(codigo);
 	free(mensaje.mensaje_extra);
-	//Falta permanecer a la escucha
-	// 1. dónde está definido t_mensajeHead? 
-	// 2. Qué formato de mensajo recibe esto? Está empaquetado? (calculo que sí)
-	// 3. Si el mensaje es algo del estilo imprimir(cosa), habría que guardar eso en una variable, pasarlo por el parser y ahí finalmente imprimir?
-	recv(miSocket,codigo,tamanio, 0);
-	//Ver qué hacer dependiendo si el mensaje es una sentencia imprimir o imprimirTexto
+	
+	t_mensaje mensaje_recibido;
+	if (recibirMensaje(miSocket,&mensaje_recibido)==-1){
+		perror("Error al recibir mensaje\n");
+		exit(1);
+	}
 
-
+	switch(mensaje_recibido.head.codigo){
+		case IMPRIMIR_PROGRAMA:
+			printf("Imprimir: %d \n", mensaje_recibido.head.codigo);
+			break;
+		case IMPRIMIR_TEXTO_PROGAMA:
+			printf("Imprimir texto: %c \n", mensaje_recibido.head.codigo);
+			break;
+		default:
+			printf("Codigo invalido \n");
+			break;
+	}
 	return 0;
 }
-
 
 
 
@@ -104,11 +115,10 @@ void leerArchivoConfig() {
 }
 
 
-void inicializarDireccionNucleo (){
 
+void inicializarDireccionNucleo (){
 	direccionNucleo.sin_family = AF_INET;
 	direccionNucleo.sin_port = htons (atoi(infoConfig.puerto));
 	direccionNucleo.sin_addr.s_addr = inet_addr(infoConfig.ip);
 	memset (direccionNucleo.sin_zero, '\0', sizeof (direccionNucleo.sin_zero));
-
 }
