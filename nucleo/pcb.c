@@ -1,4 +1,5 @@
 #include "pcb.h"
+#include "archivoLog.h"
 
 /*
  * stack_create();
@@ -305,7 +306,7 @@ void freePCB(t_PCB *pcb){
 
 
 t_PCB crearPCB(t_mensaje programa, unsigned int pid, unsigned int tamPag)
-{
+{escribirLog("Hasta aca llego papurri\n");
 	t_PCB pcb;
 	unsigned int tamCod = programa.head.tam_extra;
 	char *codigo = malloc(tamCod);
@@ -323,7 +324,9 @@ t_PCB crearPCB(t_mensaje programa, unsigned int pid, unsigned int tamPag)
 	pcb.total_instrucciones = metadata->instrucciones_size;
 
 	pcb.indiceCodigo = (t_indiceCodigo*) metadata->instrucciones_serializado;
-	pcb.indiceStack = list_create();//Valor Provisorio necesita informacion de la UMC
+//	pcb.indiceStack = (t_list*)stack_create(0, 0, 0, 0);//Valor inicial
+	pcb.indiceStack = list_create();//Valor inicial
+	free(codigo);
 	return pcb;
 }
 

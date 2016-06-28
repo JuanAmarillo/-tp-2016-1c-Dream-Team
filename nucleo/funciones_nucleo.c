@@ -98,7 +98,7 @@ void recibirTamPaginas(void)
 	}
 	else
 	{
-		perror("El mensaje recibido no corresponde al tamaño de pagina");
+		perror("El mensaje recibido no corresponde a un aviso de tamaño de pagina\n");
 		abort();
 	}
 	freeMensaje(mensaje);
@@ -128,6 +128,88 @@ int enviarInfoUMC(unsigned int pid, unsigned int cantidadPaginas, const char *co
 	free(dupCodigo);
 
 	return ret;
+}
+
+void avisar_UMC_FIN_PROG(int pid)
+{
+	t_mensajeHead head = {FIN_PROG, 1, 0};
+	t_mensaje mensaje;
+	mensaje.head = head;
+	mensaje.parametros[0] = pid;
+	mensaje.mensaje_extra = NULL;
+
+	if(enviarMensaje(fd_umc, mensaje) == -1)
+	{
+		escribirLog("Error al informar a la umc que termino el proceso %d\n", pid);
+		abort();
+	}
+}
+
+int seAlmacenoElProceso(void)
+{
+	t_mensaje *mensaje = malloc(sizeof(t_mensaje));
+
+	if(recibirMensaje(fd_umc, mensaje) <= 0)
+	{
+		escribirLog("Error al recibir mensaje de la umc\n");
+		perror("Error al recibir mensaje de la umc");
+		abort();
+	}
+
+	if(mensaje->head.codigo == ALMACENAR_OK)
+	{
+		escribirLog("almacenar ok\n");
+		freeMensaje(mensaje);
+		return 1;
+	}
+	if(mensaje->head.codigo == ALMACENAR_FAILED)
+	{
+		escribirLog("almacenar failed\n");
+		freeMensaje(mensaje);
+		return 0;
+	}
+
+	perror("Mensaje desconocido");
+	escribirLog("La funcion de verificar si se almaceno el proceso recibio un mensaje desconocido\n");
+	freeMensaje(mensaje);
+	abort();
+	return -1;//Aborta antes de retornar, pero si no pongo esto me tira warning :P
+}
+
+void avisar_Consola_ProgramaNoAlmacenado(int fd)
+{
+	const char aviso[] = "Error: No ha sido posible almacenar el programa en memoria\nAbortado\n";
+	t_mensajeHead head = {IMPRIMIR_TEXTO_PROGAMA, 0, strlen(aviso)};
+	t_mensaje mensaje;
+	mensaje.head = head;
+	mensaje.mensaje_extra = strdup(aviso);
+	enviarMensaje(fd, mensaje);
+	free(mensaje.mensaje_extra);
+}
+
+void asociarPidConsola(int pid, int consola)
+{
+	t_parPidConsola *par = malloc(sizeof(t_parPidConsola));
+	par->pid = pid;
+	par->fd_consola = consola;
+	list_add(lista_Pares, par);
+}
+
+void desasociarPidConsola(int pid)
+{
+	t_link_element *aux, *aux2;
+	for(aux = lista_Pares->head; aux->next && ((t_parPidConsola*)(aux->next->data))->pid != pid ; aux = aux->next);
+	if(aux->next)
+	{
+		aux2 = aux->next;
+		aux->next = aux2->next;
+		free(aux2);
+	}
+	else
+	{
+		perror("desasociarPidConsola: No se encontro el pid a desasociar");
+		escribirLog("desasociarPidConsola: No se encontro el pid a desasociar\n");
+	}
 }
 
 void abrirPuertos(void)
@@ -197,6 +279,7 @@ void inicializarListas(void)
 	lista_master_procesos = list_create();
 	cola_bloqueados = queue_create();
 	cola_listos = queue_create();
+	lista_Pares = list_create();
 }
 
 void administrarConexiones(void)
@@ -273,14 +356,14 @@ void administrarConexiones(void)
 						nbytes = recibirMensaje(fd_explorer, &mensajeConsola);//Recibir los datos en mensajeCOnsola
 						if(nbytes <= 0)//Hubo un error o se desconecto
 						{
-							if(nbytes < 0)
+							if(nbytes < 0)//Error
 							{
 								FD_CLR(fd_explorer, &conj_master);
 								FD_CLR(fd_explorer, &conj_consola);
 								close(fd_explorer);
 								escribirLog("Error de recepción en una consola (fd[%d])\n", fd_explorer);
 							}
-							if(nbytes == 0)
+							if(nbytes == 0)//Desconexion
 							{
 								FD_CLR(fd_explorer, &conj_master);
 								FD_CLR(fd_explorer, &conj_consola);
@@ -300,15 +383,35 @@ void administrarConexiones(void)
 							escribirLog("Se creo el PCB de pid:%d\n", pcb->pid);
 							escribirLog("Cantidad de paginas que ocupa:%d\n", pcb->cantidadPaginas);
 
+							//Asociar el pcb a su consola
+							asociarPidConsola(pcb->pid, fd_explorer);
+
 							//Enviar a UMC: PID, Cant Paginas, codigo
 							enviarInfoUMC(pcb->pid, pcb->cantidadPaginas, mensajeConsola.mensaje_extra);
 
-							//Agregar el PCB a Lista Master
-							list_add(lista_master_procesos, pcb);
-							//Agregar el PCB a Cola de Listos
-							ponerListo(pcb);
-							escribirLog("Cola de Listos actual:\n");
-							mostrarColaPorLog(cola_listos);
+							//Verificar que se pudo guardar el programa
+							if(seAlmacenoElProceso())
+							{
+								escribirLog("Se almaceno correctamente el proceso %d\n", pcb->pid);
+
+								//Agregar el PCB a Lista Master
+								list_add(lista_master_procesos, pcb);
+
+								//Agregar el PCB a Cola de Listos
+								ponerListo(pcb);
+								escribirLog("Cola de Listos actual:\n");
+								mostrarColaPorLog(cola_listos);
+							}
+							else
+							{
+								free(pcb->indiceEtiquetas);
+								free(pcb->indiceCodigo);
+								free(pcb->indiceStack);
+								free(pcb);
+								escribirLog("No se almaceno el proceso, se abortara el mismo\n");
+								avisar_Consola_ProgramaNoAlmacenado(fd_explorer);
+							}
+
 						}
 					}
 
@@ -363,8 +466,10 @@ void administrarConexiones(void)
 							{
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
-								terminar(pcb);
+								avisar_UMC_FIN_PROG(pcb->pid);
 								FD_CLR(pcb->pid, &conjunto_procesos_ejecutando);
+								desasociarPidConsola(pcb->pid);
+								terminar(pcb);
 								actualizarMaster();
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
 							}

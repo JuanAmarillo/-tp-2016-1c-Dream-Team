@@ -32,6 +32,7 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 				//Establecer que la cpu ya no está libre
 				FD_CLR(cpu_explorer, &conjunto_cpus_libres);
 				//Ejecutar proceso
+
 				ejecutar(*proceso, quantum, quantumSleep, cpu_explorer);
 
 				break;
@@ -54,7 +55,11 @@ void esperaPorProcesos(t_queue* cola)
 void ejecutar(t_PCB proceso, unsigned short int quantum, unsigned int qSleep, int cpu)
 {
 	t_mensaje mensaje_PCB = pcb_to_mensaje(proceso,EJECUTAR);
+
+
 	t_mensaje mensaje_quantum = quantum_to_mensaje(quantum, qSleep);
+
+
 
 	enviarMensaje(cpu, mensaje_PCB);
 	enviarMensaje(cpu, mensaje_quantum);

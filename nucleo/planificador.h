@@ -24,11 +24,14 @@ fd_set conjunto_procesos_bloqueados;
 fd_set conjunto_procesos_ejecutando;
 fd_set conjunto_procesos_salida;
 
-typedef struct par_PCBs
+typedef struct
 {
-	t_PCB viejo;
-	t_PCB nuevo;
-}par_PCBs;
+	int pid;
+	int fd_consola;
+}t_parPidConsola;
+
+t_list *lista_Pares;
+
 //Con la CPU
 #define STRUCT_PCB 300 			// Utilizar la funcion: mensaje_to_pcb() y pcb_to_mensaje() segun corresponda
 #define FIN_QUANTUM 301
@@ -38,8 +41,16 @@ typedef struct par_PCBs
 #define BLOQUEADO 305
 
 //Con la UMC
-#define RETURN_TAM_PAGINA 206
+#define RETURN_TAM_PAGINA 705
+#define ALMACENAR_OK 310
+#define ALMACENAR_FAILED 320
+
 #define INIT_PROG 300
+#define FIN_PROG 305
+
+//Con la Consola
+#define IMPRIMIR_PROGRAMA 101
+#define IMPRIMIR_TEXTO_PROGAMA 102
 
 int max_cpu, max_proceso;
 t_PCB PCB_actualizado;
