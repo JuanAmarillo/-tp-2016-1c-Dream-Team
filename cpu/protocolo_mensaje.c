@@ -154,7 +154,7 @@ int recibirMensaje(int serverSocket, t_mensaje *mensaje){
 	memcpy(bufferTotal, buffer_head, sizeof(t_mensajeHead));
 
 	// Recibo el Payload
-	recibir = recibirBytes(serverSocket, bufferTotal + desplazamiento, faltan_recibir);
+	if(faltan_recibir > 0) recibir = recibirBytes(serverSocket, bufferTotal + desplazamiento, faltan_recibir);
 
 	// Desempaqueto el mensaje
 	*mensaje = desempaquetar_mensaje(bufferTotal);

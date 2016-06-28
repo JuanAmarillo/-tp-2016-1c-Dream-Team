@@ -25,6 +25,7 @@ int main(int argc, char** argv){
 	t_mensaje mensaje_recibido;
 	int i_quantum;
 	int quantum;
+	int quantum_sleep;
 
 	//
 	logger = log_create("CPU_TEST.txt", "CPU", 1, LOG_LEVEL_TRACE);
@@ -68,14 +69,14 @@ int main(int argc, char** argv){
 		}
 
 		// Recibir Quantum
-		quantum = recibirQuantum();
+		recibirQuantum(&quantum, &quantum_sleep);
 
 		// Convierto el mensaje en un PCB, y borro el mensaje
 		pcb_global = mensaje_to_pcb(mensaje_recibido);
 		freeMensaje(&mensaje_recibido);
 
 		// Notifico a la UMC de cambio de proceso
-
+		notificarCambioProceso();
 
 		// LOOP QUANTUM
 		for(i_quantum = 0; i_quantum < quantum; i_quantum++){
@@ -400,9 +401,8 @@ void enviarPCBnucleo(unsigned codigo){
  * Descripcion: Obtiene la cantidad de quantum a ejecutar
  * Return: cantidad de quantum
  */
-int recibirQuantum(){
+void recibirQuantum(int *quantum, int *quantum_sleep){
 	t_mensaje mensaje;
-	int quantum;
 
 	// Recibo mensaje
 	recibirMensajeNucleo(&mensaje);
@@ -413,20 +413,29 @@ int recibirQuantum(){
 
 	// Tamaño de pagina
 	quantum = mensaje.parametros[0];
+	quantum_sleep = mensaje.parametros[1];
 
 	// Libero memoria de mensaje
 	freeMensaje(&mensaje);
 
-	return quantum;
 }
 
-/*static void log_in_disk(char* temp_file) {
-    log_trace(logger, "LOG A NIVEL %s", "TRACE");
-    log_debug(logger, "LOG A NIVEL %s", "DEBUG");
-    log_info(logger, "LOG A NIVEL %s", "INFO");
-    log_warning(logger, "LOG A NIVEL %s", "WARNING");
-    log_error(logger, "LOG A NIVEL %s", "ERROR");
-}*/
+void notificarCambioProceso(){
+	t_mensaje mensaje;
+	unsigned parametros[1];
+	parametros[0] = pcb_global.pid;
+	mensaje.head.codigo = CAMBIO_PROCESO;
+	mensaje.head.cantidad_parametros = 1;
+	mensaje.head.tam_extra = 0;
+	mensaje.parametros = parametros;
+	mensaje.mensaje_extra = NULL;
+
+	// Envio al UMC la peticion
+	enviarMensajeUMC(mensaje);
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
+}
 
 /*
  * FIN CPU.c
@@ -592,7 +601,7 @@ int recibirMensaje(int serverSocket, t_mensaje *mensaje){
 	memcpy(bufferTotal, buffer_head, sizeof(t_mensajeHead));
 
 	// Recibo el Payload
-	recibir = recibirBytes(serverSocket, bufferTotal + desplazamiento, faltan_recibir);
+	if(faltan_recibir > 0) recibir = recibirBytes(serverSocket, bufferTotal + desplazamiento, faltan_recibir);
 
 	// Desempaqueto el mensaje
 	*mensaje = desempaquetar_mensaje(bufferTotal);
