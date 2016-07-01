@@ -47,15 +47,13 @@ void inicializarEstructuras()
 
 void clienteDesconectado(int clienteUMC)
 {
-	perror("El cliente se desconecto\n");
 
 	pthread_mutex_lock(&mutexClientes);
 	FD_CLR(clienteUMC, &master);
 	pthread_mutex_unlock(&mutexClientes);
 
 	close(clienteUMC);
-
-    // hacer un pthread_exit !! <--
+	//cerrar hilo
 
 	return;
 }
@@ -157,11 +155,13 @@ void borrarEntradasTLBSegun(unsigned pidActivo)
 {
 	unsigned cantidadEntradas = infoMemoria.entradasTLB;
 	unsigned entrada;
+	t_entradaTLB *entradaTLB;
 	pthread_mutex_lock(&mutexTLB);
 	for(entrada = 0 ; entrada < cantidadEntradas ; entrada++)
 	{
-		if(TLB[entrada].pid == pidActivo)
-			TLB[entrada].pid = 0;
+		entradaTLB = list_get(TLB,entrada);
+		if(entradaTLB->pid == pidActivo)
+			list_remove(TLB,entrada);
 	}
 	pthread_mutex_unlock(&mutexTLB);
 
@@ -228,12 +228,12 @@ void finPrograma(t_mensaje finalizarProg)
 	return;
 }
 
-void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco)
+void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo)
 {
 	t_mensaje aEnviar;
 	aEnviar.head.codigo = SAVE_PAGE;
 	unsigned parametros[2];
-	parametros[0] = procesoActivo;
+	parametros[0] = pidActivo;
 	parametros[1] = pagina;
 	aEnviar.head.cantidad_parametros = 2;
 	aEnviar.head.tam_extra = infoMemoria.tamanioDeMarcos;
@@ -243,7 +243,7 @@ void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco)
 	return;
 }
 
-void falloDePagina()
+void falloDePagina(unsigned pidActivo)
 {
 	t_tablaDePaginas* tablaBuscada;
 	unsigned indice;
@@ -267,9 +267,9 @@ void falloDePagina()
 
 					//Llevo el codigo que esta en el marco al SWAP
 					pthread_mutex_lock(&mutexMemoria);
-					memcpy(codigoDelMarco, memoriaPrincipal+infoMemoria.tamanioDeMarcos*punteroClock, sizeof(infoMemoria.tamanioDeMarcos));
+					memcpy(codigoDelMarco, memoriaPrincipal+infoMemoria.tamanioDeMarcos*punteroClock, infoMemoria.tamanioDeMarcos);
 					pthread_mutex_unlock(&mutexMemoria);
-					enviarPaginaAlSWAP(paginaBuscada,codigoDelMarco);
+					enviarPaginaAlSWAP(paginaBuscada,codigoDelMarco,pidActivo);
 					return;
 				}
 		}
@@ -277,14 +277,14 @@ void falloDePagina()
 	return;
 }
 
-void actualizarPagina(unsigned pagina)
+void actualizarPagina(unsigned pagina,unsigned pidActivo)
 {
 	t_tablaDePaginas *tablaDePagina;
 	unsigned indice;
 	for(indice = 0; indice < list_size(tablasDePaginas);indice++)
 	{
 		tablaDePagina = list_get(tablasDePaginas,indice);
-		if(tablaDePagina->pid == procesoActivo)
+		if(tablaDePagina->pid == pidActivo)
 		{
 			tablaDePagina->entradaTablaPaginas[pagina].estaEnMemoria = 1;
 			tablaDePagina->entradaTablaPaginas[pagina].marco = punteroClock;
@@ -293,17 +293,19 @@ void actualizarPagina(unsigned pagina)
 	return;
 }
 
-void escribirEnMemoria(void* codigoPrograma, unsigned pagina)
+void escribirEnMemoria(void* codigoPrograma,unsigned tamanioPrograma, unsigned pagina,unsigned pidActivo)
 {
-	actualizarPagina(pagina);
-	memcpy(memoriaPrincipal + infoMemoria.tamanioDeMarcos*punteroClock,codigoPrograma,sizeof(codigoPrograma));
+	actualizarPagina(pagina,pidActivo);
+	memcpy(memoriaPrincipal + infoMemoria.tamanioDeMarcos*punteroClock,codigoPrograma,tamanioPrograma);
+
+	return;
 }
 
-void algoritmoClock(void* codigoPrograma,unsigned pagina)
+void algoritmoClock(void* codigoPrograma,unsigned tamanioPrograma,unsigned pagina,unsigned pidActivo)
 {
 	pthread_mutex_lock(&mutexClock);
-	falloDePagina();
-	escribirEnMemoria(codigoPrograma,pagina);
+	falloDePagina(pidActivo);
+	escribirEnMemoria(codigoPrograma,tamanioPrograma,pagina,pidActivo);
 	punteroClock++;
 	pthread_mutex_unlock(&mutexClock);
 	return;
@@ -332,7 +334,7 @@ void traerPaginaAMemoria(unsigned pagina,unsigned pidActual)
 
 	//Recibimos pagina del SWAP
 	recibirMensaje(clienteSWAP, &aRecibir);
-	algoritmoClock(aRecibir.mensaje_extra,pagina);
+	algoritmoClock(aRecibir.mensaje_extra,aRecibir.head.tam_extra,pagina,pidActual);
 
 
 	return;
@@ -413,15 +415,15 @@ void traducirPaginaAMarco(unsigned pagina,int *marco,unsigned pidActual)
 	return;
 }
 
-void almacenarBytesEnPagina(t_mensaje mensaje)
+void almacenarBytesEnPagina(t_mensaje mensaje,unsigned pidActivo)
 {
 	unsigned pagina  = mensaje.parametros[0];
 	unsigned offset  = mensaje.parametros[1];
 	unsigned tamanio = mensaje.parametros[2];
 	void*    buffer  = mensaje.mensaje_extra;
 	int marco;
-	traducirPaginaAMarco(pagina,&marco);
-	memcpy(memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco+offset,buffer,sizeof(buffer));
+	traducirPaginaAMarco(pagina,&marco,pidActivo);
+	memcpy(memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco+offset,buffer,tamanio);
 
 	return;
 }
@@ -491,18 +493,18 @@ void accionSegunCabecera(int clienteUMC,unsigned pid)
 			case CAMBIO_PROCESO:
 				pidActivo = cambioProcesoActivo(mensaje.parametros[0],clienteUMC,pidActivo);
 				break;
-			case RECORD_DATA: almacenarBytesEnPagina(mensaje);
+			case RECORD_DATA: almacenarBytesEnPagina(mensaje,pidActivo);
 				break;
 	}
 	}
 	return;
 }
 
-void gestionarSolicitudesDeOperacion(int clienteUMC)
+void* gestionarSolicitudesDeOperacion(int clienteUMC)
 {
 	//Hago esto porque no se como pasarle varios parametros a un hilo
 	accionSegunCabecera(clienteUMC,0);
-	return;
+	return NULL;
 }
 
 int recibirConexiones()
@@ -579,7 +581,8 @@ void gestionarConexiones()
 	pthread_mutex_init(&mutexClientes,NULL);
 	pthread_mutex_init(&mutexMemoria,NULL);
 	pthread_mutex_init(&mutexTablaPaginas,NULL);
-	pthread_mutex_init(&mutexProcesoActivo,NULL);
+	pthread_mutex_init(&mutexClock,NULL);
+	pthread_mutex_init(&mutexTLB,NULL);
 
 	FD_ZERO(&master);
 	FD_ZERO(&fdsParaLectura);
@@ -607,7 +610,7 @@ void gestionarConexiones()
 
 			}
 			else{
-				pthread_create(&cliente,NULL,(void*)gestionarSolicitudesDeOperacion,clienteUMC);
+				pthread_create(&cliente,NULL,gestionarSolicitudesDeOperacion,clienteUMC);
 			}
 		}
 	}
@@ -616,6 +619,7 @@ void gestionarConexiones()
 }
 
 int main(){
+
 
 	//Config
 	leerArchivoConfig();
@@ -648,5 +652,6 @@ int main(){
 	cantidad = list_size(hola);
 	printf("%d",aux->pid);
 */
+
 	return 0;
 }
