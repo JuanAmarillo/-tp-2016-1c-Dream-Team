@@ -67,7 +67,7 @@ void getPage(unsigned nroPag){
 
 	sleep(RETARDO_ACCESO);
 
-	fread(&bufferPagina,1,TAMANIO_PAGINA,SWAPFILE);
+	fread(bufferPagina,1,TAMANIO_PAGINA,SWAPFILE);
 
 	msj_Get_Page(nroPag);
 

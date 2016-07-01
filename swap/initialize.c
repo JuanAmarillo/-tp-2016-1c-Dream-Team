@@ -21,6 +21,7 @@
 #include "initialize.h"
 
 void readConfigFile(){
+	system("clear");
 	logger = log_create("SWAP.txt", "SWAP", 1, LOG_LEVEL_TRACE);
 	t_config *config = config_create("config.conf");
 		if (config == NULL) {
@@ -57,6 +58,7 @@ void crearEstructurasDeManejo(){
 	DISP_PAGINAS = bitarray_create(data,tamanio);
 	INFO_PROG = list_create();
 	bufferPagina = malloc(TAMANIO_PAGINA);
+	*bufferPagina = "\0";
 
 }
 

@@ -71,18 +71,15 @@ void pruebaReservarEspacio(){
 
 void pruebaConsistenciaDatos(){
 	setUp();
-	char* pagina = "hasad";
-	bufferPagina = pagina;
+	char pagina[10];
+	strcpy(pagina,"HolaGato\0");
+	strcpy(bufferPagina,pagina);
 	savePage(3);
-
-	bufferPagina = "\0";
-
+	strcpy(bufferPagina,"\0");
 	getPage(3);
-	puts("NoIMp");
-	printf("%d\n",sizeof(*bufferPagina));
-	puts("IMP");
-	int a = string_equals_ignore_case(pagina,bufferPagina);
-	puts("1");
-	printf("%d", a);
+	puts("gets");
+	printf("El contenido de la pagina es: %s .\n", bufferPagina);
+	log_trace(logger,bufferPagina);
+	accionesDeFinalizacion();
 	//pruebaReservarEspacio();
 }
