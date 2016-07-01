@@ -78,25 +78,32 @@ int main(int argc, char** argv) {
 	
 	t_mensaje mensaje_recibido;
 	while(1){
+		
 		if (recibirMensaje(miSocket,&mensaje_recibido)==-1){
 			perror("Error al recibir mensaje\n");
 			exit(1);
-		}
+			}
 	
 		switch(mensaje_recibido.head.codigo){
 			case IMPRIMIR_PROGRAMA:
-				printf("Imprimir: %d \n", mensaje_recibido.head.codigo);
+				printf("Imprimir: %s \n", mensaje_recibido.mensaje_extra);
 				break;
-			case IMPRIMIR_TEXTO_PROGAMA:
-				printf("Imprimir texto: %c \n", mensaje_recibido.head.codigo);
+			case IMPRIMIR_TEXTO_PROGRAMA:
+				printf("Imprimir texto: %s \n", mensaje_recibido.mensaje_extra);
 				break;
-			//case de finalizo el programa, hace return
-			//caso de error de programa
+			case FIN_PROGRAMA:
+				printf("Finalizo el programa. \n");
+				return 0;
+			case ERROR_PROGRAMA:
+				perror(mensaje_recibido.mensaje_extra);
+				exit(1);
+				break;
 			default:
 				printf("Codigo invalido \n");
 				break;
-		}
+			}
 		freeMensaje(&mensaje_recibido);
+	}
 	return 0;
 }
 
