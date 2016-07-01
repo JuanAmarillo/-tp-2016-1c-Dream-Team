@@ -13,33 +13,17 @@
 #include <commons/string.h>
 #include <netdb.h>
 #include <unistd.h>
-
 #include "swap.h"
-
 
 
 /*int main(){
 	initialConf();
 	socketConf();
-	while(1){
-		recibirMensaje(socketCliente,&received);
-		switch(received.head.codigo){
-			case RESERVE_SPACE: reservarEspacio();
-				break;
-			case SAVE_PROGRAM: saveProgram();
-				break;
-			case SAVE_PAGE: saveNewPage();
-				break;
-			case FIN_PROG: endProgram();
-				break;
-			case BRING_PAGE_TO_UMC: returnPage();
-				break;
-		}
-	}
+	while (funcionamientoSWAP()>0);
 	accionesDeFinalizacion();
 	return 0;
-}
-*/
+}*/
+
 void socketConf() {
 	setSocket();
 	bindSocket();
@@ -51,6 +35,36 @@ void initialConf() {
 	crearArchivoSWAP();
 	crearEstructurasDeManejo();
 }
+
+int funcionamientoSWAP() {
+		int a = 1;
+		//int a = recibirMensaje(socketCliente, &received);
+		if(a!=-1){
+			switch (received.head.codigo) {
+				case RESERVE_SPACE:
+					reservarEspacio();
+					break;
+				case SAVE_PROGRAM:
+					saveProgram();
+					break;
+				case SAVE_PAGE:
+					saveNewPage();
+					break;
+				case FIN_PROG:
+					endProgram();
+					break;
+				case BRING_PAGE_TO_UMC:
+					returnPage();
+					break;
+			}
+		}
+		else
+			return a;
+		a = -1;
+		return a;
+	}
+
+
 
 void setNewPage(unsigned nroPag){
 	bitarray_set_bit(DISP_PAGINAS, nroPag);
@@ -125,8 +139,8 @@ void replacePages(int longitudPrograma, int inicioProg,int inicioEspacioBlanco) 
 
 	while (contador < longitudPrograma) {
 		getPage(inicioProg + contador);
-		savePage(inicioEspacioBlanco + contador);
 		unSetPage(inicioProg + contador);
+		savePage(inicioEspacioBlanco + contador);
 		setNewPage(inicioEspacioBlanco + contador);
 		contador++;
 	}

@@ -51,6 +51,7 @@ t_log *logger;
 //ACCIONES DEL SWAP
 void socketConf();
 void initialConf();
+int funcionamientoSWAP();
 void setPage(unsigned);
 void unSetPage(unsigned);
 void getPage(unsigned);

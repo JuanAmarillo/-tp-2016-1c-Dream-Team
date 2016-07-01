@@ -58,8 +58,6 @@ void crearEstructurasDeManejo(){
 	DISP_PAGINAS = bitarray_create(data,tamanio);
 	INFO_PROG = list_create();
 	bufferPagina = malloc(TAMANIO_PAGINA);
-	*bufferPagina = "\0";
-
 }
 
 
