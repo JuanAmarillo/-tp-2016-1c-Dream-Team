@@ -33,7 +33,7 @@ void readConfigFile(){
 	TAMANIO_PAGINA= atoi(config_get_string_value(config, "TAMANIO_PAGINA"));
 	RETARDO_ACCESO= atoi(config_get_string_value(config, "RETARDO_ACCESO"));
 	RETARDO_COMPACTACION= atoi(config_get_string_value(config, "RETARDO_COMPACTACION"));
-	log_trace(logger,"Se leyo el archivo de configuracion\0");
+	log_trace(logger,"Se leyo el archivo de configuracion");
 }
 
 void crearArchivoSWAP(){

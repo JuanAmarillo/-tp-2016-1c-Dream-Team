@@ -90,54 +90,58 @@ int returnWhenSamePID(t_infoProg *programa){
 }
 
 void msj_Set_Page(int pagina){
-	log_trace(logger, "Se ocupo la pagina %d\0", pagina);
+	log_trace(logger, "Se ocupo la pagina %d", pagina);
 
 }
 
 void msj_Unset_Page(int pagina){
 
-	log_trace(logger, "Se desocupo la pagina %d\0", pagina);
+	log_trace(logger, "Se desocupo la pagina %d", pagina);
 
 }
 
 void msj_Get_Page(int pagina){
 
-	log_trace(logger, "Se leyo la pagina %d\0", pagina);
+	log_trace(logger, "Se leyo la pagina %d", pagina);
 
 }
 
 void msj_Save_Page(int pagina){
 
-	log_trace(logger, "Se guardo la pagina %d\0", pagina);
+	log_trace(logger, "Se guardo la pagina %d", pagina);
 
 }
 
 void msj_Save_Program(int pid,int pagInicial,int espacio){
 
-	log_trace(logger, "Se guardo el programa %d desde la pagina %d, hasta la pagina %d\0", pid,pagInicial,pagInicial+espacio);
+	log_trace(logger, "Se guardo el programa %d desde la pagina %d, hasta la pagina %d", pid,pagInicial,pagInicial+espacio);
 
 }
 
 void msj_End_Program(int pid){
 
-	log_trace(logger, "El programa %d ha concluido\0", pid);
+	log_trace(logger, "El programa %d ha concluido", pid);
 
 }
 
 void msj_A_Compactar(int pid){
 
-	log_trace(logger, "Para albergar el programa %d, se va a proceder a la compactacion\0",pid);
+	log_trace(logger, "Para albergar el programa %d, se va a proceder a la compactacion",pid);
 
 }
 
 void msj_No_Hay_Lugar(int pid){
 
-	log_trace(logger, "El programa %d no se puede albergar\0", pid);
+	log_trace(logger, "El programa %d no se puede albergar", pid);
 
 }
 
 void msj_deleteFromINFOPROG(int pid) {
 
-	log_trace(logger, "Se elimino el proceso %d", pid);
+	log_trace(logger, "Se elimino el proceso %d del INFOPROG", pid);
 
+}
+
+void msj_addToInfoProg(int PID){
+	log_trace(logger, "Se agrego el proceso %d al INFOPROG", PID);
 }

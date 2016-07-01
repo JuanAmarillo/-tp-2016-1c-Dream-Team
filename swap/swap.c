@@ -4,7 +4,6 @@
  *  Created on: 26/4/2016
  *      Author: utnso
  */
-#include "../cpu/protocolo_mensaje.h"
 #include "../messageCode/messageCode.h"
 #include "initialize.h"
 #include "funcionesAuxiliares.h"
@@ -12,9 +11,6 @@
 
 #include <commons/config.h>
 #include <commons/string.h>
-
-
-
 #include <netdb.h>
 #include <unistd.h>
 
@@ -70,17 +66,17 @@ void getPage(unsigned nroPag){
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
 
 	sleep(RETARDO_ACCESO);
-	fread(&bufferPagina,TAMANIO_PAGINA,1,SWAPFILE);
+
+	fread(&bufferPagina,1,TAMANIO_PAGINA,SWAPFILE);
 
 	msj_Get_Page(nroPag);
-
 
 }
 
 void savePage(unsigned nroPag){
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
 	sleep(RETARDO_ACCESO);
-	fwrite(&bufferPagina,TAMANIO_PAGINA,1,SWAPFILE);
+	fwrite(bufferPagina,1,TAMANIO_PAGINA,SWAPFILE);
 	msj_Save_Page(nroPag);
 }
 
@@ -127,18 +123,19 @@ void saveNewPage(){
 void replacePages(int longitudPrograma, int inicioProg,int inicioEspacioBlanco) {
 	int contador=0;
 
-	while (contador <= longitudPrograma) {
-
+	while (contador < longitudPrograma) {
 		getPage(inicioProg + contador);
-
 		savePage(inicioEspacioBlanco + contador);
-
 		unSetPage(inicioProg + contador);
-
 		setNewPage(inicioEspacioBlanco + contador);
 		contador++;
 	}
 
+}
+
+void agregarAlINFOPROG(t_infoProg* new) {
+	list_add(INFO_PROG, (void*) new);
+	msj_addToInfoProg(new->PID);
 }
 
 void new_Or_Replace_t_infoProg(int pid, int inicioProg, int longitudPrograma,int eliminar) {
@@ -149,7 +146,7 @@ void new_Or_Replace_t_infoProg(int pid, int inicioProg, int longitudPrograma,int
 	if(eliminar)
 		eliminarSegunPID(pid);
 
-	list_add(INFO_PROG, (void*) new);
+	agregarAlINFOPROG(new);
 
 }
 
