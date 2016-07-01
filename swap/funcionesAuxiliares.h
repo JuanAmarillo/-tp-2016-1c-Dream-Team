@@ -7,6 +7,7 @@
 
 #ifndef FUNCIONESAUXILIARES_H_
 #define FUNCIONESAUXILIARES_H_
+#include "swap.h"
 
 int buscarPIDSegunPagInicial(int);
 int buscarLongPrograma(int);
@@ -21,10 +22,9 @@ void eliminarSegunPID(int pid);
 int searchSpace(unsigned);
 void negarEjecucion();
 void permitirEjecucion();
-void mostrarMensaje(char*);
-void infoProg_destroy(t_infoProg *);
-int returnWhenSameInitPage (t_infoProg * );
-int returnWhenSamePID(t_infoProg *);
+void infoProg_destroy(t_infoProg*);
+int returnWhenSameInitPage (t_infoProg*);
+int returnWhenSamePID(t_infoProg*);
 void msj_Set_Page(int);
 void msj_Unset_Page(int);
 void msj_Get_Page(int);
@@ -33,6 +33,7 @@ void msj_Save_Program(int,int,int);
 void msj_End_Program(int);
 void msj_A_Compactar(int);
 void msj_No_Hay_Lugar(int);
+void msj_deleteFromINFOPROG(int );
 int PIDBUSCADOR;
 int INICIOPROGBUSCADOR;
 #endif /* FUNCIONESAUXILIARES_H_ */

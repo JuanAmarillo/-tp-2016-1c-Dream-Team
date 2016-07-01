@@ -7,6 +7,8 @@
 #include <commons/config.h>
 #include <commons/string.h>
 #include <commons/bitarray.h>
+#include <commons/log.h>
+#include <commons/collections/list.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,10 +17,11 @@
 #include <netdb.h>
 #include <unistd.h>
 #include "swap.h"
-#include "initialize.h"
 #include "funcionesAuxiliares.h"
+#include "initialize.h"
 
 void readConfigFile(){
+	logger = log_create("SWAP.txt", "SWAP", 1, LOG_LEVEL_TRACE);
 	t_config *config = config_create("config.conf");
 		if (config == NULL) {
 			free(config);
@@ -30,21 +33,21 @@ void readConfigFile(){
 	TAMANIO_PAGINA= atoi(config_get_string_value(config, "TAMANIO_PAGINA"));
 	RETARDO_ACCESO= atoi(config_get_string_value(config, "RETARDO_ACCESO"));
 	RETARDO_COMPACTACION= atoi(config_get_string_value(config, "RETARDO_COMPACTACION"));
-	mostrarMensaje("Se leyo el archivo de configuracion");
+	log_trace(logger,"Se leyo el archivo de configuracion\0");
 }
 
 void crearArchivoSWAP(){
-	char comandoCreacion[100];
-	char* mensaje;
+	char* comandoCreacion = malloc(100);
+
 	sprintf(comandoCreacion, "dd if=/dev/zero of=%s bs=%i count=%i", NOMBRE_SWAP, TAMANIO_PAGINA, CANTIDAD_PAGINAS);
+
 	if (system(comandoCreacion)){
-		mensaje = "No se pudo crear el archivo";
+		log_error(logger,"No se pudo crear el archivo");
 		exit(1);
 	}
-	else
-		mensaje = "Se creo el archivo SWAP";
 	SWAPFILE= fopen(NOMBRE_SWAP, "r+");
-	mostrarMensaje(mensaje);
+	log_trace(logger, "Se creo el archivo SWAP\0");
+	free(comandoCreacion);
 }
 
 void crearEstructurasDeManejo(){
@@ -53,7 +56,8 @@ void crearEstructurasDeManejo(){
 	strcpy(data,"\0");
 	DISP_PAGINAS = bitarray_create(data,tamanio);
 	INFO_PROG = list_create();
-	paginaMultiProposito=malloc(TAMANIO_PAGINA);
+	bufferPagina = malloc(TAMANIO_PAGINA);
+
 }
 
 
@@ -82,6 +86,6 @@ void acceptSocket() {
 void accionesDeFinalizacion() {
 	fclose(SWAPFILE);
 	bitarray_destroy(DISP_PAGINAS);
-	free(paginaMultiProposito);
+	free(bufferPagina);
 	list_destroy_and_destroy_elements(INFO_PROG,(void*) infoProg_destroy);
 }

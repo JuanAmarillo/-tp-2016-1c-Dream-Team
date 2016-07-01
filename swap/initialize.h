@@ -7,6 +7,7 @@
 
 #ifndef INITIALIZE_H_
 #define INITIALIZE_H_
+
 void readConfigFile();
 void crearArchivoSWAP();
 void crearEstructurasDeManejo();
