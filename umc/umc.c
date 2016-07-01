@@ -250,6 +250,7 @@ void falloDePagina(unsigned pidActivo)
 	unsigned paginaBuscada;
 	unsigned cantidadDePaginas;
 	void* codigoDelMarco = NULL;
+
 	for(indice=0;indice < list_size(tablasDePaginas);indice++)
 	{
 		tablaBuscada = list_get(tablasDePaginas,indice);
@@ -273,9 +274,11 @@ void falloDePagina(unsigned pidActivo)
 					return;
 				}
 		}
+
 	}
 	return;
 }
+
 
 void actualizarPagina(unsigned pagina,unsigned pidActivo)
 {
@@ -296,7 +299,9 @@ void actualizarPagina(unsigned pagina,unsigned pidActivo)
 void escribirEnMemoria(void* codigoPrograma,unsigned tamanioPrograma, unsigned pagina,unsigned pidActivo)
 {
 	actualizarPagina(pagina,pidActivo);
+	pthread_mutex_lock(&mutexMemoria);
 	memcpy(memoriaPrincipal + infoMemoria.tamanioDeMarcos*punteroClock,codigoPrograma,tamanioPrograma);
+	pthread_mutex_unlock(&mutexMemoria);
 
 	return;
 }
@@ -306,7 +311,12 @@ void algoritmoClock(void* codigoPrograma,unsigned tamanioPrograma,unsigned pagin
 	pthread_mutex_lock(&mutexClock);
 	falloDePagina(pidActivo);
 	escribirEnMemoria(codigoPrograma,tamanioPrograma,pagina,pidActivo);
-	punteroClock++;
+
+	if(punteroClock < infoMemoria.marcos)
+		punteroClock++;
+	else
+		punteroClock = 0;
+
 	pthread_mutex_unlock(&mutexClock);
 	return;
 }

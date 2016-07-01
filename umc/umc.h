@@ -87,14 +87,43 @@ pthread_mutex_t mutexTLB;
 /*
  * Funciones
  */
-struct sockaddr_in setDireccion(const char *puerto);
-void gestionarConexiones();
 void leerArchivoConfig();
+struct sockaddr_in setDireccion(const char *puerto);
+void inicializarEstructuras();
+void clienteDesconectado(int clienteUMC);
+void pedirReservaDeEspacio(unsigned pid,unsigned paginasSolicitadas);
+void empaquetarYEnviar(t_mensaje mensaje,int clienteUMC);
+void enviarProgramaAlSWAP(unsigned pid, unsigned paginasSolicitadas,unsigned tamanioCodigo, char* codigoPrograma);
+void enviarNoHaySuficienteEspacio(int clienteUMC);
+void enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigned pid,unsigned tamanioCodigo,int clienteUMC);
+void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas);
+void borrarEntradasTLBSegun(unsigned pidActivo);
+unsigned cambioProcesoActivo(unsigned pid,int clienteUMC, unsigned pidActivo);
+void inicializarPrograma(t_mensaje mensaje,int clienteUMC);
+int eliminarDeMemoria(unsigned pid);
+void finPrograma(t_mensaje finalizarProg);
+void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo);
+void falloDePagina(unsigned pidActivo);
+void actualizarPagina(unsigned pagina,unsigned pidActivo);
+void escribirEnMemoria(void* codigoPrograma,unsigned tamanioPrograma, unsigned pagina,unsigned pidActivo);
+void algoritmoClock(void* codigoPrograma,unsigned tamanioPrograma,unsigned pagina,unsigned pidActivo);
+void pedirPagAlSWAP(unsigned pagina,unsigned pidActual);
+void traerPaginaAMemoria(unsigned pagina,unsigned pidActual);
+void actualizarTLB(t_entradaTablaPaginas entradaDePaginas,unsigned pagina,unsigned pidActual);
+int buscarEnTLB(unsigned paginaBuscada,unsigned pidActual);
+void traducirPaginaAMarco(unsigned pagina,int *marco,unsigned pidActual);
+void almacenarBytesEnPagina(t_mensaje mensaje,unsigned pidActivo);
+void enviarCodigoAlCPU(char* codigoAEnviar, unsigned tamanio,int clienteUMC);
+void enviarBytesDeUnaPagina(t_mensaje mensaje,int clienteUMC,unsigned pidActual);
+void enviarTamanioDePagina(int clienteUMC);
+void accionSegunCabecera(int clienteUMC,unsigned pid);
+void* gestionarSolicitudesDeOperacion(int clienteUMC);
 int recibirConexiones();
 int aceptarConexion();
-//int recibirDatos();
+int recibir(void *buffer,unsigned tamanioDelMensaje,int clienteUMC);
 void conectarAlSWAP();
-void enviarDatos();
+void enviar(void *buffer,int cliente);
+void gestionarConexiones();
 
 
 
