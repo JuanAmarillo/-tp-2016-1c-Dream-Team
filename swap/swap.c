@@ -16,13 +16,13 @@
 #include "swap.h"
 
 
-int main(){
+/*int main(){
 	initialConf();
 	socketConf();
 	while (funcionamientoSWAP()!=-1);
 	accionesDeFinalizacion();
 	return 0;
-}
+}*/
 
 void socketConf() {
 	setSocket();
@@ -46,6 +46,7 @@ void limpiarMensaje(){
 
 int funcionamientoSWAP() {
 		int a = recibirMensaje(socketCliente, &received);
+		log_trace(logger,"La cabecera recibida es %d", received.head.codigo);
 		if(a!=-1){
 			switch (received.head.codigo) {
 				case RESERVE_SPACE:
@@ -112,9 +113,12 @@ void returnPage(){
 	aEnviar.head.codigo = SWAP_SENDS_PAGE;
 	aEnviar.head.cantidad_parametros = 0;
 	aEnviar.head.tam_extra = TAMANIO_PAGINA;
+	aEnviar.mensaje_extra = malloc(TAMANIO_PAGINA);
+	aEnviar.parametros = NULL;
 	getPage(buscarPagInicial(received.parametros[0])+received.parametros[1]);
-	aEnviar.mensaje_extra = bufferPagina;
+	strcpy(aEnviar.mensaje_extra, bufferPagina);
 	enviarMensaje(socketCliente, aEnviar);
+	free(aEnviar.mensaje_extra);
 }
 
 void endProgram(){
@@ -123,6 +127,7 @@ void endProgram(){
 	inicial = buscarPagInicial(received.parametros[0]);
 	while(contador<longitud){
 		unSetPage(inicial+contador);
+		contador++;
 	}
 	eliminarSegunPID(received.parametros[0]);
 	msj_End_Program(received.parametros[0]);
@@ -131,7 +136,7 @@ void endProgram(){
 void saveNewPage(){
 	int nroPagDentroProg = received.parametros[1];
 	int pagInicial = buscarPagInicial(received.parametros[0]);
-	bufferPagina = received.mensaje_extra;
+	strcpy(bufferPagina,received.mensaje_extra);
 	savePage(pagInicial+nroPagDentroProg);
 }
 

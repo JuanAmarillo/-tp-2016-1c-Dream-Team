@@ -24,7 +24,7 @@ void pruebaProcesoGuardarPrograma();
 void pruebaProcesoConectar();
 void pruebaBuscarLongitud();
 void pruebaRecibirMensaje();
-void pruebaRecibirMensajeYGuardarPrograma();
+void pruebaFUNCIONALIDADCOMPLETA();
 
 int main(){
 	//pruebaMoverDePosicionPrograma();
@@ -34,7 +34,8 @@ int main(){
 	//pruebaProcesoConectar();
 	//pruebaBuscarLongitud();
 	//pruebaRecibirMensaje();
-	pruebaRecibirMensajeYGuardarPrograma();
+	pruebaFUNCIONALIDADCOMPLETA();
+	accionesDeFinalizacion();
 	return 0;
 };
 
@@ -90,8 +91,7 @@ void pruebaConsistenciaDatos(){
 	getPage(3);
 	printf("El contenido de la pagina es: %s .\n", bufferPagina);
 	log_trace(logger,bufferPagina);
-	accionesDeFinalizacion();
-	//pruebaReservarEspacio();
+
 }
 
 void pruebaGenerarReceive(){
@@ -140,20 +140,26 @@ void pruebaRecibirMensaje(){
 	int a = funcionamientoSWAP();
 	printf("%d",a);
 	puts("Despuyes del funcionamiento");
-	accionesDeFinalizacion();
+
 }
 
-void pruebaRecibirMensajeYGuardarPrograma(){
+void pruebaFUNCIONALIDADCOMPLETA(){
 	initialConf();
 	socketConf();
 	pruebaSetUp();
 	int i;
-	for(i=0; i<2; i++)
+	for(i=0; i<5; i++)
 		funcionamientoSWAP();
+	puts("finfuncionamiento");
 	getPage(5);
 	char* palabra = malloc(TAMANIO_PAGINA+1);
 	strcpy(palabra,bufferPagina);
-	printf("El contenido de la pagina es %s\n", palabra);
-
-	accionesDeFinalizacion();
+	palabra[TAMANIO_PAGINA+1] = '\0';
+	printf("El contenido de la pagina es %s\n\n", palabra);
+	int a = buscarPagInicial(3);
+	if(a == -1)
+		printf("El programa se borro");
+	else
+		printf("El programa no se borro y su pag inicial es %d",a);
 }
+

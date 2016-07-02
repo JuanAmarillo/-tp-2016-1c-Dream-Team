@@ -24,19 +24,22 @@
 int buscarPIDSegunPagInicial(int inicioProg){
 	INICIOPROGBUSCADOR= inicioProg;
 	t_infoProg* new = (t_infoProg*) (list_find(INFO_PROG, (void*) returnWhenSameInitPage));
-	return new->PID;
+	if(new) return new->PID;
+	else return -1;
 }
 
 int buscarLongPrograma(int pid){
 	PIDBUSCADOR= pid;
 	t_infoProg* new = (t_infoProg*) (list_find(INFO_PROG, (void*) returnWhenSamePID));
-	return new->LONGITUD;
+	if(new) return new->LONGITUD;
+	else return -1;
 }
 
 int buscarPagInicial(int pid){
 	PIDBUSCADOR=pid;
 	t_infoProg* new = (t_infoProg*) (list_find(INFO_PROG, (void*) returnWhenSamePID));
-	return new->PAG_INICIAL;
+	if(new) return new->PAG_INICIAL;
+	else return -1;
 }
 
 void eliminarSegunPID(int pid){
