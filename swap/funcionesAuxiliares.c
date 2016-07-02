@@ -145,3 +145,7 @@ void msj_deleteFromINFOPROG(int pid) {
 void msj_addToInfoProg(int PID){
 	log_trace(logger, "Se agrego el proceso %d al INFOPROG", PID);
 }
+
+void msj_Reservar_Espacio(int pid,int longitud){
+	log_trace(logger, "Se solicita la reserva de espacio del proceso %d de longitud %d", pid, longitud);
+}

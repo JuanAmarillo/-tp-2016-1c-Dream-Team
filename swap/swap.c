@@ -37,8 +37,7 @@ void initialConf() {
 }
 
 int funcionamientoSWAP() {
-		int a = 1;
-		//int a = recibirMensaje(socketCliente, &received);
+		int a = recibirMensaje(socketCliente, &received);
 		if(a!=-1){
 			switch (received.head.codigo) {
 				case RESERVE_SPACE:
@@ -60,7 +59,6 @@ int funcionamientoSWAP() {
 		}
 		else
 			return a;
-		a = -1;
 		return a;
 	}
 
@@ -175,6 +173,7 @@ void asignarEspacio(unsigned pid, int lugar, unsigned tamanio){
 }
 
 void reservarEspacio(){
+	msj_Reservar_Espacio(received.parametros[0], received.parametros[1]);
 	int lugar = searchSpace(received.parametros[1]);
 	if(lugar == -1){
 		msj_A_Compactar(received.parametros[0]);

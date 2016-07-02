@@ -21,14 +21,16 @@ void pruebaReservarEspacio();
 void pruebaConsistenciaDatos();
 void pruebaGenerarReceive();
 void pruebaProcesoGuardarPrograma();
+void pruebaProcesoConectar();
+void pruebaRecibirMensaje();
 
 int main(){
 	//pruebaMoverDePosicionPrograma();
 	//pruebaReservarEspacio();
-	pruebaConsistenciaDatos();
+	//pruebaConsistenciaDatos();
 	//pruebaProcesoGuardarPrograma();
-
-
+	//pruebaProcesoConectar();
+	pruebaRecibirMensaje();
 	return 0;
 };
 
@@ -47,7 +49,6 @@ void mockProceso2(){
 }
 
 
-
 void pruebaMoverDePosicionPrograma(){
 
 	pruebaSetUp();
@@ -62,8 +63,6 @@ void pruebaMoverDePosicionPrograma(){
 	printf("El programa %d, se movio de %d a %d", buscarPID , pagInicial, primerPagFinal);
 }
 
-
-
 void pruebaReservarEspacio(){
 	pruebaSetUp();
 	unsigned parametros[2];
@@ -73,8 +72,6 @@ void pruebaReservarEspacio(){
 
 	reservarEspacio();
 }
-
-
 
 void pruebaConsistenciaDatos(){
 	pruebaSetUp();
@@ -114,4 +111,19 @@ void pruebaProcesoGuardarPrograma(){
 	pruebaGenerarReceive();
 	//puts("Hola");
 	int a = funcionamientoSWAP();
+}
+
+void pruebaProcesoConectar(){
+	pruebaSetUp();
+	socketConf();
+}
+
+void pruebaRecibirMensaje(){
+	initialConf();
+	socketConf();
+	pruebaSetUp();
+	puts("Antes del funcionamiento");
+	int a = funcionamientoSWAP()>0;
+	puts("Despuyes del funcionamiento");
+	accionesDeFinalizacion();
 }

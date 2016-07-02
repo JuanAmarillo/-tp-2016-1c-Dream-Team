@@ -35,6 +35,7 @@ void msj_A_Compactar(int);
 void msj_No_Hay_Lugar(int);
 void msj_deleteFromINFOPROG(int );
 void msj_addToInfoProg(int PID);
+void msj_Reservar_Espacio(int,int );
 int PIDBUSCADOR;
 int INICIOPROGBUSCADOR;
 #endif /* FUNCIONESAUXILIARES_H_ */
