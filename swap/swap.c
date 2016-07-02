@@ -7,7 +7,7 @@
 #include "../messageCode/messageCode.h"
 #include "initialize.h"
 #include "funcionesAuxiliares.h"
-//#include "../cpu/protocolo_mensaje.h"
+
 
 #include <commons/config.h>
 #include <commons/string.h>
@@ -16,13 +16,13 @@
 #include "swap.h"
 
 
-/*int main(){
+int main(){
 	initialConf();
 	socketConf();
-	while (funcionamientoSWAP()>0);
+	while (funcionamientoSWAP()!=-1);
 	accionesDeFinalizacion();
 	return 0;
-}*/
+}
 
 void socketConf() {
 	setSocket();
@@ -34,6 +34,14 @@ void initialConf() {
 	readConfigFile();
 	crearArchivoSWAP();
 	crearEstructurasDeManejo();
+}
+
+void limpiarMensaje(){
+	received.head.cantidad_parametros = 0;
+	received.head.codigo = 0;
+	received.parametros = 0;
+	received.mensaje_extra = NULL;
+	received.parametros = NULL;
 }
 
 int funcionamientoSWAP() {
@@ -57,12 +65,9 @@ int funcionamientoSWAP() {
 					break;
 			}
 		}
-		else
-			return a;
+		limpiarMensaje();
 		return a;
 	}
-
-
 
 void setNewPage(unsigned nroPag){
 	bitarray_set_bit(DISP_PAGINAS, nroPag);
@@ -76,11 +81,8 @@ void unSetPage(unsigned nroPag){
 
 void getPage(unsigned nroPag){
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
-
 	sleep(RETARDO_ACCESO);
-
 	fread(bufferPagina,1,TAMANIO_PAGINA,SWAPFILE);
-
 	msj_Get_Page(nroPag);
 
 }
@@ -94,6 +96,7 @@ void savePage(unsigned nroPag){
 
 void saveProgram(){
 	int espacio, pagInicial, cantidadGuardada=0;
+
 	espacio = buscarLongPrograma(received.parametros[0]);
 	pagInicial = buscarPagInicial(received.parametros[0]);
 	while(cantidadGuardada<espacio){
@@ -157,7 +160,6 @@ void new_Or_Replace_t_infoProg(int pid, int inicioProg, int longitudPrograma,int
 	new->PAG_INICIAL = inicioProg;
 	if(eliminar)
 		eliminarSegunPID(pid);
-
 	agregarAlINFOPROG(new);
 
 }
@@ -175,24 +177,25 @@ void asignarEspacio(unsigned pid, int lugar, unsigned tamanio){
 void reservarEspacio(){
 	msj_Reservar_Espacio(received.parametros[0], received.parametros[1]);
 	int lugar = searchSpace(received.parametros[1]);
+	if(lugar == -2){
+			negarEjecucion();
+			msj_No_Hay_Lugar(received.parametros[0]);
+			return;
+		}
+	permitirEjecucion();
 	if(lugar == -1){
 		msj_A_Compactar(received.parametros[0]);
 		deleteEmptySpaces();
 		lugar = searchSpace(received.parametros[1]);
 	}
-	if(lugar == -2){
-		negarEjecucion();
-		msj_No_Hay_Lugar(received.parametros[0]);
-		return;
-	}
-	else
-		permitirEjecucion(received.parametros[0]);
 	asignarEspacio(received.parametros[0],lugar,received.parametros[1]);
 }
 
 void moveProgram(int inicioProg, int inicioEspacioBlanco){
 
 	int pid = buscarPIDSegunPagInicial(inicioProg);
+
+
 	int longitudPrograma= buscarLongPrograma(pid);
 	new_Or_Replace_t_infoProg(pid, longitudPrograma, inicioProg, 1);
 	replacePages(longitudPrograma, inicioProg, inicioEspacioBlanco);

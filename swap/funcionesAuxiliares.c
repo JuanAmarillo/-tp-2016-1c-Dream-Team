@@ -68,11 +68,13 @@ int searchSpace(unsigned programSize){
 }
 
 void negarEjecucion(){
-	send(socketCliente,(void*) NOT_ENOUGH_SPACE,sizeof(NOT_ENOUGH_SPACE),0);
+	unsigned a = NOT_ENOUGH_SPACE;
+	send(socketCliente,(void*) &a,4,0);
 }
 
 void permitirEjecucion(){
-	send(socketCliente,(void*) ENOUGH_SPACE,sizeof(ENOUGH_SPACE),0);
+	unsigned a = ENOUGH_SPACE;
+	send(socketCliente,(void*) &a,4,0);
 }
 
 void infoProg_destroy(t_infoProg *self){
@@ -91,55 +93,38 @@ int returnWhenSamePID(t_infoProg *programa){
 
 void msj_Set_Page(int pagina){
 	log_trace(logger, "Se ocupo la pagina %d", pagina);
-
 }
 
 void msj_Unset_Page(int pagina){
-
 	log_trace(logger, "Se desocupo la pagina %d", pagina);
-
 }
 
 void msj_Get_Page(int pagina){
-
 	log_trace(logger, "Se leyo la pagina %d", pagina);
-
 }
 
 void msj_Save_Page(int pagina){
-
 	log_trace(logger, "Se guardo la pagina %d", pagina);
-
 }
 
 void msj_Save_Program(int pid,int pagInicial,int espacio){
-
-	log_trace(logger, "Se guardo el programa %d desde la pagina %d, hasta la pagina %d", pid,pagInicial,pagInicial+espacio);
-
+	log_trace(logger, "Se guardo el programa %d desde la pagina %d, hasta la pagina %d", pid,pagInicial,pagInicial+espacio-1);
 }
 
 void msj_End_Program(int pid){
-
 	log_trace(logger, "El programa %d ha concluido", pid);
-
 }
 
 void msj_A_Compactar(int pid){
-
 	log_trace(logger, "Para albergar el programa %d, se va a proceder a la compactacion",pid);
-
 }
 
 void msj_No_Hay_Lugar(int pid){
-
 	log_trace(logger, "El programa %d no se puede albergar", pid);
-
 }
 
 void msj_deleteFromINFOPROG(int pid) {
-
 	log_trace(logger, "Se elimino el proceso %d del INFOPROG", pid);
-
 }
 
 void msj_addToInfoProg(int PID){

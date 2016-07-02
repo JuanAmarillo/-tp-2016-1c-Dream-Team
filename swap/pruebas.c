@@ -22,7 +22,9 @@ void pruebaConsistenciaDatos();
 void pruebaGenerarReceive();
 void pruebaProcesoGuardarPrograma();
 void pruebaProcesoConectar();
+void pruebaBuscarLongitud();
 void pruebaRecibirMensaje();
+void pruebaRecibirMensajeYGuardarPrograma();
 
 int main(){
 	//pruebaMoverDePosicionPrograma();
@@ -30,12 +32,13 @@ int main(){
 	//pruebaConsistenciaDatos();
 	//pruebaProcesoGuardarPrograma();
 	//pruebaProcesoConectar();
-	pruebaRecibirMensaje();
+	//pruebaBuscarLongitud();
+	//pruebaRecibirMensaje();
+	pruebaRecibirMensajeYGuardarPrograma();
 	return 0;
 };
 
 void pruebaSetUp() {
-	initialConf();
 	mockProceso1();
 	mockProceso2();
 }
@@ -110,7 +113,7 @@ void pruebaProcesoGuardarPrograma(){
 	pruebaSetUp();
 	pruebaGenerarReceive();
 	//puts("Hola");
-	int a = funcionamientoSWAP();
+	funcionamientoSWAP();
 }
 
 void pruebaProcesoConectar(){
@@ -118,12 +121,39 @@ void pruebaProcesoConectar(){
 	socketConf();
 }
 
+void pruebaBuscarLongitud(){
+	initialConf();
+	pruebaSetUp();
+	int a = buscarPagInicial(2);
+	printf("La pagina inicial del proceso 2 es %d\n",a);
+	int b = buscarPIDSegunPagInicial(3);
+	printf("El PID es %d\n",b);
+	int c = buscarLongPrograma(2);
+	printf("La longitud es %d\n",c);
+}
+
 void pruebaRecibirMensaje(){
 	initialConf();
 	socketConf();
 	pruebaSetUp();
 	puts("Antes del funcionamiento");
-	int a = funcionamientoSWAP()>0;
+	int a = funcionamientoSWAP();
+	printf("%d",a);
 	puts("Despuyes del funcionamiento");
+	accionesDeFinalizacion();
+}
+
+void pruebaRecibirMensajeYGuardarPrograma(){
+	initialConf();
+	socketConf();
+	pruebaSetUp();
+	int i;
+	for(i=0; i<2; i++)
+		funcionamientoSWAP();
+	getPage(5);
+	char* palabra = malloc(TAMANIO_PAGINA+1);
+	strcpy(palabra,bufferPagina);
+	printf("El contenido de la pagina es %s\n", palabra);
+
 	accionesDeFinalizacion();
 }

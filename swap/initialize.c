@@ -80,7 +80,7 @@ void acceptSocket() {
 	socklen_t addrlen = sizeof(addr);
 	listen(listeningSocket,10);
 	socketCliente = accept(listeningSocket, (struct sockaddr *) &addr, &addrlen);
-	printf("Se ha conectado al UMC\n");
+	log_trace(logger,"Se ha conectado al UMC");
 }
 
 void accionesDeFinalizacion() {
