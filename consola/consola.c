@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
 	
 		switch(mensaje_recibido.head.codigo){
 			case IMPRIMIR_PROGRAMA:
-				printf("Imprimir: %s \n", mensaje_recibido.mensaje_extra);
+				printf("Imprimir: %d \n", mensaje_recibido.parametros[0]);
 				break;
 			case IMPRIMIR_TEXTO_PROGRAMA:
 				printf("Imprimir texto: %s \n", mensaje_recibido.mensaje_extra);
