@@ -69,8 +69,10 @@ void* master_imprimirProceso(void *pcb)
 	if(aux_pcb->estado == 4)
 	{
 		if(FD_ISSET(aux_pcb->pid, &conjunto_procesos_abortados))
+		{
 			strcpy(estado, "Abortado");
 			system("tput setaf 1");
+		}
 	}
 	printf("%04d  |  ", pid);
 	printf("%s\n", estado);
