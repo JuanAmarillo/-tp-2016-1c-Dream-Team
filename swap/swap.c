@@ -4,44 +4,25 @@
  *  Created on: 26/4/2016
  *      Author: utnso
  */
-#include <commons/config.h>
-#include <commons/string.h>
-#include <commons/bitarray.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <unistd.h>
-#include "swap.h"
 #include "../messageCode/messageCode.h"
 #include "initialize.h"
 #include "funcionesAuxiliares.h"
-#include "../cpu/protocolo_mensaje.h"
-//#include "protocolo_mensaje.h"
 
-int main(){
+
+#include <commons/config.h>
+#include <commons/string.h>
+#include <netdb.h>
+#include <unistd.h>
+#include "swap.h"
+
+
+/*int main(){
 	initialConf();
 	socketConf();
-	while(1){
-		recibirMensaje(socketCliente,&received);
-		switch(received.head.codigo){
-			case RESERVE_SPACE: reservarEspacio();
-				break;
-			case SAVE_PROGRAM: saveProgram();
-				break;
-			case SAVE_PAGE: saveNewPage();
-				break;
-			case FIN_PROG: endProgram();
-				break;
-			case BRING_PAGE_TO_UMC: returnPage();
-				break;
-		}
-	}
+	while (funcionamientoSWAP()!=-1);
 	accionesDeFinalizacion();
 	return 0;
-}
+}*/
 
 void socketConf() {
 	setSocket();
@@ -55,6 +36,40 @@ void initialConf() {
 	crearEstructurasDeManejo();
 }
 
+void limpiarMensaje(){
+	received.head.cantidad_parametros = 0;
+	received.head.codigo = 0;
+	received.parametros = 0;
+	received.mensaje_extra = NULL;
+	received.parametros = NULL;
+}
+
+int funcionamientoSWAP() {
+		int a = recibirMensaje(socketCliente, &received);
+		log_trace(logger,"La cabecera recibida es %d", received.head.codigo);
+		if(a!=-1){
+			switch (received.head.codigo) {
+				case RESERVE_SPACE:
+					reservarEspacio();
+					break;
+				case SAVE_PROGRAM:
+					saveProgram();
+					break;
+				case SAVE_PAGE:
+					saveNewPage();
+					break;
+				case FIN_PROG:
+					endProgram();
+					break;
+				case BRING_PAGE_TO_UMC:
+					returnPage();
+					break;
+			}
+		}
+		limpiarMensaje();
+		return a;
+	}
+
 void setNewPage(unsigned nroPag){
 	bitarray_set_bit(DISP_PAGINAS, nroPag);
 	msj_Set_Page(nroPag);
@@ -65,33 +80,31 @@ void unSetPage(unsigned nroPag){
 	msj_Unset_Page(nroPag);
 }
 
-char *getPage(unsigned nroPag){
-	void * pagina = malloc(TAMANIO_PAGINA);
+void getPage(unsigned nroPag){
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
 	sleep(RETARDO_ACCESO);
-	fread(pagina,TAMANIO_PAGINA,1,SWAPFILE);
+	fread(bufferPagina,1,TAMANIO_PAGINA,SWAPFILE);
 	msj_Get_Page(nroPag);
-	return pagina;
+
 }
 
-void savePage(unsigned nroPag,char* pagina){
+void savePage(unsigned nroPag){
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
 	sleep(RETARDO_ACCESO);
-	fwrite(pagina,TAMANIO_PAGINA,1,SWAPFILE);
+	fwrite(bufferPagina,1,TAMANIO_PAGINA,SWAPFILE);
 	msj_Save_Page(nroPag);
 }
 
 void saveProgram(){
 	int espacio, pagInicial, cantidadGuardada=0;
-	char* pagina = malloc(TAMANIO_PAGINA);
+
 	espacio = buscarLongPrograma(received.parametros[0]);
 	pagInicial = buscarPagInicial(received.parametros[0]);
 	while(cantidadGuardada<espacio){
-		strncpy(pagina,received.mensaje_extra,TAMANIO_PAGINA);
-		savePage(pagInicial+cantidadGuardada,pagina);
+		strncpy(bufferPagina,received.mensaje_extra,TAMANIO_PAGINA);
+		savePage(pagInicial+cantidadGuardada);
 		cantidadGuardada++;
 	}
-	free(pagina);
 	msj_Save_Program(received.parametros[0],pagInicial,espacio);
 }
 
@@ -100,8 +113,12 @@ void returnPage(){
 	aEnviar.head.codigo = SWAP_SENDS_PAGE;
 	aEnviar.head.cantidad_parametros = 0;
 	aEnviar.head.tam_extra = TAMANIO_PAGINA;
-	aEnviar.mensaje_extra = getPage(buscarPagInicial(received.parametros[0])+received.parametros[1]);
+	aEnviar.mensaje_extra = malloc(TAMANIO_PAGINA);
+	aEnviar.parametros = NULL;
+	getPage(buscarPagInicial(received.parametros[0])+received.parametros[1]);
+	strcpy(aEnviar.mensaje_extra, bufferPagina);
 	enviarMensaje(socketCliente, aEnviar);
+	free(aEnviar.mensaje_extra);
 }
 
 void endProgram(){
@@ -110,6 +127,7 @@ void endProgram(){
 	inicial = buscarPagInicial(received.parametros[0]);
 	while(contador<longitud){
 		unSetPage(inicial+contador);
+		contador++;
 	}
 	eliminarSegunPID(received.parametros[0]);
 	msj_End_Program(received.parametros[0]);
@@ -118,36 +136,43 @@ void endProgram(){
 void saveNewPage(){
 	int nroPagDentroProg = received.parametros[1];
 	int pagInicial = buscarPagInicial(received.parametros[0]);
-	savePage(pagInicial+nroPagDentroProg,received.mensaje_extra);
+	strcpy(bufferPagina,received.mensaje_extra);
+	savePage(pagInicial+nroPagDentroProg);
 }
 
 void replacePages(int longitudPrograma, int inicioProg,int inicioEspacioBlanco) {
 	int contador=0;
-	char* pagina = malloc(TAMANIO_PAGINA);
-	while (contador <= longitudPrograma) {
-		pagina = getPage(inicioProg + contador);
-		savePage(inicioEspacioBlanco + contador, pagina);
+
+	while (contador < longitudPrograma) {
+		getPage(inicioProg + contador);
 		unSetPage(inicioProg + contador);
+		savePage(inicioEspacioBlanco + contador);
 		setNewPage(inicioEspacioBlanco + contador);
 		contador++;
 	}
-	free(pagina);
+
 }
 
-void new_Or_Replace_t_infoProg(int pid, int longitudPrograma, int inicioProg,int eliminar) {
+void agregarAlINFOPROG(t_infoProg* new) {
+	list_add(INFO_PROG, (void*) new);
+	msj_addToInfoProg(new->PID);
+}
+
+void new_Or_Replace_t_infoProg(int pid, int inicioProg, int longitudPrograma,int eliminar) {
 	t_infoProg* new = malloc(sizeof(t_infoProg));
 	new->PID = pid;
 	new->LONGITUD = longitudPrograma;
 	new->PAG_INICIAL = inicioProg;
 	if(eliminar)
 		eliminarSegunPID(pid);
-	list_add(INFO_PROG, (void*) new);
+	agregarAlINFOPROG(new);
+
 }
 
 void asignarEspacio(unsigned pid, int lugar, unsigned tamanio){
 	new_Or_Replace_t_infoProg(pid,lugar,tamanio,0);
-	int paginasReservadas;
-	while(paginasReservadas<= tamanio){
+	int paginasReservadas=0;
+	while(paginasReservadas< tamanio){
 		setNewPage(lugar);
 		lugar++;
 		paginasReservadas++;
@@ -155,25 +180,27 @@ void asignarEspacio(unsigned pid, int lugar, unsigned tamanio){
 }
 
 void reservarEspacio(){
+	msj_Reservar_Espacio(received.parametros[0], received.parametros[1]);
 	int lugar = searchSpace(received.parametros[1]);
+	if(lugar == -2){
+			negarEjecucion();
+			msj_No_Hay_Lugar(received.parametros[0]);
+			return;
+		}
+	permitirEjecucion();
 	if(lugar == -1){
 		msj_A_Compactar(received.parametros[0]);
 		deleteEmptySpaces();
 		lugar = searchSpace(received.parametros[1]);
 	}
-	if(lugar == -2){
-		negarEjecucion();
-		msj_No_Hay_Lugar(received.parametros[0]);
-		return;
-	}
-	else
-		permitirEjecucion(received.parametros[0]);
 	asignarEspacio(received.parametros[0],lugar,received.parametros[1]);
 }
 
 void moveProgram(int inicioProg, int inicioEspacioBlanco){
 
 	int pid = buscarPIDSegunPagInicial(inicioProg);
+
+
 	int longitudPrograma= buscarLongPrograma(pid);
 	new_Or_Replace_t_infoProg(pid, longitudPrograma, inicioProg, 1);
 	replacePages(longitudPrograma, inicioProg, inicioEspacioBlanco);

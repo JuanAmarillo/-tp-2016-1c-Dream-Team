@@ -4,6 +4,7 @@
  *  Created on: 18/5/2016
  *      Author: utnso
  */
+#include "funcionesAuxiliares.h"
 #include <commons/config.h>
 #include <commons/string.h>
 #include <commons/bitarray.h>
@@ -15,35 +16,36 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
-#include "swap.h"
-#include "messageCode.h"
+
 #include "initialize.h"
-#include "funcionesAuxiliares.h"
+
+#include "../messageCode/messageCode.h"
 
 int buscarPIDSegunPagInicial(int inicioProg){
 	INICIOPROGBUSCADOR= inicioProg;
 	t_infoProg* new = (t_infoProg*) (list_find(INFO_PROG, (void*) returnWhenSameInitPage));
-	return new->PID;
+	if(new) return new->PID;
+	else return -1;
 }
 
 int buscarLongPrograma(int pid){
 	PIDBUSCADOR= pid;
 	t_infoProg* new = (t_infoProg*) (list_find(INFO_PROG, (void*) returnWhenSamePID));
-	return new->LONGITUD;
+	if(new) return new->LONGITUD;
+	else return -1;
 }
 
 int buscarPagInicial(int pid){
 	PIDBUSCADOR=pid;
 	t_infoProg* new = (t_infoProg*) (list_find(INFO_PROG, (void*) returnWhenSamePID));
-	return new->PAG_INICIAL;
+	if(new) return new->PAG_INICIAL;
+	else return -1;
 }
 
 void eliminarSegunPID(int pid){
 	PIDBUSCADOR= pid;
 	list_remove_by_condition(INFO_PROG, (void*)returnWhenSamePID);
-	char* mensaje;
-	sprintf(mensaje,"Se elimino el proceso %d", pid);
-	mostrarMensaje(mensaje);
+	msj_deleteFromINFOPROG(pid);
 }
 
 int searchSpace(unsigned programSize){
@@ -69,16 +71,13 @@ int searchSpace(unsigned programSize){
 }
 
 void negarEjecucion(){
-	send(socketCliente,(void*) NOT_ENOUGH_SPACE,sizeof(NOT_ENOUGH_SPACE),0);
-}
-
-void mostrarMensaje(char* mensaje){
-	printf("%s\n", mensaje);
-	free(mensaje);
+	unsigned a = NOT_ENOUGH_SPACE;
+	send(socketCliente,(void*) &a,4,0);
 }
 
 void permitirEjecucion(){
-	send(socketCliente,(void*) ENOUGH_SPACE,sizeof(ENOUGH_SPACE),0);
+	unsigned a = ENOUGH_SPACE;
+	send(socketCliente,(void*) &a,4,0);
 }
 
 void infoProg_destroy(t_infoProg *self){
@@ -96,49 +95,45 @@ int returnWhenSamePID(t_infoProg *programa){
 }
 
 void msj_Set_Page(int pagina){
-	char* mensaje;
-	sprintf(mensaje,"Se ocupo la pagina %d", pagina);
-	mostrarMensaje(mensaje);
+	log_trace(logger, "Se ocupo la pagina %d", pagina);
 }
 
 void msj_Unset_Page(int pagina){
-	char* mensaje;
-	sprintf(mensaje,"Se desocupo la pagina %d", pagina);
-	mostrarMensaje(mensaje);
+	log_trace(logger, "Se desocupo la pagina %d", pagina);
 }
 
 void msj_Get_Page(int pagina){
-	char* mensaje;
-	sprintf(mensaje,"Se leyo la pagina %d", pagina);
-	mostrarMensaje(mensaje);
+	log_trace(logger, "Se leyo la pagina %d", pagina);
 }
 
 void msj_Save_Page(int pagina){
-	char* mensaje;
-	sprintf(mensaje,"Se guardo la pagina %d", pagina);
-	mostrarMensaje(mensaje);
+	log_trace(logger, "Se guardo la pagina %d", pagina);
 }
 
 void msj_Save_Program(int pid,int pagInicial,int espacio){
-	char* mensaje;
-	sprintf(mensaje,"Se guardo el programa %d desde la pagina %d, hasta la pagina %d", pid,pagInicial,pagInicial+espacio);
-	mostrarMensaje(mensaje);
+	log_trace(logger, "Se guardo el programa %d desde la pagina %d, hasta la pagina %d", pid,pagInicial,pagInicial+espacio-1);
 }
 
 void msj_End_Program(int pid){
-	char* mensaje;
-	sprintf(mensaje,"El programa %d ha sido concluido", pid);
-	mostrarMensaje(mensaje);
+	log_trace(logger, "El programa %d ha concluido", pid);
 }
 
 void msj_A_Compactar(int pid){
-	char* mensaje;
-	sprintf(mensaje, "Para albergar el programa %d, se va a proceder a la compactacion",pid);
-	mostrarMensaje(mensaje);
+	log_trace(logger, "Para albergar el programa %d, se va a proceder a la compactacion",pid);
 }
 
 void msj_No_Hay_Lugar(int pid){
-	char* mensaje;
-	sprintf(mensaje,"El programa %d no se puede albergar", pid);
-	mostrarMensaje(mensaje);
+	log_trace(logger, "El programa %d no se puede albergar", pid);
+}
+
+void msj_deleteFromINFOPROG(int pid) {
+	log_trace(logger, "Se elimino el proceso %d del INFOPROG", pid);
+}
+
+void msj_addToInfoProg(int PID){
+	log_trace(logger, "Se agrego el proceso %d al INFOPROG", PID);
+}
+
+void msj_Reservar_Espacio(int pid,int longitud){
+	log_trace(logger, "Se solicita la reserva de espacio del proceso %d de longitud %d", pid, longitud);
 }

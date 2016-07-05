@@ -8,11 +8,18 @@
 #ifndef SWAP_H_
 #define SWAP_H_
 
+//#include "protocolo_mensaje.h"
 #include <commons/collections/list.h>
 #include <commons/bitarray.h>
+#include <commons/log.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/socket.h>
-#include "../cpu/protocolo_mensaje.h"
-
+#include <sys/types.h>
+#include <netinet/in.h>
+//#include "../cpu/protocolo_mensaje.h"
+#include "protocolo_mensaje.h"
 //DECLARACION DE ESTRUCTURAS
 typedef struct{
 	unsigned PID;
@@ -37,23 +44,26 @@ int socketCliente;
 FILE* SWAPFILE;
 t_bitarray* DISP_PAGINAS;
 t_list *INFO_PROG;
-char* paginaMultiProposito;
+char* bufferPagina;
 t_mensaje received;
+t_log *logger;
 
 
 //ACCIONES DEL SWAP
 void socketConf();
 void initialConf();
+int funcionamientoSWAP();
 void setPage(unsigned);
 void unSetPage(unsigned);
-char* getPage();
-void savePage(unsigned, char*);
+void getPage(unsigned);
+void savePage(unsigned);
 int recibirCabecera();
 void saveProgram();
 void returnPage();
 void endProgram();
 void saveNewPage();
 void replacePages(int longitudPrograma, int inicioProg,int inicioEspacioBlanco);
+void agregarAlINFOPROG(t_infoProg* new);
 void new_Or_Replace_t_infoProg(int pid, int longitudPrograma, int inicioProg,int eliminar);
 void asignarEspacio(unsigned,int,unsigned);
 void reservarEspacio();
