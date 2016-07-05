@@ -197,7 +197,15 @@ void asociarPidConsola(int pid, int consola)
 
 void desasociarPidConsola(int pid)
 {
-	t_link_element *aux, *aux2;
+	t_link_element *aux = lista_Pares->head, *aux2;
+
+	if(((t_parPidConsola*)(aux->data))->pid == pid)
+	{
+		lista_Pares->head = lista_Pares->head->next;
+		free(aux);
+		return;
+	}
+
 	for(aux = lista_Pares->head; aux->next && ((t_parPidConsola*)(aux->next->data))->pid != pid ; aux = aux->next);
 	if(aux->next)
 	{
@@ -210,6 +218,91 @@ void desasociarPidConsola(int pid)
 		perror("desasociarPidConsola: No se encontro el pid a desasociar");
 		escribirLog("desasociarPidConsola: No se encontro el pid a desasociar\n");
 	}
+}
+
+void* mostrarParPorLog(void *par)
+{
+	escribirLog("Pid: %d, Consola: %d\n", ((t_parPidConsola*)par)->pid, ((t_parPidConsola*)par)->fd_consola);
+	return NULL;
+}
+
+void mostrarParesPorLog(void)
+{
+	escribirLog("----------------------\n");
+	escribirLog("Lista de pares actual:\n");
+	list_map(lista_Pares, mostrarParPorLog);
+	escribirLog("----------------------\n");
+}
+
+void mostrarListosPorLog(void)
+{
+	escribirLog("----------------------\n");
+	escribirLog("Cola de Listos actual:\n");
+	mostrarColaPorLog(cola_listos);
+	escribirLog("----------------------\n");
+}
+
+int Consola_to_Pid(int consola)
+{
+	t_link_element *aux;
+	for(aux = lista_Pares->head; aux; aux = aux->next)
+		if( ((t_parPidConsola*)(aux->data))->fd_consola == consola )
+			return ((t_parPidConsola*)(aux->data))->pid;
+
+	return -1;
+}
+
+int eliminarProcesoSegunPID(t_list *lista, int pid)
+{
+	t_link_element *aux = lista->head, *aux2;
+
+	if(((t_PCB*)(aux->data))->pid == pid)
+	{
+		lista->head = lista->head->next;
+		lista->elements_count--;
+		free(aux);
+		return 1;
+	}
+
+	for(aux = lista->head, aux2 = lista->head->next; aux2; aux = aux->next, aux2 = aux2->next)
+		if(((t_PCB*)(aux2->data))->pid == pid)
+		{
+			aux->next = aux2->next;
+			lista->elements_count--;
+			free(aux2);
+			return 1;
+		}
+	return 0;
+}
+
+void abortarProceso(int pid)
+{
+	if(FD_ISSET(pid, &conjunto_procesos_bloqueados))
+	{
+		FD_CLR(pid, &conjunto_procesos_bloqueados);
+		eliminarProcesoSegunPID(cola_bloqueados->elements, pid);
+	}
+	if(FD_ISSET(pid, &conjunto_procesos_ejecutando))
+	{
+		FD_CLR(pid, &conjunto_procesos_ejecutando);
+	}
+	if(FD_ISSET(pid, &conjunto_procesos_listos))
+	{
+		FD_CLR(pid, &conjunto_procesos_listos);
+		eliminarProcesoSegunPID(cola_listos->elements, pid);
+	}
+
+	FD_SET(pid, &conjunto_procesos_abortados);
+
+	actualizarMaster();
+
+	desasociarPidConsola(pid);
+
+	mostrarParesPorLog();
+
+	escribirLog("----------------------------------------------------------\n");
+	escribirLog("Se aborto el proceso %d debido a desconexion de su consola\n", pid);
+	escribirLog("----------------------------------------------------------\n");
 }
 
 void abrirPuertos(void)
@@ -367,8 +460,9 @@ void administrarConexiones(void)
 							{
 								FD_CLR(fd_explorer, &conj_master);
 								FD_CLR(fd_explorer, &conj_consola);
-								close(fd_explorer);
 								escribirLog("Se ha desconectado una consola (fd[%d])\n", fd_explorer);
+								abortarProceso(Consola_to_Pid(fd_explorer));
+								close(fd_explorer);
 							}
 						}
 						else//No hubo error ni desconexion
@@ -377,14 +471,21 @@ void administrarConexiones(void)
 
 							//Crear PCB
 							t_PCB *pcb = malloc(sizeof(t_PCB));
+							escribirLog("-------------------\n");
 							escribirLog("Tamaño recibido: %d\n", nbytes);
+							escribirLog("-------------------\n");
 
 							*pcb = crearPCB(mensajeConsola, ++max_proceso, tamPaginas);
+
+							escribirLog("--------------------------------\n");
 							escribirLog("Se creo el PCB de pid:%d\n", pcb->pid);
 							escribirLog("Cantidad de paginas que ocupa:%d\n", pcb->cantidadPaginas);
+							escribirLog("--------------------------------\n");
 
 							//Asociar el pcb a su consola
 							asociarPidConsola(pcb->pid, fd_explorer);
+							//Mostrar lista de pares por log
+							mostrarParesPorLog();
 
 							//Enviar a UMC: PID, Cant Paginas, codigo
 							enviarInfoUMC(pcb->pid, pcb->cantidadPaginas, mensajeConsola.mensaje_extra);
@@ -399,8 +500,8 @@ void administrarConexiones(void)
 
 								//Agregar el PCB a Cola de Listos
 								ponerListo(pcb);
-								escribirLog("Cola de Listos actual:\n");
-								mostrarColaPorLog(cola_listos);
+
+								mostrarListosPorLog();
 							}
 							else
 							{
@@ -445,9 +546,17 @@ void administrarConexiones(void)
 							{
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
+
+								escribirLog("----------------------------------------------------\n");
+								escribirLog("Se recibio el proceso %d por finalización de quantum\n", pcb->pid);
+								escribirLog("----------------------------------------------------\n");
+
 								ponerListo(pcb);
+
+								mostrarListosPorLog();
 								FD_CLR(pcb->pid, &conjunto_procesos_ejecutando);
 								actualizarMaster();
+								//Poner a la cpu como libre
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
 							}
 
@@ -469,6 +578,7 @@ void administrarConexiones(void)
 								avisar_UMC_FIN_PROG(pcb->pid);
 								FD_CLR(pcb->pid, &conjunto_procesos_ejecutando);
 								desasociarPidConsola(pcb->pid);
+								mostrarParesPorLog();
 								terminar(pcb);
 								actualizarMaster();
 								FD_SET(fd_explorer, &conjunto_cpus_libres);

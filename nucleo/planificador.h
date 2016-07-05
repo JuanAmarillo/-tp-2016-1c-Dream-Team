@@ -23,6 +23,7 @@ fd_set conjunto_procesos_listos;
 fd_set conjunto_procesos_bloqueados;
 fd_set conjunto_procesos_ejecutando;
 fd_set conjunto_procesos_salida;
+fd_set conjunto_procesos_abortados;
 
 typedef struct
 {

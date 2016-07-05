@@ -7,7 +7,9 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 	int cpu_explorer;
 	if(imprimir)
 	{
+		escribirLog("---------------------------\n");
 		escribirLog("Ha iniciado el planificador\n");
+		escribirLog("---------------------------\n");
 		imprimir = 0;
 	}
 
@@ -19,12 +21,16 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 		//Espera activa por una CPU
 		for(cpu_explorer = 3; cpu_explorer <= max_cpu; ++cpu_explorer)
 		{
+			escribirLog("--------------------------------\n");
 			escribirLog("Se analiza fd[%d] -->", cpu_explorer);
 			if(estaLibre(cpu_explorer))
 			{
 				escribirLog("CPU Libre\n");
+				escribirLog("--------------------------------\n");
 				//Extraer proceso de la cola de listos
 				proceso = queue_pop(listos);
+				//Borrar del conjunto de procesos listos
+				FD_CLR(proceso->pid, &conjunto_procesos_listos);
 				//Colocar proceso en la lista Ejecutando
 				FD_SET(proceso->pid, &conjunto_procesos_ejecutando);
 				//Poner en estado ejecutando;
@@ -32,12 +38,15 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 				//Establecer que la cpu ya no está libre
 				FD_CLR(cpu_explorer, &conjunto_cpus_libres);
 				//Ejecutar proceso
-
 				ejecutar(*proceso, quantum, quantumSleep, cpu_explorer);
 
 				break;
 			}
-			else escribirLog("Nada\n");
+			else
+			{
+				escribirLog("Nada\n");
+				escribirLog("--------------------------------\n");
+			}
 		}
 		escribirLog("vuelta: %d\n", ++vuelta);
 		sleep(3);
@@ -56,18 +65,17 @@ void ejecutar(t_PCB proceso, unsigned short int quantum, unsigned int qSleep, in
 {
 	t_mensaje mensaje_PCB = pcb_to_mensaje(proceso,EJECUTAR);
 
-
 	t_mensaje mensaje_quantum = quantum_to_mensaje(quantum, qSleep);
-
-
 
 	enviarMensaje(cpu, mensaje_PCB);
 	enviarMensaje(cpu, mensaje_quantum);
 	free(mensaje_quantum.parametros);
 	actualizarMaster();
+	escribirLog("-----------------------------------------\n");
 	escribirLog("Se ejecutó el proceso %d en la cpu:fd[%d]\n", proceso.pid, cpu);
 	escribirLog("Quantum:%d\n", quantum);
 	escribirLog("Quantum Sleep:%d\n", qSleep);
+	escribirLog("-----------------------------------------\n");
 }
 
 t_mensaje quantum_to_mensaje(unsigned short int quantum, unsigned int qSleep)
@@ -95,6 +103,7 @@ void mostrarEstados(void)
 			if(FD_ISSET(explorer_procesos, &conjunto_procesos_ejecutando)) printf("Ejecutando\n");
 			if(FD_ISSET(explorer_procesos, &conjunto_procesos_bloqueados)) printf("Bloqueado\n");
 			if(FD_ISSET(explorer_procesos, &conjunto_procesos_salida)) printf("Terminado\n");
+			if(FD_ISSET(explorer_procesos, &conjunto_procesos_abortados)) printf("Abortado\n");
 		}
 	}
 }
@@ -112,6 +121,7 @@ void* actualizar_si_corresponde(void *pcb)
 	if(FD_ISSET(aux_pcb->pid, &conjunto_procesos_ejecutando)) aux_pcb->estado = 2;
 	if(FD_ISSET(aux_pcb->pid, &conjunto_procesos_bloqueados)) aux_pcb->estado = 3;
 	if(FD_ISSET(aux_pcb->pid, &conjunto_procesos_salida)) aux_pcb->estado = 4;
+	if(FD_ISSET(aux_pcb->pid, &conjunto_procesos_abortados)) aux_pcb->estado = 4;//Sí, es el mismo estado que salida
 
 	return NULL;
 }

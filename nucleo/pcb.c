@@ -306,7 +306,7 @@ void freePCB(t_PCB *pcb){
 
 
 t_PCB crearPCB(t_mensaje programa, unsigned int pid, unsigned int tamPag)
-{escribirLog("Hasta aca llego papurri\n");
+{
 	t_PCB pcb;
 	unsigned int tamCod = programa.head.tam_extra;
 	char *codigo = malloc(tamCod);
