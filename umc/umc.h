@@ -24,7 +24,9 @@
 #include <commons/config.h>
 #include <commons/string.h>
 #include <commons/collections/list.h>
+#include <commons/log.h>
 #include "messageCode.h"
+#include "protocolo_mensaje.h"
 
 /*
  * Estructuras de datos
@@ -67,6 +69,7 @@ typedef struct{
 /*
  * Variables Globales
  */
+t_log* logger;
 t_memoria infoMemoria;
 t_infoConfig infoConfig;
 int servidorUMC,clienteSWAP;
