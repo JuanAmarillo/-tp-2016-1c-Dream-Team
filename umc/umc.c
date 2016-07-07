@@ -279,6 +279,64 @@ void falloDePagina(unsigned pidActivo)
 	return;
 }
 
+/* Version de clock modificado
+void falloDePagina(unsigned pidActivo)
+{
+	t_tablaDePaginas* tablaBuscada;
+	unsigned indice;
+	unsigned paginaBuscada;
+	unsigned cantidadDePaginas;
+	void* codigoDelMarco = NULL;
+	//Aca va el while para conseguir que el puntero de toda la vuelta
+	while(1){
+	for(indice=0;indice < list_size(tablasDePaginas);indice++) //Este indice apunta a cada entrada de la TDP
+	{
+		tablaBuscada = list_get(tablasDePaginas,indice);
+		cantidadDePaginas = sizeof(tablaBuscada)/sizeof(t_tablaDePaginas);
+		for(paginaBuscada = 0; paginaBuscada < cantidadDePaginas; paginaBuscada++)
+			{
+				//Tengo el puntero en una pagina con bit de uso 0 y modificado 0 tambien
+				//En este caso no importa donde est{e el puntero, si una esta en 0 0 se reemplaza esa si o si
+				if(tablaBuscada->entradaTablaPaginas[paginaBuscada].estaEnMemoria == 0){
+					if(tablaBuscada->entradaTablaPaginas[paginaBuscada].fueModificado==0){
+						//Llevo el codigo que esta en el marco al SWAP
+						pthread_mutex_lock(&mutexMemoria);
+						memcpy(codigoDelMarco, memoriaPrincipal+infoMemoria.tamanioDeMarcos*punteroClock, infoMemoria.tamanioDeMarcos);
+						pthread_mutex_unlock(&mutexMemoria);
+						enviarPaginaAlSWAP(paginaBuscada,codigoDelMarco,pidActivo);
+						return;
+					}
+					if(tablaBuscada->entradaTablaPaginas[paginaBuscada].fueModificado==1){
+						if(tablaBuscada->entradaTablaPaginas[paginaBuscada].marco == punteroClock){
+						list_replace(tablasDePaginas,indice,tablaBuscada);
+						//Llevo el codigo que esta en el marco al SWAP
+						pthread_mutex_lock(&mutexMemoria);
+						memcpy(codigoDelMarco, memoriaPrincipal+infoMemoria.tamanioDeMarcos*punteroClock, infoMemoria.tamanioDeMarcos);
+						pthread_mutex_unlock(&mutexMemoria);
+						enviarPaginaAlSWAP(paginaBuscada,codigoDelMarco,pidActivo);
+						return;
+						}
+					}
+				}
+				else{
+					if(tablaBuscada->entradaTablaPaginas[paginaBuscada].marco == punteroClock)
+					{
+						tablaBuscada->entradaTablaPaginas[paginaBuscada].estaEnMemoria = 0;
+						tablaBuscada->entradaTablaPaginas[paginaBuscada+1].marco = punteroClock; //apunta el puntero a la siguiente?
+						//aca no reemplaza directo, tiene que seguir dando toda la vuelta hasta que caiga en uno de los dos casos de arriba
+					}
+				}
+
+
+			} //aca termina el for(paginaBuscada = 0; paginaBuscada < cantidadDePaginas; paginaBuscada++)
+	} //aca termina el for(indice=0;indice < list_size(tablasDePaginas);indice++)
+
+	indice=0;
+
+	} //este es del primer while
+	return;
+}
+*/
 
 void actualizarPagina(unsigned pagina,unsigned pidActivo)
 {
