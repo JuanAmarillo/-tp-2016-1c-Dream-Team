@@ -42,8 +42,8 @@
 #define STRUCT_PCB_IO 718
 
 // NUCLEO -> CPU
-#define RETURN_OBTENER_COMPARTIDA 303        //PCB para ejecutar
-#define QUANTUM 304         //Parámetros: quantum, quantumSleep(retardo de cada instruccion, usar sleep(quantumSleep);)
+#define RETURN_OBTENER_COMPARTIDA 303
+#define QUANTUM 304
 
 //NUCLEO -> UMC
 #define INIT_PROG 300
