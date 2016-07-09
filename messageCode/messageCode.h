@@ -40,10 +40,12 @@
 #define WAIT 716
 #define SIGNAL 717
 #define STRUCT_PCB_IO 718
+#define STRUCT_PCB_WAIT 719
 
 // NUCLEO -> CPU
 #define RETURN_OBTENER_COMPARTIDA 303
 #define QUANTUM 304
+#define WAIT 720
 
 //NUCLEO -> UMC
 #define INIT_PROG 300
