@@ -45,7 +45,7 @@
 // NUCLEO -> CPU
 #define RETURN_OBTENER_COMPARTIDA 303
 #define QUANTUM 304
-#define WAIT 720
+#define CPU_WAIT 720
 
 //NUCLEO -> UMC
 #define INIT_PROG 300
