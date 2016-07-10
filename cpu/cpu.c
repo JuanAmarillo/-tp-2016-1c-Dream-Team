@@ -28,7 +28,7 @@ int main(int argc, char** argv){
 	int quantum_sleep;
 
 	//
-	logger = log_create("CPU_TEST.txt", "CPU", 1, LOG_LEVEL_TRACE);
+	logger = log_create("log.txt", "CPU", 1, LOG_LEVEL_TRACE);
 
 	// Leer archivo config.conf
 	leerArchivoConfig();
@@ -55,8 +55,12 @@ int main(int argc, char** argv){
 
 	while(1){
 
+		log_trace(logger, "Esperando PCB");
+
 		// Seteo estado en ejecucion
 		estado_ejecucion = 0;
+		quantum = 0;
+		quantum_sleep = 0;
 
 		// Recibo el PCB
 		recibirMensajeNucleo(&mensaje_recibido);
@@ -65,11 +69,12 @@ int main(int argc, char** argv){
 		if(mensaje_recibido.head.codigo != STRUCT_PCB){
 			log_error(logger, "Se recibio un mensaje diferente a 'STRUCT_PCB'");
 			freeMensaje(&mensaje_recibido);
-			continue;
+			abort();
 		}
 
 		// Recibir Quantum
 		recibirQuantum(&quantum, &quantum_sleep);
+		log_trace(logger, "Se recibio quantum: %u ; quantum_sleep: %u", quantum, quantum_sleep);
 
 		// Convierto el mensaje en un PCB, y borro el mensaje
 		pcb_global = mensaje_to_pcb(mensaje_recibido);
@@ -84,7 +89,7 @@ int main(int argc, char** argv){
 			// Obtener siguiente instruccion
 			char *instruccion = obtenerSiguienteIntruccion();
 
-			log_trace(logger, "PID: %i; Quantum %i de %i -> %s", pcb_global.pc, i_quantum, quantum, instruccion);
+			log_trace(logger, "PID: %u; Quantum %u de %u -> %s", pcb_global.pid, i_quantum, quantum, instruccion);
 
 			// Actualizar PCB
 			pcb_global.pc++;
@@ -96,6 +101,7 @@ int main(int argc, char** argv){
 			free(instruccion);
 
 			// Sleep
+			usleep(quantum_sleep);
 
 			// Realizo acciones segun el estado de ejecucion
 			if((estado_ejecucion != 0) || (notificacion_signal_sigusr1 == 1)) break;
@@ -104,16 +110,24 @@ int main(int argc, char** argv){
 
 		switch (estado_ejecucion) {
 		      case 0: // Finalizo el Quantum normalmente
-		    	log_trace(logger, "Finalizo el Quantum Normalmente");
-		        enviarPCBnucleo(STRUCT_PCB);
+		    	  log_trace(logger, "Finalizo el Quantum Normalmente");
+		    	  enviarPCBnucleo(STRUCT_PCB);
 		        break;
 		      case 1: // Finalizo el programa
-		    	log_trace(logger, "Finalizo el programa");
-		    	enviarPCBnucleo(STRUCT_PCB_FIN);
+		    	  log_trace(logger, "Finalizo el programa");
+		    	  enviarPCBnucleo(STRUCT_PCB_FIN);
 		        break;
 		      case 2:
 		    	  log_trace(logger, "Ocurrio Segmentation Fault");
 		    	  enviarPCBnucleo(STRUCT_PCB_FIN_ERROR);
+		    	break;
+		      case 3:
+		    	  log_trace(logger, "Ocurrio IO");
+		    	  enviarPCBnucleo(STRUCT_PCB_IO);
+		    	break;
+		      case 4:
+		    	  log_trace(logger, "Finalizo por WAIT");
+		    	  enviarPCBnucleo(STRUCT_PCB_WAIT);
 		    	break;
 		      default: // Otro error
 		    	break;
@@ -370,7 +384,8 @@ unsigned obtenerTamanoPaginasUMC(){
 	recibirMensajeUMC(&mensaje);
 
 	if(mensaje.head.codigo != RETURN_TAM_PAGINA){
-		// ERROR
+		log_error(logger, "No se recibio RETURN_TAM_PAGINA");
+		abort();
 	}
 
 	// Tamaño de pagina
@@ -378,6 +393,8 @@ unsigned obtenerTamanoPaginasUMC(){
 
 	// Libero memoria de mensaje
 	freeMensaje(&mensaje);
+
+	log_trace(logger, "Tamanio de pagina: %u", tamano_pagina);
 
 	return tamano_pagina;
 }
@@ -408,12 +425,13 @@ void recibirQuantum(int *quantum, int *quantum_sleep){
 	recibirMensajeNucleo(&mensaje);
 
 	if(mensaje.head.codigo != QUANTUM){
-		// ERROR
+		log_error(logger, "No se recibio QUANTUM");
+		abort();
 	}
 
 	// Tamaño de pagina
-	quantum = mensaje.parametros[0];
-	quantum_sleep = mensaje.parametros[1];
+	*quantum = mensaje.parametros[0];
+	*quantum_sleep = mensaje.parametros[1];
 
 	// Libero memoria de mensaje
 	freeMensaje(&mensaje);
@@ -435,6 +453,7 @@ void notificarCambioProceso(){
 
 	// Libero memoria de mensaje
 	freeMensaje(&mensaje);
+	log_trace(logger, "");
 }
 
 /*
@@ -780,6 +799,10 @@ t_valor_variable parser_dereferenciar(t_puntero direccion_variable) {
 		// ERROR
 	}
 
+	if(mensaje.parametros[0] != 1){
+		estado_ejecucion = 3; // Fuera de segmento
+	}
+
 	t_valor_variable *contenido_tmp = malloc(mensaje.head.tam_extra);
 	memcpy(contenido_tmp, mensaje.mensaje_extra, mensaje.head.tam_extra);
 
@@ -818,6 +841,10 @@ void parser_asignar(t_puntero direccion_variable, t_valor_variable valor) {
 
 	if(mensaje.head.codigo != RETURN_RECORD_DATA){
 		// ERROR
+	}
+
+	if(mensaje.parametros[0] != 1){
+		estado_ejecucion = 3; // Fuera de segmento
 	}
 
 	// Libero memoria de mensaje
@@ -910,7 +937,6 @@ void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retorna
 void parser_finalizar(){
 	log_trace(logger, "parser_finalizar();");
 
-	t_puntero puntero_variable;
 	t_indiceStack *aux_stack;
 
 	// Si es el contexto principal => Finalizo programa
@@ -940,7 +966,6 @@ void parser_finalizar(){
 void parser_retornar(t_valor_variable retorno){
 	log_trace(logger, "parser_retornar();");
 
-	t_puntero puntero_variable;
 	t_indiceStack *aux_stack;
 
 	// Obtengo datos
@@ -969,10 +994,11 @@ void parser_imprimir(t_valor_variable valor_mostrar){
 
 	// Variables
 	t_mensaje mensaje;
-	unsigned parametros[1];
-	parametros[0] = valor_mostrar;	// Valor a imprimir
+	unsigned parametros[2];
+	parametros[0] = pcb_global.pid;	// PID
+	parametros[1] = valor_mostrar;	// Valor a imprimir
 	mensaje.head.codigo = IMPRIMIR;
-	mensaje.head.cantidad_parametros = 1;
+	mensaje.head.cantidad_parametros = 2;
 	mensaje.head.tam_extra = 0;
 	mensaje.parametros = parametros;
 	mensaje.mensaje_extra = NULL;
@@ -989,10 +1015,12 @@ void parser_imprimirTexto(char* texto){
 
 	// Variables
 	t_mensaje mensaje;
+	unsigned parametros[1];
+	parametros[0] = pcb_global.pid;	// PID
 	mensaje.head.codigo = IMPRIMIR_TEXTO;
-	mensaje.head.cantidad_parametros = 0;
+	mensaje.head.cantidad_parametros = 1;
 	mensaje.head.tam_extra = strlen(texto) + 1;
-	mensaje.parametros = NULL;
+	mensaje.parametros = parametros;
 	mensaje.mensaje_extra = texto;
 
 	// Envio al UMC la peticion
@@ -1020,20 +1048,39 @@ void parser_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 
 	// Libero memoria de mensaje
 	freeMensaje(&mensaje);
+
+	estado_ejecucion = 3;
 }
 void parser_wait(t_nombre_semaforo identificador_semaforo){
 	log_trace(logger, "parser_wait();");
 
 	// Variables
 	t_mensaje mensaje;
+	unsigned parametros[1];
+	parametros[0] = pcb_global.pid;	// PID
 	mensaje.head.codigo = WAIT;
-	mensaje.head.cantidad_parametros = 0;
+	mensaje.head.cantidad_parametros = 1;
 	mensaje.head.tam_extra = strlen(identificador_semaforo) + 1;
-	mensaje.parametros = NULL;
+	mensaje.parametros = parametros;
 	mensaje.mensaje_extra = identificador_semaforo;
 
 	// Envio al UMC la peticion
 	enviarMensajeNucleo(mensaje);
+
+	// Recibo mensaje
+	recibirMensajeNucleo(&mensaje);
+
+	if(mensaje.head.codigo != CPU_WAIT){
+		// ERROR
+	}
+
+	if(mensaje.parametros[0] == 1){
+		estado_ejecucion = 4;
+	}
+
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
+
 
 	// Libero memoria de mensaje
 	freeMensaje(&mensaje);
@@ -1045,10 +1092,12 @@ void parser_signal(t_nombre_semaforo identificador_semaforo){
 
 	// Variables
 	t_mensaje mensaje;
+	unsigned parametros[1];
+	parametros[0] = pcb_global.pid;	// PID
 	mensaje.head.codigo = SIGNAL;
-	mensaje.head.cantidad_parametros = 0;
+	mensaje.head.cantidad_parametros = 1;
 	mensaje.head.tam_extra = strlen(identificador_semaforo) + 1;
-	mensaje.parametros = NULL;
+	mensaje.parametros = parametros;
 	mensaje.mensaje_extra = identificador_semaforo;
 
 	// Envio al UMC la peticion
