@@ -179,7 +179,7 @@ int seAlmacenoElProceso(void)
 void avisar_Consola_ProgramaNoAlmacenado(int fd)
 {
 	const char aviso[] = "Error: No ha sido posible almacenar el programa en memoria\nAbortado\n";
-	t_mensajeHead head = {IMPRIMIR_TEXTO_PROGAMA, 0, strlen(aviso)};
+	t_mensajeHead head = {IMPRIMIR_TEXTO_PROGRAMA, 0, strlen(aviso)};
 	t_mensaje mensaje;
 	mensaje.head = head;
 	mensaje.mensaje_extra = strdup(aviso);
@@ -252,6 +252,16 @@ int Consola_to_Pid(int consola)
 	return -1;
 }
 
+int Pid_to_Consola(int pid)
+{
+	t_link_element *aux;
+		for(aux = lista_Pares->head; aux; aux = aux->next)
+			if( ((t_parPidConsola*)(aux->data))->pid == pid )
+				return ((t_parPidConsola*)(aux->data))->fd_consola;
+
+		return -1;
+}
+
 int eliminarProcesoSegunPID(t_list *lista, int pid)
 {
 	t_link_element *aux = lista->head, *aux2;
@@ -300,9 +310,39 @@ void abortarProceso(int pid)
 
 	mostrarParesPorLog();
 
-	escribirLog("----------------------------------------------------------\n");
-	escribirLog("Se aborto el proceso %d debido a desconexion de su consola\n", pid);
-	escribirLog("----------------------------------------------------------\n");
+	escribirLog("-----------------------\n");
+	escribirLog("Se aborto el proceso %d\n", pid);
+	escribirLog("-----------------------\n");
+}
+
+void imprimir(int imp, int consola)
+{
+	t_mensajeHead head = {IMPRIMIR_PROGRAMA, 1, 0};
+	t_mensaje mensaje;
+	mensaje.head = head;
+	mensaje.parametros[0] = imp;
+
+	if(enviarMensaje(consola, mensaje) == -1)
+	{
+		perror("Error al imprimir en consola\n");
+		abort();
+	}
+}
+
+void imprimirTexto(char *imp, int consola)
+{
+	t_mensajeHead head = {IMPRIMIR_TEXTO_PROGRAMA, 1, 0};
+	t_mensaje mensaje;
+	mensaje.head = head;
+	mensaje.mensaje_extra = strdup(imp);
+
+	if( enviarMensaje(consola, mensaje) == -1 )
+	{
+		perror("Error al imprimir en consola\n");
+		abort();
+	}
+
+	free(imp);
 }
 
 void abrirPuertos(void)
@@ -542,7 +582,7 @@ void administrarConexiones(void)
 						}
 						else//No hubo error ni desconexion
 						{
-							if(mensajeCPU.head.codigo == FIN_QUANTUM)//Termino el quantum, poner en cola de listos
+							if(mensajeCPU.head.codigo == STRUCT_PCB)//Termino el quantum, poner en cola de listos
 							{
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
@@ -560,7 +600,7 @@ void administrarConexiones(void)
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
 							}
 
-							if(mensajeCPU.head.codigo == BLOQUEADO)//Pidio I/O, Bloquear
+							if(mensajeCPU.head.codigo == STRUCT_PCB_IO)//Pidio I/O, Bloquear
 							{
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
@@ -571,7 +611,7 @@ void administrarConexiones(void)
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
 							}
 
-							if(mensajeCPU.head.codigo == FIN_PROGRAMA)//Termino el programa
+							if(mensajeCPU.head.codigo == STRUCT_PCB_FIN)//Termino el programa
 							{
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
@@ -582,6 +622,31 @@ void administrarConexiones(void)
 								terminar(pcb);
 								actualizarMaster();
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
+							}
+
+							if(mensajeCPU.head.codigo == STRUCT_PCB_FIN_ERROR)//Tuvo un error: Abortar
+							{
+								t_PCB *pcb = malloc(sizeof(t_PCB));
+								*pcb = mensaje_to_pcb(mensajeCPU);
+								avisar_UMC_FIN_PROG(pcb->pid);
+								abortarProceso(pcb->pid);
+
+								actualizarMaster();
+								FD_SET(fd_explorer, &conjunto_cpus_libres);
+							}
+
+							if(mensajeCPU.head.codigo == IMPRIMIR_NUM)
+							{
+								int pid = mensajeCPU.parametros[0];
+								int imp = mensajeCPU.parametros[1];
+								imprimir(imp, Pid_to_Consola(pid));
+							}
+							if(mensajeCPU.head.codigo == IMPRIMIR_NUM)
+							{
+								int pid = mensajeCPU.parametros[0];
+								char* imp = strdup(mensajeCPU.mensaje_extra);
+								imprimirTexto(imp, Pid_to_Consola(pid));
+								free(imp);
 							}
 
 						}

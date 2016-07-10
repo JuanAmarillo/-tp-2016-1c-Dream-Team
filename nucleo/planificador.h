@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "archivoLog.h"
+#include "messageCode.h"
 #include "pcb.h"
 
 t_list *lista_master_procesos;
@@ -32,26 +33,6 @@ typedef struct
 }t_parPidConsola;
 
 t_list *lista_Pares;
-
-//Con la CPU
-#define STRUCT_PCB 300 			// Utilizar la funcion: mensaje_to_pcb() y pcb_to_mensaje() segun corresponda
-#define FIN_QUANTUM 301
-#define FIN_PROGRAMA 302
-#define EJECUTAR 303
-#define QUANTUM 304
-#define BLOQUEADO 305
-
-//Con la UMC
-#define RETURN_TAM_PAGINA 705
-#define ALMACENAR_OK 310
-#define ALMACENAR_FAILED 320
-
-#define INIT_PROG 300
-#define FIN_PROG 305
-
-//Con la Consola
-#define IMPRIMIR_PROGRAMA 101
-#define IMPRIMIR_TEXTO_PROGAMA 102
 
 int max_cpu, max_proceso;
 t_PCB PCB_actualizado;

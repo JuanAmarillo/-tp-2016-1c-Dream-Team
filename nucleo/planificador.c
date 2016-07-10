@@ -1,16 +1,16 @@
 #include "planificador.h"
 
-int imprimir = 1, vuelta = 0;
+int imprimir_i = 1, vuelta = 0;
 void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_queue *listos, t_queue *bloqueados, t_queue *salida)
 {
 	t_PCB *proceso;
 	int cpu_explorer;
-	if(imprimir)
+	if(imprimir_i)
 	{
 		escribirLog("---------------------------\n");
 		escribirLog("Ha iniciado el planificador\n");
 		escribirLog("---------------------------\n");
-		imprimir = 0;
+		imprimir_i = 0;
 	}
 
 	while(1)
@@ -63,7 +63,7 @@ void esperaPorProcesos(t_queue* cola)
 
 void ejecutar(t_PCB proceso, unsigned short int quantum, unsigned int qSleep, int cpu)
 {
-	t_mensaje mensaje_PCB = pcb_to_mensaje(proceso,EJECUTAR);
+	t_mensaje mensaje_PCB = pcb_to_mensaje(proceso,STRUCT_PCB);
 
 	t_mensaje mensaje_quantum = quantum_to_mensaje(quantum, qSleep);
 

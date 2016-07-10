@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "messageCode.h"
 #include "archivoLog.h"
 #include "planificador.h"
 
