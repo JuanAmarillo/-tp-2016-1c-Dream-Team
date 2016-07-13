@@ -13,7 +13,7 @@ void leerArchivoConfig()
 		abort();
 	}
 
-	infoConfig.ip = config_get_string_value(config, "IP");
+	infoConfig.ip = config_get_string_value(config, "IP_SWAP");
 	infoConfig.puertoUMC = config_get_string_value(config, "PUERTO");
 	infoConfig.puertoSWAP = config_get_string_value(config, "PUERTO_SWAP");
 	infoMemoria.marcos = config_get_int_value(config, "MARCOS");
@@ -26,12 +26,22 @@ void leerArchivoConfig()
 	return;
 }
 
-struct sockaddr_in setDireccion(const char *puerto)
+struct sockaddr_in setDireccionUMC()
+{
+	struct sockaddr_in direccion;
+	direccion.sin_family = AF_INET;
+	direccion.sin_addr.s_addr = INADDR_ANY;
+	direccion.sin_port = htons (atoi(infoConfig.puertoUMC));
+	memset(&(direccion.sin_zero), '\0', 8);
+
+	return direccion;
+}
+struct sockaddr_in setDireccionSWAP()
 {
 	struct sockaddr_in direccion;
 	direccion.sin_family = AF_INET;
 	direccion.sin_addr.s_addr = inet_addr(infoConfig.ip);
-	direccion.sin_port = htons (atoi(puerto));
+	direccion.sin_port = htons (atoi(infoConfig.puertoSWAP));
 	memset(&(direccion.sin_zero), '\0', 8);
 
 	return direccion;
@@ -39,6 +49,7 @@ struct sockaddr_in setDireccion(const char *puerto)
 
 void inicializarEstructuras()
 {
+	logger = log_create("UMC_TEST.txt", "UMC", 1, LOG_LEVEL_TRACE);
 	memoriaPrincipal = malloc(infoMemoria.marcos * infoMemoria.tamanioDeMarcos);
 	TLB = list_create();
 	tablasDePaginas  = list_create();
@@ -134,10 +145,11 @@ void enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigne
 
 void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 {
+	log_trace(logger,"Se procede a crear una tabla de paginas para el proceso %d, con %d paginas\n",pid,paginasSolicitadas);
 	int pagina;
 	t_tablaDePaginas *tablaPaginas = malloc(sizeof(t_tablaDePaginas));
 	tablaPaginas->pid = pid;
-	tablaPaginas->entradaTablaPaginas = calloc(paginasSolicitadas,sizeof(tablaPaginas->entradaTablaPaginas));
+	tablaPaginas->entradaTablaPaginas = calloc(paginasSolicitadas,sizeof(t_entradaTablaPaginas));
 
 	for(pagina=0;pagina < paginasSolicitadas; pagina++)
 	{
@@ -183,6 +195,7 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 	char*codigoPrograma = malloc(paginasSolicitadas*infoMemoria.tamanioDeMarcos);
 	codigoPrograma = mensaje.mensaje_extra;
 	unsigned tamanioCodigo=mensaje.head.tam_extra;
+
 	if(paginasSolicitadas > infoMemoria.maxMarcosPorPrograma)
 	{
 		log_error(logger, "Paginas solicitadas mayor al maximo permitido, paginas:%d , maximo:%d\n", paginasSolicitadas, infoMemoria.maxMarcosPorPrograma);
@@ -190,9 +203,11 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 		return;
 	}
 	crearTablaDePaginas(pid,paginasSolicitadas);
-	enviarCodigoAlSwap(paginasSolicitadas,codigoPrograma,pid,tamanioCodigo,clienteUMC);
+
+	//enviarCodigoAlSwap(paginasSolicitadas,codigoPrograma,pid,tamanioCodigo,clienteUMC); sacar comentario cuando termines de testear
 	free(codigoPrograma);
 	return;
+
 }
 
 int eliminarDeMemoria(unsigned pid)
@@ -243,7 +258,7 @@ void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo)
 	return;
 }
 
-+/* Version de clock modificado
+/* Version de clock modificado
 +void falloDePagina(unsigned pidActivo)
 +{
 +	t_tablaDePaginas* tablaBuscada;
@@ -489,10 +504,10 @@ void almacenarBytesEnPagina(t_mensaje mensaje,unsigned pidActivo)
 	unsigned pagina  = mensaje.parametros[0];
 	unsigned offset  = mensaje.parametros[1];
 	unsigned tamanio = mensaje.parametros[2];
-	void*    buffer  = mensaje.mensaje_extra;
+
 	int marco;
 	traducirPaginaAMarco(pagina,&marco,pidActivo);
-	memcpy(memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco+offset,buffer,tamanio);
+	memcpy(memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco+offset,(void*)mensaje.parametros[3],tamanio);
 
 	return;
 }
@@ -547,7 +562,8 @@ void accionSegunCabecera(int clienteUMC,unsigned pid)
 	t_mensaje mensaje;
 
 	while(1){
-		recibirMensaje(clienteUMC,&mensaje);
+		if(recibirMensaje(clienteUMC,&mensaje) <= 0)
+			clienteDesconectado(clienteUMC);
 		desempaquetar_mensaje(&mensaje);
 		cabeceraDelMensaje = mensaje.head.codigo;
 
@@ -566,6 +582,7 @@ void accionSegunCabecera(int clienteUMC,unsigned pid)
 			case RECORD_DATA: almacenarBytesEnPagina(mensaje,pidActivo);
 				break;
 		}
+		//freeMensaje(mensaje);
 	}
 	return;
 }
@@ -580,7 +597,7 @@ void* gestionarSolicitudesDeOperacion(int clienteUMC)
 int recibirConexiones()
 {
 
-	direccionServidorUMC = setDireccion(infoConfig.puertoUMC);
+	direccionServidorUMC = setDireccionUMC();
 
 	servidorUMC = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -624,12 +641,13 @@ int recibir(void *buffer,unsigned tamanioDelMensaje,int clienteUMC)
 
 void conectarAlSWAP()
 {
-	direccionServidorSWAP = setDireccion(infoConfig.puertoSWAP);
+	direccionServidorSWAP = setDireccionSWAP();
 	clienteSWAP = socket(AF_INET, SOCK_STREAM, 0);
 		if (connect(clienteSWAP, (void*) &direccionServidorSWAP, sizeof(direccionServidorSWAP)) != 0) {
-			perror("No se pudo conectar");
+			log_error(logger,"La UMC fallo al conectarse al SWAP");
 			abort();
 		}
+		log_trace(logger,"La UMC se conecto con exito al SWAP");
 		return ;
 }
 
@@ -680,6 +698,7 @@ void gestionarConexiones()
 
 			}
 			else{
+				log_trace(logger,"Se crea un hilo");
 				pthread_create(&cliente,NULL,gestionarSolicitudesDeOperacion,clienteUMC);
 			}
 		}
@@ -687,7 +706,7 @@ void gestionarConexiones()
 
 	return;
 }
-/*
+
 int main(){
 
 
@@ -699,27 +718,30 @@ int main(){
 	//servidor
 	gestionarConexiones();
 
+	return 0;
+}
 /*
+
    //Pruebas commons
 	t_list *hola = list_create();
 	t_tablaDePaginas *tabla = malloc(sizeof(t_tablaDePaginas));
 	t_tablaDePaginas *tabla2 = malloc(sizeof(t_tablaDePaginas));
 	t_tablaDePaginas *tabla3 = malloc(sizeof(t_tablaDePaginas));
 	t_tablaDePaginas *aux;
-	unsigned cantidad;
+	tabla3->entradaTablaPaginas = calloc(2,sizeof(tabla->entradaTablaPaginas));
 	tabla3->pid = 4;
 	tabla2->pid = 3;
 	tabla->pid = 2;
 	list_add(hola,tabla);
-	list_add_in_index(hola,0,tabla2);
-	list_add_in_index(hola,1,tabla3);
+	list_add(hola,tabla2);
+	list_add(hola,tabla3);
 	list_remove(hola,1);
 	//printf("%d",list_size(hola));
 	aux = list_get(hola,0);
 	printf("%d",aux->pid);
 	aux = list_get(hola,1);
 	printf("%d",aux->pid);
-	cantidad = list_size(hola);
+	unsigned cantidad = list_size(hola);
 	printf("%d",aux->pid);
 
 
