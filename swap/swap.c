@@ -16,13 +16,13 @@
 #include "swap.h"
 
 
-/*int main(){
+int main(){
 	initialConf();
 	socketConf();
 	while (funcionamientoSWAP()!=-1);
 	accionesDeFinalizacion();
 	return 0;
-}*/
+}
 
 void socketConf() {
 	setSocket();

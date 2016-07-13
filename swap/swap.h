@@ -18,8 +18,8 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
-//#include "../cpu/protocolo_mensaje.h"
-#include "protocolo_mensaje.h"
+#include "../cpu/protocolo_mensaje.h"
+//#include "protocolo_mensaje.h"
 //DECLARACION DE ESTRUCTURAS
 typedef struct{
 	unsigned PID;

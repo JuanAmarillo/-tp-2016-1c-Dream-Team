@@ -25,7 +25,7 @@ void pruebaProcesoConectar();
 void pruebaBuscarLongitud();
 void pruebaRecibirMensaje();
 void pruebaFUNCIONALIDADCOMPLETA();
-
+/*
 int main(){
 	//pruebaMoverDePosicionPrograma();
 	//pruebaReservarEspacio();
@@ -38,7 +38,7 @@ int main(){
 	accionesDeFinalizacion();
 	return 0;
 };
-
+*/
 void pruebaSetUp() {
 	mockProceso1();
 	mockProceso2();
