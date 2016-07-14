@@ -395,9 +395,9 @@ void algoritmoClock(void* codigoPrograma,unsigned tamanioPrograma,unsigned pagin
 	pthread_mutex_lock(&mutexClock);
 
 	//Eleccion entre Algoritmos
-	if(strcmp("CLOCK",infoConfig.algoritmo))
+	if(!strcmp("CLOCK",infoConfig.algoritmo))
 		falloDePagina(pidActivo);
-	if(strcmp("CLOCKMEJORADO",infoConfig.algoritmo))
+	if(!strcmp("CLOCKMEJORADO",infoConfig.algoritmo))
 		falloDePaginaMejorado(pidActivo);
 
 	//Escribe en memoria la nueva pagina que mando el SWAP
