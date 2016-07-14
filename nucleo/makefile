@@ -25,7 +25,7 @@ endif
 all: nucleo
 
 dependents:
-	-cd /home/utnso/git/so-commons-library/Debug && $(MAKE) all
+	-cd /home/utnso/git/so-commons-library/Debug && $(MAKE) clean all
 
 # Tool invocations
 nucleo: $(OBJS) $(USER_OBJS) /home/utnso/git/so-commons-library/Debug/commons
