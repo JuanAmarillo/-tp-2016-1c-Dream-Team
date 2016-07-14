@@ -16,6 +16,7 @@ void leerArchivoConfig()
 	infoConfig.ip = config_get_string_value(config, "IP_SWAP");
 	infoConfig.puertoUMC = config_get_string_value(config, "PUERTO");
 	infoConfig.puertoSWAP = config_get_string_value(config, "PUERTO_SWAP");
+	infoConfig.algoritmo = config_get_string_value(config, "ALGORITMO");
 	infoMemoria.marcos = config_get_int_value(config, "MARCOS");
 	infoMemoria.tamanioDeMarcos = config_get_int_value(config, "MARCO_SIZE");
 	infoMemoria.maxMarcosPorPrograma = config_get_int_value(config,"MARCO_X_PROC");
@@ -392,9 +393,17 @@ void escribirEnMemoria(void* codigoPrograma,unsigned tamanioPrograma, unsigned p
 void algoritmoClock(void* codigoPrograma,unsigned tamanioPrograma,unsigned pagina,unsigned pidActivo)
 {
 	pthread_mutex_lock(&mutexClock);
-	falloDePagina(pidActivo);
+
+	//Eleccion entre Algoritmos
+	if(strcmp("CLOCK",infoConfig.algoritmo))
+		falloDePagina(pidActivo);
+	if(strcmp("CLOCKMEJORADO",infoConfig.algoritmo))
+		falloDePaginaMejorado(pidActivo);
+
+	//Escribe en memoria la nueva pagina que mando el SWAP
 	escribirEnMemoria(codigoPrograma,tamanioPrograma,pagina,pidActivo);
 
+	//Se fija si el punteroClock llego al ultimo marco
 	if(punteroClock < infoMemoria.marcos)
 		punteroClock++;
 	else
