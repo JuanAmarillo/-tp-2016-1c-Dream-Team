@@ -35,6 +35,7 @@ typedef struct{
 	char *ip;
 	char *puertoUMC;
 	char *puertoSWAP;
+	char *algoritmo;
 } t_infoConfig;
 
 typedef struct{
