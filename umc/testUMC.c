@@ -55,8 +55,19 @@ void testFinPrograma(unsigned pid)
 	return;
 
 }
+void testSolicitarBytesDeUnaPagina(unsigned pagina, unsigned offset, unsigned tamano,unsigned pid)
+{
+	t_mensaje bytesPagina;
+	bytesPagina.head.codigo = GET_TAM_PAGINA;
+	bytesPagina.head.cantidad_parametros = 3;
+	bytesPagina.parametros = malloc(sizeof(int)*3);
+	bytesPagina.head.tam_extra = 0;
+	bytesPagina.mensaje_extra = NULL;
+	enviarBytesDeUnaPagina(bytesPagina,4,pid);
+	return;
+}
 
-/*
+
 int main(){
 
 	pthread_mutex_init(&mutexClientes,NULL);
@@ -81,7 +92,8 @@ int main(){
 	testInicioPrograma(5,3);
 	testFinPrograma(4);
 
+
 	return 0;
 
 }
-*/
+
