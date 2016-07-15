@@ -12,6 +12,8 @@
 t_nombre_variable nombreVariable_aBuscar;
 
 int _is_variableX(t_variable *);
+t_puntero posToPuntero(t_posicionDeMemoria posicionMemoria);
+t_posicionDeMemoria punteroToPos(t_puntero puntero);
 
 t_puntero parser_definirVariable(t_nombre_variable identificador_variable);
 t_puntero parser_obtenerPosicionVariable(t_nombre_variable identificador_variable);
@@ -35,21 +37,21 @@ AnSISOP_funciones functions = {
 		.AnSISOP_obtenerPosicionVariable= parser_obtenerPosicionVariable,
 		.AnSISOP_dereferenciar			= parser_dereferenciar,
 		.AnSISOP_asignar				= parser_asignar,
-		/*.AnSISOP_obtenerValorCompartida	= parser_obtenerValorCompartida,
+		.AnSISOP_obtenerValorCompartida	= parser_obtenerValorCompartida,
 		.AnSISOP_asignarValorCompartida	= parser_asignarValorCompartida,
 		.AnSISOP_irAlLabel				= parser_irAlLabel,
-		.AnSISOP_llamarSinRetorno		= parser_llamarSinRetorno,*/
+		.AnSISOP_llamarSinRetorno		= parser_llamarSinRetorno,
 		.AnSISOP_llamarConRetorno		= parser_llamarConRetorno,
-		/*.AnSISOP_finalizar				= parser_finalizar,
+		.AnSISOP_finalizar				= parser_finalizar,
 		.AnSISOP_retornar				= parser_retornar,
 		.AnSISOP_imprimir				= parser_imprimir,
 		.AnSISOP_imprimirTexto			= parser_imprimirTexto,
-		.AnSISOP_entradaSalida			= parser_entradaSalida,*/
+		.AnSISOP_entradaSalida			= parser_entradaSalida,
 
 };
 AnSISOP_kernel kernel_functions = {
-		/*.AnSISOP_wait					= parser_wait,
-		.AnSISOP_signal					= parser_signal,*/
+		.AnSISOP_wait					= parser_wait,
+		.AnSISOP_signal					= parser_signal,
 };
 
 #endif /* ANALIZADOR_H_ */

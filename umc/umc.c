@@ -162,11 +162,16 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 	tablaPaginas->pid = pid;
 	tablaPaginas->punteroClock = 0;
 	tablaPaginas->entradaTablaPaginas = calloc(paginasSolicitadas,sizeof(t_entradaTablaPaginas));
-	if(paginasSolicitadas > infoMemoria.maxMarcosPorPrograma)
-		tablaPaginas->paginasEnMemoria = calloc(infoMemoria.maxMarcosPorPrograma,sizeof(int));
-	else
-		tablaPaginas->paginasEnMemoria = calloc(paginasSolicitadas,sizeof(int));
+	tablaPaginas->cantidadEntradasTablaPagina = paginasSolicitadas;
 
+	if(paginasSolicitadas > infoMemoria.maxMarcosPorPrograma){
+		tablaPaginas->paginasEnMemoria = calloc(infoMemoria.maxMarcosPorPrograma,sizeof(int));
+		tablaPaginas->cantidadEntradasMemoria = infoMemoria.maxMarcosPorPrograma;
+	}
+	else{
+		tablaPaginas->paginasEnMemoria = calloc(paginasSolicitadas,sizeof(int));
+		tablaPaginas->cantidadEntradasMemoria = paginasSolicitadas;
+	}
 	for(pagina=0;pagina < paginasSolicitadas; pagina++)
 	{
 		tablaPaginas->entradaTablaPaginas[pagina].estaEnMemoria = 0;
@@ -174,7 +179,7 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 	}
 	log_trace(logger,"\n  Se creo una tabla de Pagina\n:");
 	log_trace(logger,"- PID : %d\n",tablaPaginas->pid);
-	log_trace(logger,"- Paginas : %d\n",sizeof(tablaPaginas->entradaTablaPaginas)/sizeof(t_entradaTablaPaginas));
+	log_trace(logger,"- Paginas : %d\n",tablaPaginas->cantidadEntradasTablaPagina);
 
 	pthread_mutex_lock(&mutexTablaPaginas);
 	list_add(tablasDePaginas,tablaPaginas);
@@ -244,6 +249,9 @@ int eliminarDeMemoria(unsigned pid)
 		{
 			list_remove(tablasDePaginas,index);
 			pthread_mutex_unlock(&mutexTablaPaginas);
+			free(buscador->paginasEnMemoria);
+			free(buscador->entradaTablaPaginas);
+			free(buscador);
 			return 1;
 		}
 	}
@@ -263,73 +271,71 @@ void finPrograma(t_mensaje finalizarProg)
 }
 
 
-
-/*
-//Busca Bit presencia = 0 && bit Modificado = 0
-int buscaNoPresenciaNoModificado()
+void falloPagina(t_tablaDePaginas* tablaBuscada,unsigned indice,unsigned pidActivo,unsigned paginaApuntada)
 {
-	t_tablaDePaginas* tablaBuscada;
-	unsigned indice;
-	unsigned cantidadDePaginas;
-	unsigned paginaBuscada;
-	punteroClock=0;
+	log_trace(logger,"Se produce un fallo de pagina en la pagina:%d del proceso:%d",paginaApuntada,pidActivo);
+	void* codigoDelMarco = malloc(infoMemoria.tamanioDeMarcos);
+	unsigned marco = tablaBuscada->entradaTablaPaginas[paginaApuntada].marco ;
 
-	for(indice=0;indice < list_size(tablasDePaginas);indice++)
+	//Pongo el bit de presencia en 0
+	tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria = 0;
+	list_replace(tablasDePaginas,indice,tablaBuscada);
+
+	//Llevo el codigo que esta en el marco al SWAP
+	pthread_mutex_lock(&mutexMemoria);
+	memcpy(codigoDelMarco, memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco , infoMemoria.tamanioDeMarcos);
+	pthread_mutex_unlock(&mutexMemoria);
+	log_trace(logger,"Se envia la pagina:%d del proceso:%d al SWAP",paginaApuntada,pidActivo);
+	enviarPaginaAlSWAP(paginaApuntada,codigoDelMarco,pidActivo);
+
+	return;
+}
+
+//Busca Bit presencia = 0 && bit Modificado = 0
+int buscaNoPresenciaNoModificado(t_tablaDePaginas *tablaBuscada,unsigned *punteroClock,unsigned pidActivo)
+{
+	unsigned paginaApuntada;
+	int pagina;
+	for(pagina = 0 ; pagina  < tablaBuscada->cantidadEntradasMemoria;pagina++ )
 	{
-		tablaBuscada = list_get(tablasDePaginas,indice);
-		cantidadDePaginas = sizeof(tablaBuscada)/sizeof(t_tablaDePaginas);
-
-		for(paginaBuscada = 0; paginaBuscada < cantidadDePaginas; paginaBuscada++)
-		{
-			if(tablaBuscada->entradaTablaPaginas[paginaBuscada].estaEnMemoria == 0)
-				if(tablaBuscada->entradaTablaPaginas[paginaBuscada].fueModificado==0)
-						return 1;
-			punteroClock++;
-		}
+		paginaApuntada = tablaBuscada->paginasEnMemoria[*punteroClock];
+		if(tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 0)
+			if(tablaBuscada->entradaTablaPaginas[paginaApuntada].fueModificado == 0)
+				return 1;
+		if(*punteroClock < tablaBuscada->cantidadEntradasMemoria)
+			*punteroClock=*punteroClock +1;
+		else
+			*punteroClock=0;
 	}
-	return 0;
+	return 0 ;
 }
 
 //Busca Bit presencia = 0 && bit Modificado = 1
-int buscaNoPresenciaSiModificado(unsigned pidActivo)
+int buscaNoPresenciaSiModificado(t_tablaDePaginas *tablaBuscada,unsigned *punteroClock,unsigned pidActivo,unsigned indice)
 {
-	t_tablaDePaginas* tablaBuscada;
-	unsigned indice;
-	unsigned cantidadDePaginas;
-	unsigned paginaBuscada;
-	punteroClock=0;
+	unsigned paginaApuntada;
+	unsigned pagina;
 
-	for(indice=0;indice < list_size(tablasDePaginas);indice++)
+	for(pagina = 0 ; pagina  < tablaBuscada->cantidadEntradasMemoria;pagina++ )
 	{
-		cantidadDePaginas = sizeof(tablaBuscada)/sizeof(t_tablaDePaginas);
+		paginaApuntada = tablaBuscada->paginasEnMemoria[*punteroClock];
 
-		for(paginaBuscada = 0; paginaBuscada < cantidadDePaginas; paginaBuscada++)
-		{
-			tablaBuscada = list_get(tablasDePaginas,indice);
-			if(tablaBuscada->entradaTablaPaginas[paginaBuscada].estaEnMemoria == 0)
-				if(tablaBuscada->entradaTablaPaginas[paginaBuscada].fueModificado==1)
-					return 1;
+		//Busca si hay alguna pagina libre
+		if(tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 0)
+			if(tablaBuscada->entradaTablaPaginas[paginaApuntada].fueModificado == 1)
+				return 1;
+		//Si esta en memoria la libera
+		if(tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 1)
+			falloPagina(tablaBuscada,indice,pidActivo,paginaApuntada);
 
-			if(tablaBuscada->entradaTablaPaginas[paginaBuscada].estaEnMemoria == 1)
-				falloDePagina(paginaBuscada,indice,tablaBuscada,pidActivo);
-			punteroClock++;
-		}
+		//avanza el puntero
+		if(*punteroClock < tablaBuscada->cantidadEntradasMemoria)
+			*punteroClock=*punteroClock +1;
+		else
+			*punteroClock=0;
 	}
 	return 0;
 }
-void algoritmoClockMejorado(unsigned pidActivo)
-{
-	while(1)
-	{
-		if(buscaNoPresenciaNoModificado() == 1)
-			return;
-		if(buscaNoPresenciaSiModificado(pidActivo) ==1)
-			return;
-	}
-	return;
-}
-*/
-
 t_tablaDePaginas* buscarTablaSegun(unsigned pidActivo,unsigned *indice,unsigned *punteroClock)
 {
 	t_tablaDePaginas *tablaBuscada;
@@ -345,26 +351,22 @@ t_tablaDePaginas* buscarTablaSegun(unsigned pidActivo,unsigned *indice,unsigned 
 	return tablaBuscada;
 
 }
-
-
-void falloPagina(t_tablaDePaginas* tablaBuscada,unsigned indice,unsigned pidActivo,unsigned paginaApuntada)
+unsigned algoritmoClockMejorado(unsigned pidActivo,unsigned *indice)
 {
+	log_trace(logger,"Se ejecuta el algortimo clock mejorado");
+	unsigned punteroClock;
+	t_tablaDePaginas* tablaBuscada = buscarTablaSegun(pidActivo,indice,&punteroClock);
 
-	void* codigoDelMarco = malloc(infoMemoria.tamanioDeMarcos);
-	unsigned marco = tablaBuscada->entradaTablaPaginas[paginaApuntada].marco ;
-
-	//Pongo el bit de presencia en 0
-	tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria = 0;
-	list_replace(tablasDePaginas,indice,tablaBuscada);
-
-	//Llevo el codigo que esta en el marco al SWAP
-	pthread_mutex_lock(&mutexMemoria);
-	memcpy(codigoDelMarco, memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco , infoMemoria.tamanioDeMarcos);
-	pthread_mutex_unlock(&mutexMemoria);
-	enviarPaginaAlSWAP(paginaApuntada,codigoDelMarco,pidActivo);
-
-	return;
+	while(1)
+	{
+		if(buscaNoPresenciaNoModificado(tablaBuscada,&punteroClock,pidActivo)  == 1)
+			return punteroClock;
+		if(buscaNoPresenciaSiModificado(tablaBuscada,&punteroClock,pidActivo,*indice) == 1)
+			return punteroClock;
+	}
+	return punteroClock;
 }
+
 
 void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo)
 {
@@ -382,6 +384,7 @@ void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo)
 }
 unsigned algoritmoclock(unsigned pidActivo,unsigned *indice)
 {
+	log_trace(logger,"Se ejecuta el algoritmo clock");
 	unsigned punteroClock;
 	t_tablaDePaginas* tablaBuscada = buscarTablaSegun(pidActivo,indice,&punteroClock);
 	unsigned paginaApuntada;
@@ -391,7 +394,7 @@ unsigned algoritmoclock(unsigned pidActivo,unsigned *indice)
 		if(tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 1)
 		{
 			falloPagina(tablaBuscada,*indice,pidActivo,paginaApuntada);
-			if(punteroClock < sizeof(tablaBuscada->paginasEnMemoria)/sizeof(int))
+			if(punteroClock < tablaBuscada->cantidadEntradasMemoria)
 				punteroClock++;
 			else
 				punteroClock=0;
@@ -410,7 +413,7 @@ unsigned buscarMarcoDisponible()
 	for(indice=0; indice < list_size(tablasDePaginas); indice++)
 	{
 		tablaDePaginas = list_get(tablasDePaginas,indice);
-		for(pagina = 0 ; pagina < sizeof(tablaDePaginas)/sizeof(t_entradaTablaPaginas);pagina++)
+		for(pagina = 0 ; pagina < tablaDePaginas->cantidadEntradasMemoria;pagina++)
 		{
 			if(tablaDePaginas->entradaTablaPaginas[pagina].estaEnMemoria == 1)
 				if(tablaDePaginas->entradaTablaPaginas[pagina].marco == marcoDisponible)
@@ -429,7 +432,7 @@ unsigned actualizaPagina(unsigned pagina,unsigned pidActivo,unsigned punteroCloc
 	if(tablaDePagina->pid == pidActivo)
 	{
 		tablaDePagina->paginasEnMemoria[punteroClock] = pagina;
-		tablaDePagina->punteroClock = punteroClock;
+		tablaDePagina->punteroClock = punteroClock+1;
 		tablaDePagina->entradaTablaPaginas[pagina].estaEnMemoria = 1;
 		tablaDePagina->entradaTablaPaginas[pagina].marco = marcoDisponible;
 		list_replace(tablasDePaginas,indice,tablaDePagina);
@@ -457,10 +460,10 @@ void algoritmoDeReemplazo(void* codigoPrograma,unsigned tamanioPrograma,unsigned
 	//Eleccion entre Algoritmos
 	if(!strcmp("CLOCK",infoConfig.algoritmo))
 		punteroClock = algoritmoclock(pidActivo,&indice);
-	/*
+
 	if(!strcmp("CLOCKMEJORADO",infoConfig.algoritmo))
-		punteroClock = algoritmoClockMejorado(pidActivo);
-	*/
+		punteroClock = algoritmoClockMejorado(pidActivo,&indice);
+
 
 	//Escribe en memoria la nueva pagina que mando el SWAP
 	escribirEnMemoria(codigoPrograma,tamanioPrograma,pagina,pidActivo,punteroClock,indice);
@@ -560,6 +563,7 @@ void traducirPaginaAMarco(unsigned pagina,int *marco,unsigned pidActual)
 	if(*marco != -1)
 	{
 		log_trace(logger,"Pagina en TLB, marco correspondiente: %d",*marco);
+		pthread_mutex_unlock(&mutexTablaPaginas);
 		return;
 	}
 
@@ -591,6 +595,7 @@ void traducirPaginaAMarco(unsigned pagina,int *marco,unsigned pidActual)
 				log_trace(logger,"El marco correspondiente: %d", *marco);
 				pthread_mutex_unlock(&mutexTablaPaginas);
 				actualizarTLB(tablaDePaginas->entradaTablaPaginas[pagina],pagina,pidActual);
+				return;
 			}
 		}
 
@@ -598,19 +603,67 @@ void traducirPaginaAMarco(unsigned pagina,int *marco,unsigned pidActual)
 	return;
 }
 
-void almacenarBytesEnPagina(t_mensaje mensaje,unsigned pidActivo)
+void almacenarBytesEnPagina(t_mensaje mensaje,unsigned pidActivo, int clienteUMC)
 {
 	unsigned pagina  = mensaje.parametros[0];
 	unsigned offset  = mensaje.parametros[1];
 	unsigned tamanio = mensaje.parametros[2];
+	log_trace(logger,"Se procede a almacenar -> pagina:%d, offset:%d, tamaño:%d, pid:%d",pagina,offset,tamanio,pidActivo);
 
 	int marco;
+	log_trace(logger,"Se traduce la pagina: %d con pid:%d al marco correspondiente \n" ,pagina,pidActivo);
 	traducirPaginaAMarco(pagina,&marco,pidActivo);
-	memcpy(memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco+offset,(void*)mensaje.parametros[3],tamanio);
+	log_trace(logger,"Se almacena: %d en el marco:%d",mensaje.parametros[3],marco);
+	memcpy(memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco+offset,&(mensaje.parametros[3]),tamanio);
+
+
+	// Agregado por marco, falta comprobar si hay error de Violacion de Segmento
+	t_mensaje mensaje_enviar;
+	unsigned parametros_enviar[1];
+	parametros_enviar[0] = 1; //1: Todo OK ; 2: Fuera de Segmento
+	mensaje_enviar.head.codigo = RETURN_RECORD_DATA;
+	mensaje_enviar.head.cantidad_parametros = 1;
+	mensaje_enviar.head.tam_extra = 0;
+	mensaje_enviar.parametros = parametros_enviar;
+	mensaje_enviar.mensaje_extra = NULL;
+
+	// Envio al UMC la peticion
+	enviarMensaje(clienteUMC, mensaje_enviar);
+
+	// Fin Agregado por marco
+
 
 	return;
 }
+void procesosEnTabla()
+{
+	unsigned proceso;
+	pthread_mutex_lock(&mutexTablaPaginas);
+	t_tablaDePaginas *tabla;
+	unsigned paginaEnMemoria;
+	unsigned pagina;
+	if(list_size(tablasDePaginas) == 0){
+		pthread_mutex_unlock(&mutexTablaPaginas);
+		return;
+	}
+	log_trace(logger,"============================\n");
+	log_trace(logger,"Procesos en Tablas \n");
+	for(proceso= 0; proceso < list_size(tablasDePaginas);proceso++)
+	{
+		tabla = list_get(tablasDePaginas,proceso);
+		log_trace(logger,"Proceso pid: %d, paginas:%d, estan en memoria:%d,el punteroClock en: %d \n",tabla->pid,tabla->cantidadEntradasTablaPagina);
+		log_trace(logger,"Paginas en memoria:\n");
 
+		for(pagina = 0;pagina < tabla->cantidadEntradasMemoria;pagina++)
+		{
+			paginaEnMemoria = tabla->paginasEnMemoria[pagina];
+			log_trace(logger,"Pagina:%d -> Marco:%d\n",paginaEnMemoria,tabla->entradaTablaPaginas[pagina].marco);
+		}
+	}
+	log_trace(logger,"============================\n");
+	pthread_mutex_unlock(&mutexTablaPaginas);
+	return;
+}
 void enviarCodigoAlCPU(char* codigoAEnviar, unsigned tamanio,int clienteUMC)
 {
 	t_mensaje mensaje;
@@ -667,6 +720,7 @@ void accionSegunCabecera(int clienteUMC,unsigned pid)
 	t_mensaje mensaje;
 
 	while(1){
+		procesosEnTabla();
 		if(recibirMensaje(clienteUMC,&mensaje) <= 0){
 			clienteDesconectado(clienteUMC);
 		}
@@ -684,10 +738,10 @@ void accionSegunCabecera(int clienteUMC,unsigned pid)
 			case CAMBIO_PROCESO:
 				pidActivo = cambioProcesoActivo(mensaje.parametros[0],pidActivo);
 				break;
-			case RECORD_DATA: almacenarBytesEnPagina(mensaje,pidActivo);
+			case RECORD_DATA:
+				almacenarBytesEnPagina(mensaje,pidActivo, clienteUMC);
 				break;
 		}
-		freeMensaje(&mensaje);
 	}
 	return;
 }
