@@ -263,90 +263,6 @@ void finPrograma(t_mensaje finalizarProg)
 }
 
 
-
-/*
-//Busca Bit presencia = 0 && bit Modificado = 0
-int buscaNoPresenciaNoModificado()
-{
-	t_tablaDePaginas* tablaBuscada;
-	unsigned indice;
-	unsigned cantidadDePaginas;
-	unsigned paginaBuscada;
-	punteroClock=0;
-
-	for(indice=0;indice < list_size(tablasDePaginas);indice++)
-	{
-		tablaBuscada = list_get(tablasDePaginas,indice);
-		cantidadDePaginas = sizeof(tablaBuscada)/sizeof(t_tablaDePaginas);
-
-		for(paginaBuscada = 0; paginaBuscada < cantidadDePaginas; paginaBuscada++)
-		{
-			if(tablaBuscada->entradaTablaPaginas[paginaBuscada].estaEnMemoria == 0)
-				if(tablaBuscada->entradaTablaPaginas[paginaBuscada].fueModificado==0)
-						return 1;
-			punteroClock++;
-		}
-	}
-	return 0;
-}
-
-//Busca Bit presencia = 0 && bit Modificado = 1
-int buscaNoPresenciaSiModificado(unsigned pidActivo)
-{
-	t_tablaDePaginas* tablaBuscada;
-	unsigned indice;
-	unsigned cantidadDePaginas;
-	unsigned paginaBuscada;
-	punteroClock=0;
-
-	for(indice=0;indice < list_size(tablasDePaginas);indice++)
-	{
-		cantidadDePaginas = sizeof(tablaBuscada)/sizeof(t_tablaDePaginas);
-
-		for(paginaBuscada = 0; paginaBuscada < cantidadDePaginas; paginaBuscada++)
-		{
-			tablaBuscada = list_get(tablasDePaginas,indice);
-			if(tablaBuscada->entradaTablaPaginas[paginaBuscada].estaEnMemoria == 0)
-				if(tablaBuscada->entradaTablaPaginas[paginaBuscada].fueModificado==1)
-					return 1;
-
-			if(tablaBuscada->entradaTablaPaginas[paginaBuscada].estaEnMemoria == 1)
-				falloDePagina(paginaBuscada,indice,tablaBuscada,pidActivo);
-			punteroClock++;
-		}
-	}
-	return 0;
-}
-void algoritmoClockMejorado(unsigned pidActivo)
-{
-	while(1)
-	{
-		if(buscaNoPresenciaNoModificado() == 1)
-			return;
-		if(buscaNoPresenciaSiModificado(pidActivo) ==1)
-			return;
-	}
-	return;
-}
-*/
-
-t_tablaDePaginas* buscarTablaSegun(unsigned pidActivo,unsigned *indice,unsigned *punteroClock)
-{
-	t_tablaDePaginas *tablaBuscada;
-	for(*indice = 0; *indice < list_size(tablasDePaginas); *indice = *indice+1)
-	{
-		tablaBuscada = list_get(tablasDePaginas,*indice);
-		if(tablaBuscada->pid==pidActivo)
-		{
-			*punteroClock = tablaBuscada->punteroClock;
-			return tablaBuscada;
-		}
-	}
-	return tablaBuscada;
-
-}
-
-
 void falloPagina(t_tablaDePaginas* tablaBuscada,unsigned indice,unsigned pidActivo,unsigned paginaApuntada)
 {
 
@@ -365,6 +281,82 @@ void falloPagina(t_tablaDePaginas* tablaBuscada,unsigned indice,unsigned pidActi
 
 	return;
 }
+
+//Busca Bit presencia = 0 && bit Modificado = 0
+int buscaNoPresenciaNoModificado(t_tablaDePaginas *tablaBuscada,unsigned *punteroClock,unsigned pidActivo)
+{
+	unsigned paginaApuntada;
+	int pagina;
+	for(pagina = 0 ; pagina  < sizeof(tablaBuscada->paginasEnMemoria)/sizeof(unsigned);pagina++ )
+	{
+		paginaApuntada = tablaBuscada->paginasEnMemoria[*punteroClock];
+		if(tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 0)
+			if(tablaBuscada->entradaTablaPaginas[paginaApuntada].fueModificado == 0)
+				return 1;
+		if(*punteroClock < sizeof(tablaBuscada->paginasEnMemoria)/sizeof(unsigned))
+			*punteroClock=*punteroClock +1;
+		else
+			*punteroClock=0;
+	}
+	return 0 ;
+}
+
+//Busca Bit presencia = 0 && bit Modificado = 1
+int buscaNoPresenciaSiModificado(t_tablaDePaginas *tablaBuscada,unsigned *punteroClock,unsigned pidActivo,unsigned indice)
+{
+	unsigned paginaApuntada;
+	unsigned pagina;
+
+	for(pagina = 0 ; pagina  < sizeof(tablaBuscada->paginasEnMemoria)/sizeof(unsigned);pagina++ )
+	{
+		paginaApuntada = tablaBuscada->paginasEnMemoria[*punteroClock];
+
+		//Busca si hay alguna pagina libre
+		if(tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 0)
+			if(tablaBuscada->entradaTablaPaginas[paginaApuntada].fueModificado == 1)
+				return 1;
+		//Si esta en memoria la libera
+		if(tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 1)
+			falloPagina(tablaBuscada,indice,pidActivo,paginaApuntada);
+
+		//avanza el puntero
+		if(*punteroClock < sizeof(tablaBuscada->paginasEnMemoria)/sizeof(unsigned))
+			*punteroClock=*punteroClock +1;
+		else
+			*punteroClock=0;
+	}
+	return 0;
+}
+t_tablaDePaginas* buscarTablaSegun(unsigned pidActivo,unsigned *indice,unsigned *punteroClock)
+{
+	t_tablaDePaginas *tablaBuscada;
+	for(*indice = 0; *indice < list_size(tablasDePaginas); *indice = *indice+1)
+	{
+		tablaBuscada = list_get(tablasDePaginas,*indice);
+		if(tablaBuscada->pid==pidActivo)
+		{
+			*punteroClock = tablaBuscada->punteroClock;
+			return tablaBuscada;
+		}
+	}
+	return tablaBuscada;
+
+}
+unsigned algoritmoClockMejorado(unsigned pidActivo,unsigned *indice)
+{
+	unsigned punteroClock;
+	t_tablaDePaginas* tablaBuscada = buscarTablaSegun(pidActivo,indice,&punteroClock);
+
+	while(1)
+	{
+		if(buscaNoPresenciaNoModificado(tablaBuscada,&punteroClock,pidActivo)  == 1)
+			return punteroClock;
+		if(buscaNoPresenciaSiModificado(tablaBuscada,&punteroClock,pidActivo,*indice) == 1)
+			return punteroClock;
+	}
+	return punteroClock;
+}
+
 
 void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo)
 {
@@ -459,7 +451,7 @@ void algoritmoDeReemplazo(void* codigoPrograma,unsigned tamanioPrograma,unsigned
 		punteroClock = algoritmoclock(pidActivo,&indice);
 	/*
 	if(!strcmp("CLOCKMEJORADO",infoConfig.algoritmo))
-		punteroClock = algoritmoClockMejorado(pidActivo);
+		punteroClock = algoritmoClockMejorado(pidActivo,&indice);
 	*/
 
 	//Escribe en memoria la nueva pagina que mando el SWAP
