@@ -74,11 +74,15 @@ void negarEjecucion(){
 	unsigned a = NOT_ENOUGH_SPACE;
 	send(socketCliente,(void*) &a,4,0);
 }
-
 void permitirEjecucion(){
-	unsigned a = ENOUGH_SPACE;
+	t_mensaje mensaje;
+	mensaje.head.codigo =ENOUGH_SPACE;
+	mensaje.head.tam_extra = 0;
+	mensaje.head.cantidad_parametros = 0;
+	mensaje.parametros = NULL;
+	mensaje.mensaje_extra = NULL;
+	enviarMensaje(socketCliente,mensaje);
 	log_trace(logger, "Se le permite el almacenamiento");
-	send(socketCliente,(void*) &a,4,0);
 }
 
 void infoProg_destroy(t_infoProg *self){
