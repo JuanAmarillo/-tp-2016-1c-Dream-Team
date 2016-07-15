@@ -123,17 +123,22 @@ void enviarSuficienteEspacio(int clienteUMC, int codigo)
 
 void enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigned pid,unsigned tamanioCodigo,int clienteUMC)
 {
-	unsigned respuesta;
+	t_mensaje respuesta;
 
 	//Reservar espacio en el SWAP
+	log_trace(logger,"Pide espacio para reservar el programa al SWAP");
 	pedirReservaDeEspacio(pid, paginasSolicitadas);
 
 	//fijarse si pudo reservar
-	recv(clienteSWAP,&respuesta,4,0);
-	if(respuesta == NOT_ENOUGH_SPACE)
-		 enviarSuficienteEspacio(clienteUMC,ALMACENAR_FAILED);
-
+	recibirMensaje(clienteSWAP,&respuesta);
+	log_trace(logger,"La cabecera recibida es: %d",respuesta->head.codigo);
+	if(respuesta.head.codigo == NOT_ENOUGH_SPACE)
+	{
+		log_trace(logger,"No hay suficiente espacio para almacenar el programa");
+		enviarSuficienteEspacio(clienteUMC,ALMACENAR_FAILED);
+	}
 	//Enviar programa al SWAP
+	log_trace(logger,"Hay suficiente espacio, se envia el programa al SWAP");
 	enviarProgramaAlSWAP(pid, paginasSolicitadas, tamanioCodigo, codigoPrograma);
 	enviarSuficienteEspacio(clienteUMC,ALMACENAR_OK);
 }
