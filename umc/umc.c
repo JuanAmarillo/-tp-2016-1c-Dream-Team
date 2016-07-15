@@ -310,8 +310,13 @@ int buscaNoPresenciaSiModificado(unsigned pidActivo)
 	}
 	return 0;
 }
-void algoritmoClockMejorado(unsigned pidActivo)
+*/
+void algoritmoClockMejorado(unsigned pidActivo,unsigned *indice)
 {
+	unsigned punteroClock;
+	t_tablaDePaginas* tablaBuscada = buscarTablaSegun(pidActivo,indice,&punteroClock);
+	unsigned paginaApuntada;
+
 	while(1)
 	{
 		if(buscaNoPresenciaNoModificado() == 1)
@@ -321,7 +326,7 @@ void algoritmoClockMejorado(unsigned pidActivo)
 	}
 	return;
 }
-*/
+
 
 t_tablaDePaginas* buscarTablaSegun(unsigned pidActivo,unsigned *indice,unsigned *punteroClock)
 {
@@ -437,10 +442,10 @@ void algoritmoDeReemplazo(void* codigoPrograma,unsigned tamanioPrograma,unsigned
 	//Eleccion entre Algoritmos
 	if(!strcmp("CLOCK",infoConfig.algoritmo))
 		punteroClock = algoritmoclock(pidActivo,&indice);
-	/*
+
 	if(!strcmp("CLOCKMEJORADO",infoConfig.algoritmo))
-		punteroClock = algoritmoClockMejorado(pidActivo);
-	*/
+		punteroClock = algoritmoClockMejorado(pidActivo,&indice);
+
 
 	//Escribe en memoria la nueva pagina que mando el SWAP
 	escribirEnMemoria(codigoPrograma,tamanioPrograma,pagina,pidActivo,punteroClock,indice);
@@ -619,6 +624,7 @@ void enviarTamanioDePagina(int clienteUMC)
 
 void accionSegunCabecera(int clienteUMC,unsigned pid)
 {
+	log_trace(logger,"Se creo un Hilo ");
 	unsigned pidActivo = pid;
 	int cabeceraDelMensaje;
 	t_mensaje mensaje;
