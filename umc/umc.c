@@ -193,17 +193,19 @@ void borrarEntradasTLBSegun(unsigned pidActivo)
 
 	return;
 }
-unsigned cambioProcesoActivo(unsigned pid,int clienteUMC, unsigned pidActivo)
+unsigned cambioProcesoActivo(unsigned pid,unsigned pidActivo)
 {
+	log_trace(logger,"Se cambia de proceso id por : %d", pid);
 	if(pidActivo > 0)
+	{
+		log_trace(logger,"Se borran las entradas de la TLB del pid anterior");
 		borrarEntradasTLBSegun(pidActivo);
-
-	return pid;
+	}
+	return pid ;
 }
 
 void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 {
-	t_mensaje espacioSuficiente;
 	unsigned pid = mensaje.parametros[0];
 	unsigned paginasSolicitadas = mensaje.parametros[1];
 	char*codigoPrograma = malloc(paginasSolicitadas*infoMemoria.tamanioDeMarcos);
@@ -213,7 +215,6 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 	crearTablaDePaginas(pid,paginasSolicitadas);
 
 	enviarCodigoAlSwap(paginasSolicitadas,codigoPrograma,pid,tamanioCodigo,clienteUMC);
-
  	free(codigoPrograma);
 
 	return;
@@ -478,6 +479,7 @@ void traerPaginaAMemoria(unsigned pagina,unsigned pidActual)
 	t_mensaje aRecibir;
 
 	//Pedimos pagina al SWAP
+	log_trace(logger,"pedimos la pagina:%d con pid:%d al SWAP",pagina,pidActual);
 	pedirPagAlSWAP(pagina,pidActual);
 
 	//Recibimos pagina del SWAP
@@ -538,11 +540,16 @@ void traducirPaginaAMarco(unsigned pagina,int *marco,unsigned pidActual)
 	unsigned cantidadDeTablas = list_size(tablasDePaginas);
 	t_tablaDePaginas *tablaDePaginas;
 
+	log_trace(logger,"Busca si la pagina esta en la TLB");
 	//Buscar en TLB
 	*marco = buscarEnTLB(pagina,pidActual);
 	if(*marco != -1)
+	{
+		log_trace(logger,"Pagina en TLB, marco correspondiente: %d",*marco);
 		return;
+	}
 
+	log_trace(logger,"Busca la pagina en la tabla de paginas");
 	//Buscar en tabla de paginas
 	for(indice = 0;indice < cantidadDeTablas; indice++)
 	{
@@ -554,15 +561,20 @@ void traducirPaginaAMarco(unsigned pagina,int *marco,unsigned pidActual)
 			if(tablaDePaginas->entradaTablaPaginas[pagina].estaEnMemoria == 1)
 			{
 				//Esta en memoria se copia el marco
+				log_trace(logger,"La pagina se encuentra en memoria");
 				*marco = tablaDePaginas->entradaTablaPaginas[pagina].marco;
+				log_trace(logger,"El marco correspondiente: %d",*marco);
 				pthread_mutex_unlock(&mutexTablaPaginas);
+				log_trace(logger,"Se actualiza la TLB");
 				actualizarTLB(tablaDePaginas->entradaTablaPaginas[pagina],pagina,pidActual);
 				return;
 			}
 			else
 			{	// Buscar en swap
+				log_trace(logger,"La pagina no se encuentra en memoria, se procede a traer del SWAP");
 				traerPaginaAMemoria(pagina,pidActual);
 				*marco = tablaDePaginas->entradaTablaPaginas[pagina].marco;
+				log_trace(logger,"El marco correspondiente: %d",marco);
 				pthread_mutex_unlock(&mutexTablaPaginas);
 				actualizarTLB(tablaDePaginas->entradaTablaPaginas[pagina],pagina,pidActual);
 			}
@@ -605,10 +617,13 @@ void enviarBytesDeUnaPagina(t_mensaje mensaje,int clienteUMC,unsigned pidActual)
 	unsigned tamanio = mensaje.parametros[2];
 	void* codigoAEnviar = malloc(tamanio);
 	int marco;
+	log_trace(logger,"Se traduce la pagina: %d con pid:%d al marco correspondiente \n" ,pagina,pidActual);
 	traducirPaginaAMarco(pagina,&marco,pidActual);
 
+	log_trace(logger,"Se copia la instruccion a enviar");
 	memcpy(codigoAEnviar,memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco+offset,tamanio);
 
+	log_trace(logger,"Se envia la instruccion al CPU");
 	enviarCodigoAlCPU(codigoAEnviar,tamanio,clienteUMC);
 	free(codigoAEnviar);
 
@@ -653,7 +668,7 @@ void accionSegunCabecera(int clienteUMC,unsigned pid)
 			case GET_TAM_PAGINA: enviarTamanioDePagina(clienteUMC);
 				break;
 			case CAMBIO_PROCESO:
-				pidActivo = cambioProcesoActivo(mensaje.parametros[0],clienteUMC,pidActivo);
+				pidActivo = cambioProcesoActivo(mensaje.parametros[0],pidActivo);
 				break;
 			case RECORD_DATA: almacenarBytesEnPagina(mensaje,pidActivo);
 				break;
