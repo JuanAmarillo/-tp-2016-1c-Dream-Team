@@ -711,7 +711,6 @@ void accionSegunCabecera(int clienteUMC,unsigned pid)
 				almacenarBytesEnPagina(mensaje,pidActivo, clienteUMC);
 				break;
 		}
-		freeMensaje(&mensaje);
 	}
 	return;
 }
