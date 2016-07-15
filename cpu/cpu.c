@@ -17,9 +17,6 @@
 #include <parser/metadata_program.h>
 #include "analizador.h"
 #include "messageCode.h"
-#include <math.h>
-
-static const char* DEFINICION_VARIABLES = "variables a, b, c";
 
 int main(int argc, char** argv){
 
@@ -98,7 +95,7 @@ int main(int argc, char** argv){
 			// Obtener siguiente instruccion
 			char *instruccion = obtenerSiguienteIntruccion();
 
-			log_trace(logger, "PID: %u; Quantum %u de %u -> %s", pcb_global.pid, i_quantum, quantum, instruccion);
+			log_trace(logger, "PID: %u; Quantum %u de %u", pcb_global.pid, i_quantum, quantum);
 
 			// Actualizar PCB
 			pcb_global.pc++;
