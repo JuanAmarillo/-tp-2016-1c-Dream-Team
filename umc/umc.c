@@ -749,14 +749,14 @@ void gestionarConexiones()
 			if( FD_ISSET(fdBuscador,&fdsParaLectura) ) { //entra una conexion, la acepta y la agrega al master
 				if(fdBuscador == servidorUMC){
 					clienteUMC = aceptarConexion();
+					log_trace(logger,"ID Hilo: %i", clienteUMC);
 				} else {
 					FD_SET(clienteUMC, &master);
 					if(clienteUMC > maximoFD) //Actualzar el maximo fd
 						maximoFD = clienteUMC;
 				}
 
-			}
-			else{
+			} else {
 				log_trace(logger,"Se crea un hilo");
 				pthread_create(&cliente, NULL, gestionarSolicitudesDeOperacion, clienteUMC);
 
