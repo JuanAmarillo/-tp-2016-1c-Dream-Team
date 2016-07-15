@@ -72,7 +72,7 @@ int solicitarTamPaginas(void)
 	t_mensajeHead head = {GET_TAM_PAGINA, 1, 1};
 	t_mensaje mensaje;
 
-	mensaje.head = head;printf("Hasta aca llego papurri\n");
+	mensaje.head = head;
 	mensaje.parametros = malloc(4);
 	mensaje.mensaje_extra = malloc(1);
 
@@ -556,7 +556,9 @@ void administrarConexiones(void)
 							mostrarParesPorLog();
 
 							//Enviar a UMC: PID, Cant Paginas, codigo
-							enviarInfoUMC(pcb->pid, pcb->cantidadPaginas, mensajeConsola.mensaje_extra);
+							char *code = strdup(mensajeConsola.mensaje_extra);
+							string_trim(&code);
+							enviarInfoUMC(pcb->pid, pcb->cantidadPaginas, code);
 
 							//Verificar que se pudo guardar el programa
 							if(seAlmacenoElProceso())
