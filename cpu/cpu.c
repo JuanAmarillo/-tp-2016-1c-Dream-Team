@@ -90,7 +90,7 @@ int main(int argc, char** argv){
 		notificarCambioProceso();
 
 		// LOOP QUANTUM
-		for(i_quantum = 0; i_quantum < quantum; i_quantum++){
+		for(i_quantum = 1; i_quantum <= quantum; i_quantum++){
 
 			// Obtener siguiente instruccion
 			char *instruccion = obtenerSiguienteIntruccion();
@@ -103,8 +103,10 @@ int main(int argc, char** argv){
 			// analizadorLinea (parser)
 			analizadorLinea(instruccion, &functions, &kernel_functions);
 
+			log_trace(logger, "TRACEadd: dps analizadorLinea();");
+
 			// Libero memoria de la instruccion
-			//free(instruccion);
+			free(instruccion);
 
 			// Sleep
 			usleep(quantum_sleep);
@@ -734,6 +736,7 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 		if(sp_tmp == 0){
 			cantidad_vars = list_size(aux_stack->vars);
 			if(cantidad_vars == 0){
+				aux_vars = malloc(sizeof(t_variable));
 				aux_vars->posicionMemoria.numeroPagina = pcb_global.cantidadPaginas-1;
 				aux_vars->posicionMemoria.offset = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_inicio + pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_fin;
 				aux_vars->posicionMemoria.size = 0;
@@ -756,6 +759,7 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 		posicionMemoria.numeroPagina = aux_vars->posicionMemoria.numeroPagina;
 		if(cantidad_vars == 0){
 			posicionMemoria.offset = aux_vars->posicionMemoria.offset;
+			free(aux_vars);
 		} else {
 			posicionMemoria.offset = aux_vars->posicionMemoria.offset + 4;
 		}
@@ -770,7 +774,8 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 	// Devuelvo posicion de la variable en el contexto actual
 	log_trace(logger, "----> Return: %c: (%u,%u,%u)", identificador_variable, posicionMemoria.numeroPagina, posicionMemoria.offset, posicionMemoria.size);
 
-	return posToPuntero(posicionMemoria);
+	t_puntero puntero_r = posToPuntero(posicionMemoria);
+	return puntero_r;
 }
 
 t_puntero parser_obtenerPosicionVariable(t_nombre_variable identificador_variable) {
@@ -1432,6 +1437,7 @@ static void stack_destroy(t_indiceStack *self) {
  */
 void freePCB(t_PCB *pcb){
 	int cantidad_indiceStack = list_size(pcb->indiceStack);
+	log_trace(logger,"--> %i", cantidad_indiceStack);
 	if(cantidad_indiceStack != 0){
 		void _list_elements2(t_indiceStack *tmp2) {
 			// Destruyo los args
