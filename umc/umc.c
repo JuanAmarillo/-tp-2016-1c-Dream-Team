@@ -432,7 +432,7 @@ unsigned actualizaPagina(unsigned pagina,unsigned pidActivo,unsigned punteroCloc
 	if(tablaDePagina->pid == pidActivo)
 	{
 		tablaDePagina->paginasEnMemoria[punteroClock] = pagina;
-		tablaDePagina->punteroClock = punteroClock;
+		tablaDePagina->punteroClock = punteroClock+1;
 		tablaDePagina->entradaTablaPaginas[pagina].estaEnMemoria = 1;
 		tablaDePagina->entradaTablaPaginas[pagina].marco = marcoDisponible;
 		list_replace(tablasDePaginas,indice,tablaDePagina);
@@ -635,7 +635,33 @@ void almacenarBytesEnPagina(t_mensaje mensaje,unsigned pidActivo, int clienteUMC
 
 	return;
 }
+void procesosEnTabla()
+{
+	unsigned proceso;
+	pthread_mutex_lock(&mutexTablaPaginas);
+	t_tablaDePaginas *tabla;
+	unsigned paginaEnMemoria;
+	unsigned pagina;
+	if(list_size(tablasDePaginas) == 0)
+		return;
+	log_trace(logger,"============================\n");
+	log_trace(logger,"Procesos en Tablas \n");
+	for(proceso= 0; proceso < list_size(tablasDePaginas);proceso++)
+	{
+		tabla = list_get(tablasDePaginas,proceso);
+		log_trace(logger,"Proceso pid: %d, paginas:%d, estan en memoria:%d,el punteroClock en: %d \n",tabla->pid,tabla->cantidadEntradasTablaPagina);
+		log_trace(logger,"Paginas en memoria:\n");
 
+		for(pagina = 0;pagina < tabla->cantidadEntradasMemoria;pagina++)
+		{
+			paginaEnMemoria = tabla->paginasEnMemoria[pagina];
+			log_trace(logger,"Pagina:%d -> Marco:%d\n",paginaEnMemoria,tabla->entradaTablaPaginas[pagina].marco);
+		}
+	}
+	log_trace(logger,"============================\n");
+	pthread_mutex_unlock(&mutexTablaPaginas);
+	return;
+}
 void enviarCodigoAlCPU(char* codigoAEnviar, unsigned tamanio,int clienteUMC)
 {
 	t_mensaje mensaje;
@@ -692,6 +718,7 @@ void accionSegunCabecera(int clienteUMC,unsigned pid)
 	t_mensaje mensaje;
 
 	while(1){
+		procesosEnTabla();
 		if(recibirMensaje(clienteUMC,&mensaje) <= 0){
 			clienteDesconectado(clienteUMC);
 		}
