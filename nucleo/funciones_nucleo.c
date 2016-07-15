@@ -367,10 +367,20 @@ void imprimirTexto(const char *imp, int consola)
 
 void avisar_Consola_Fin_Programa(int consola)
 {
-	t_mensajeHead head = {EXIT_PROGRAMA, 1, 0};
+	t_mensajeHead head = {EXIT_PROGRAMA, 1, 1};
 	t_mensaje mensaje;
 	mensaje.head = head;
-	enviarMensaje(consola, mensaje);
+	mensaje.parametros = malloc(4);
+	mensaje.mensaje_extra = malloc(1);
+	if(enviarMensaje(consola, mensaje) <= 0)
+	{
+		printf("Error al informar a la consola %d del fin del programa %d\n", consola, Consola_to_Pid(consola));
+		abort();
+	}
+	escribirLog("Se informo a la consola(fd:[%d]) del fin del proceso %d\n", consola, Consola_to_Pid(consola));
+
+	free(mensaje.parametros);
+	free(mensaje.mensaje_extra);
 }
 
 void abrirPuertos(void)
@@ -529,7 +539,10 @@ void administrarConexiones(void)
 								FD_CLR(fd_explorer, &conj_master);
 								FD_CLR(fd_explorer, &conj_consola);
 								escribirLog("Se ha desconectado una consola (fd[%d])\n", fd_explorer);
-								abortarProceso(Consola_to_Pid(fd_explorer));
+								if(FD_ISSET(Consola_to_Pid(fd_explorer), &conjunto_procesos_ejecutando))
+									abortarProceso(Consola_to_Pid(fd_explorer));
+								else
+									desasociarPidConsola(Consola_to_Pid(fd_explorer));
 								close(fd_explorer);
 							}
 						}
@@ -554,6 +567,9 @@ void administrarConexiones(void)
 							asociarPidConsola(pcb->pid, fd_explorer);
 							//Mostrar lista de pares por log
 							mostrarParesPorLog();
+
+							escribirLog("pid:%d     --->  pid_to_consola: %d\n", pcb->pid, Pid_to_Consola(pcb->pid));
+							escribirLog("consola:%d --->  consola_to_pid: %d\n", fd_explorer, Consola_to_Pid(fd_explorer));
 
 							//Enviar a UMC: PID, Cant Paginas, codigo
 							char *code = strdup(mensajeConsola.mensaje_extra);
@@ -636,14 +652,36 @@ void administrarConexiones(void)
 							{
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
+
+								//
+								int laConsola = Pid_to_Consola(pcb->pid);
+								//
+
+
+								/*
+																t_mensajeHead hh = {EXIT_PROGRAMA, 1, 1};
+																t_mensaje mm;
+																mm.head = hh;
+																mm.parametros = malloc(4);
+																mm.mensaje_extra = malloc(1);
+																enviarMensaje(laConsola, mm);
+																free(mm.parametros);
+																free(mm.mensaje_extra);
+
+																*/
+
 								avisar_UMC_FIN_PROG(pcb->pid);
 								FD_CLR(pcb->pid, &conjunto_procesos_ejecutando);
-								desasociarPidConsola(pcb->pid);
-								mostrarParesPorLog();
+							//	desasociarPidConsola(pcb->pid);
+							//	mostrarParesPorLog();
 								terminar(pcb);
-								avisar_Consola_Fin_Programa(Pid_to_Consola(pcb->pid));
-								actualizarMaster();
+
+								avisar_Consola_Fin_Programa(laConsola);
+
+
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
+								escribirLog("Hasta aca llego papurri taca taca\n");
+
 								continue;
 							}
 
