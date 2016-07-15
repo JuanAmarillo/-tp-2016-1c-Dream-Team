@@ -6,20 +6,6 @@
  */
 #include "umc.h"
 
-void procesosEnTabla()
-{
-	unsigned proceso;
-	t_tablaDePaginas *tabla;
-	puts("\n");
-	puts("Procesos en Tablas \n");
-	for(proceso= 0; proceso < list_size(tablasDePaginas);proceso++)
-	{
-		tabla = list_get(tablasDePaginas,proceso);
-		printf("Proceso pid: %d\n",tabla->pid);
-	}
-
-	return;
-}
 void testInicioPrograma(unsigned pid,unsigned paginas)
 {
 	char* codigoPrograma = malloc(4);
@@ -32,7 +18,6 @@ void testInicioPrograma(unsigned pid,unsigned paginas)
 	inicioPrograma.head.tam_extra = sizeof(codigoPrograma);
 	inicioPrograma.mensaje_extra = codigoPrograma;
 	inicializarPrograma(inicioPrograma,4);
-	procesosEnTabla();
 
 	return;
 }
@@ -49,8 +34,6 @@ void testFinPrograma(unsigned pid)
 	finaPrograma.head.tam_extra = 0;
 	finaPrograma.mensaje_extra = NULL;
 	finPrograma(finaPrograma);
-	procesosEnTabla();
-
 
 	return;
 

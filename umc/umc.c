@@ -642,8 +642,10 @@ void procesosEnTabla()
 	t_tablaDePaginas *tabla;
 	unsigned paginaEnMemoria;
 	unsigned pagina;
-	if(list_size(tablasDePaginas) == 0)
+	if(list_size(tablasDePaginas) == 0){
+		pthread_mutex_unlock(&mutexTablaPaginas);
 		return;
+	}
 	log_trace(logger,"============================\n");
 	log_trace(logger,"Procesos en Tablas \n");
 	for(proceso= 0; proceso < list_size(tablasDePaginas);proceso++)
