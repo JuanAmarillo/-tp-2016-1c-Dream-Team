@@ -734,8 +734,8 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 		if(sp_tmp == 0){
 			cantidad_vars = list_size(aux_stack->vars);
 			if(cantidad_vars == 0){
-				aux_vars->posicionMemoria.numeroPagina = pcb_global.cantidadPaginas;
-				aux_vars->posicionMemoria.offset = 0;
+				aux_vars->posicionMemoria.numeroPagina = pcb_global.cantidadPaginas-1;
+				aux_vars->posicionMemoria.offset = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_inicio + pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_fin;
 				aux_vars->posicionMemoria.size = 0;
 			} else {
 				aux_vars = list_get(aux_stack->vars, cantidad_vars-1);
@@ -755,7 +755,7 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 	} else {
 		posicionMemoria.numeroPagina = aux_vars->posicionMemoria.numeroPagina;
 		if(cantidad_vars == 0){
-			posicionMemoria.offset = 0;
+			posicionMemoria.offset = aux_vars->posicionMemoria.offset;
 		} else {
 			posicionMemoria.offset = aux_vars->posicionMemoria.offset + 4;
 		}
@@ -818,20 +818,16 @@ t_valor_variable parser_dereferenciar(t_puntero direccion_variable_puntero) {
 		abort();
 	}
 
-	if(mensaje.parametros[0] != 1){
-		estado_ejecucion = 3; // Fuera de segmento
+/*	if(mensaje.parametros[0] != 1){
+		estado_ejecucion = 2; // Fuera de segmento
 		freeMensaje(&mensaje);
 		return contenido_variable;
-	}
+	}*/
 
-	t_valor_variable *contenido_tmp = malloc(mensaje.head.tam_extra);
-	memcpy(contenido_tmp, mensaje.mensaje_extra, mensaje.head.tam_extra);
-
-	contenido_variable = (*contenido_tmp);
+	contenido_variable = *mensaje.mensaje_extra;
 
 	// Libero memoria de mensaje
 	freeMensaje(&mensaje);
-	free(contenido_tmp);
 	log_trace(logger, "----> Return: %i", contenido_variable);
 	return contenido_variable;
 }
