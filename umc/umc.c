@@ -65,6 +65,7 @@ void clienteDesconectado(int clienteUMC)
 	pthread_mutex_unlock(&mutexClientes);
 
 	close(clienteUMC);
+	pthread_exit(NULL);
 	//pthreadexit fijate!
 	return;
 }
@@ -85,13 +86,7 @@ void pedirReservaDeEspacio(unsigned pid,unsigned paginasSolicitadas) {
 
 void empaquetarYEnviar(t_mensaje mensaje,int clienteUMC)
 {
-	void *mensaje_empaquetado = empaquetar_mensaje(mensaje);
-	unsigned tamanio_mensaje = sizeof(unsigned)*3 + sizeof(unsigned) * mensaje.head.cantidad_parametros + mensaje.head.tam_extra;
-
-	send(clienteUMC, mensaje_empaquetado, tamanio_mensaje, MSG_NOSIGNAL);
-
-	freeMensaje(mensaje_empaquetado);
-
+	enviarMensaje(clienteUMC, mensaje);
 	return;
 }
 
@@ -310,14 +305,8 @@ int buscaNoPresenciaSiModificado(unsigned pidActivo)
 	}
 	return 0;
 }
-*/
-/*
-void algoritmoClockMejorado(unsigned pidActivo,unsigned *indice)
+void algoritmoClockMejorado(unsigned pidActivo)
 {
-	unsigned punteroClock;
-	t_tablaDePaginas* tablaBuscada = buscarTablaSegun(pidActivo,indice,&punteroClock);
-	unsigned paginaApuntada;
-
 	while(1)
 	{
 		if(buscaNoPresenciaNoModificado() == 1)
@@ -326,8 +315,8 @@ void algoritmoClockMejorado(unsigned pidActivo,unsigned *indice)
 			return;
 	}
 	return;
-}*/
-
+}
+*/
 
 t_tablaDePaginas* buscarTablaSegun(unsigned pidActivo,unsigned *indice,unsigned *punteroClock)
 {
@@ -443,11 +432,10 @@ void algoritmoDeReemplazo(void* codigoPrograma,unsigned tamanioPrograma,unsigned
 	//Eleccion entre Algoritmos
 	if(!strcmp("CLOCK",infoConfig.algoritmo))
 		punteroClock = algoritmoclock(pidActivo,&indice);
-
 	/*
 	if(!strcmp("CLOCKMEJORADO",infoConfig.algoritmo))
-		punteroClock = algoritmoClockMejorado(pidActivo,&indice);
-*/
+		punteroClock = algoritmoClockMejorado(pidActivo);
+	*/
 
 	//Escribe en memoria la nueva pagina que mando el SWAP
 	escribirEnMemoria(codigoPrograma,tamanioPrograma,pagina,pidActivo,punteroClock,indice);
@@ -614,10 +602,12 @@ void enviarBytesDeUnaPagina(t_mensaje mensaje,int clienteUMC,unsigned pidActual)
 void enviarTamanioDePagina(int clienteUMC)
 {
 	t_mensaje mensaje;
+	unsigned parametros[1];
+	parametros[0] = infoMemoria.tamanioDeMarcos;
 	mensaje.head.codigo = RETURN_TAM_PAGINA;
 	mensaje.head.cantidad_parametros = 1;
 	mensaje.head.tam_extra = 0;
-	mensaje.parametros[0] = infoMemoria.tamanioDeMarcos;
+	mensaje.parametros = parametros;
 	mensaje.mensaje_extra = NULL;
 	empaquetarYEnviar(mensaje,clienteUMC);
 
@@ -626,17 +616,17 @@ void enviarTamanioDePagina(int clienteUMC)
 
 void accionSegunCabecera(int clienteUMC,unsigned pid)
 {
-	log_trace(logger,"Se creo un Hilo ");
+	log_trace(logger,"Se creo un Hilo");
 	unsigned pidActivo = pid;
 	int cabeceraDelMensaje;
 	t_mensaje mensaje;
 
 	while(1){
-		if(recibirMensaje(clienteUMC,&mensaje) <= 0)
+		if(recibirMensaje(clienteUMC,&mensaje) <= 0){
 			clienteDesconectado(clienteUMC);
-		desempaquetar_mensaje(&mensaje);
+		}
 		cabeceraDelMensaje = mensaje.head.codigo;
-
+		log_trace(logger,"--> %u", cabeceraDelMensaje);
 		switch(cabeceraDelMensaje){
 			case INIT_PROG: inicializarPrograma(mensaje,clienteUMC);
 				break;
@@ -661,7 +651,6 @@ void* gestionarSolicitudesDeOperacion(int clienteUMC)
 {
 	//Hago esto porque no se como pasarle varios parametros a un hilo
 	accionSegunCabecera(clienteUMC,0);
-	return NULL;
 }
 
 int recibirConexiones()
@@ -756,19 +745,26 @@ void gestionarConexiones()
 
 		for(fdBuscador=3; fdBuscador <= maximoFD; fdBuscador++) // explora los FDs que estan listos para leer
 		{
-			if( FD_ISSET(fdBuscador,&fdsParaLectura) ) { //entra una conexion, la acepta y la agrega al master
+			if( FD_ISSET(fdBuscador,&fdsParaLectura) )  //entra una conexion, o hay datos entrantes
+			{
 				if(fdBuscador == servidorUMC)
+				{
 					clienteUMC = aceptarConexion();
-				else{
 					FD_SET(clienteUMC, &master);
 					if(clienteUMC > maximoFD) //Actualzar el maximo fd
 						maximoFD = clienteUMC;
+					log_trace(logger,"ID Hilo: %i", clienteUMC);
+					log_trace(logger,"Se crea un hilo");
+					pthread_create(&cliente, NULL, gestionarSolicitudesDeOperacion, clienteUMC);
+				} 
+				else //Se recibieron datos de otro tipo
+				{
+					//Hacer lo que haga falta
 				}
 
-			}
-			else{
-				log_trace(logger,"Se crea un hilo");
-				pthread_create(&cliente,NULL,gestionarSolicitudesDeOperacion,clienteUMC);
+			} else {
+				
+
 			}
 		}
 	}

@@ -17,7 +17,7 @@
 #include "cpu.h"
 #include "parser.h" // parser/parser.h -> Modificado los typedef
 #include "analizador.h"
-#include "../messageCode/messageCode.h"
+#include "messageCode.h"
 
 int main(int argc, char** argv){
 
@@ -55,7 +55,10 @@ int main(int argc, char** argv){
 
 	while(1){
 
+
+		log_trace(logger, "===========================================================");
 		log_trace(logger, "Esperando PCB");
+		log_trace(logger, "===========================================================");
 
 		// Seteo estado en ejecucion
 		estado_ejecucion = 0;
@@ -90,6 +93,7 @@ int main(int argc, char** argv){
 			char *instruccion = obtenerSiguienteIntruccion();
 
 			log_trace(logger, "PID: %u; Quantum %u de %u -> %s", pcb_global.pid, i_quantum, quantum, instruccion);
+			log_trace(logger, "--> Instruccion: %s", instruccion);
 
 			// Actualizar PCB
 			pcb_global.pc++;
@@ -350,7 +354,8 @@ char *obtenerSiguienteIntruccion(){
 	recibirMensajeUMC(&mensaje);
 
 	if(mensaje.head.codigo != RETURN_DATA){
-		// ERROR
+		log_error(logger, "Se recibio un mensaje diferente a 'RETURN_DATA'");
+		abort();
 	}
 
 	char *instruccion = malloc(mensaje.head.tam_extra);
@@ -387,7 +392,7 @@ unsigned obtenerTamanoPaginasUMC(){
 	recibirMensajeUMC(&mensaje);
 
 	if(mensaje.head.codigo != RETURN_TAM_PAGINA){
-		log_error(logger, "No se recibio RETURN_TAM_PAGINA");
+		log_error(logger, "Se recibio un mensaje diferente a 'RETURN_TAM_PAGINA'");
 		abort();
 	}
 
@@ -428,7 +433,7 @@ void recibirQuantum(int *quantum, int *quantum_sleep){
 	recibirMensajeNucleo(&mensaje);
 
 	if(mensaje.head.codigo != QUANTUM){
-		log_error(logger, "No se recibio QUANTUM");
+		log_error(logger, "Se recibio un mensaje diferente a 'QUANTUM'");
 		abort();
 	}
 
@@ -456,7 +461,6 @@ void notificarCambioProceso(){
 
 	// Libero memoria de mensaje
 	freeMensaje(&mensaje);
-	log_trace(logger, "");
 }
 
 
@@ -712,7 +716,7 @@ int _is_variableX(t_variable *tmp) {
 }
 
 t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
-	log_trace(logger, "parser_definirVariable();");
+	log_trace(logger, "--> parser_definirVariable(%c);", identificador_variable);
 	t_indiceStack *aux_stack;
 	t_variable *aux_vars;
 	t_posicionDeMemoria posicionMemoria;
@@ -756,11 +760,12 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 	list_add(aux_stack->vars, vars_create(identificador_variable, posicionMemoria.numeroPagina, posicionMemoria.offset, posicionMemoria.size));
 
 	// Devuelvo posicion de la variable en el contexto actual
+	log_trace(logger, "----> Return: %c: (%u,%u,%u)", identificador_variable, posicionMemoria.numeroPagina, posicionMemoria.offset, posicionMemoria.size);
 	return posicionMemoria;
 }
 
 t_puntero parser_obtenerPosicionVariable(t_nombre_variable identificador_variable) {
-	log_trace(logger, "parser_obtenerPosicionVariable();");
+	log_trace(logger, "--> parser_obtenerPosicionVariable(%c);", identificador_variable);
 	nombreVariable_aBuscar = identificador_variable;
 
 	t_puntero puntero_variable;
@@ -772,13 +777,14 @@ t_puntero parser_obtenerPosicionVariable(t_nombre_variable identificador_variabl
 	aux_vars = list_find(aux_stack->vars, (void*) _is_variableX);
 
 	puntero_variable = aux_vars->posicionMemoria;
-
+	log_trace(logger, "----> Return: %c: (%u,%u,%u)", identificador_variable, puntero_variable.numeroPagina, puntero_variable.offset, puntero_variable.size);
 	return puntero_variable;
 }
 
 t_valor_variable parser_dereferenciar(t_puntero direccion_variable) {
-	log_trace(logger, "parser_dereferenciar();");
+	log_trace(logger, "--> parser_dereferenciar((%u,%u,%u));", direccion_variable.numeroPagina, direccion_variable.offset, direccion_variable.size);
 	// Variables
+	t_valor_variable contenido_variable;
 	t_mensaje mensaje;
 	unsigned parametros[3];
 	parametros[0] = direccion_variable.numeroPagina;	// Numero de Pagina
@@ -800,34 +806,37 @@ t_valor_variable parser_dereferenciar(t_puntero direccion_variable) {
 	recibirMensajeUMC(&mensaje);
 
 	if(mensaje.head.codigo != RETURN_DATA){
-		// ERROR
+		log_error(logger, "Se recibio un mensaje diferente a 'RETURN_DATA'");
+		abort();
 	}
 
 	if(mensaje.parametros[0] != 1){
 		estado_ejecucion = 3; // Fuera de segmento
+		freeMensaje(&mensaje);
+		return contenido_variable;
 	}
 
 	t_valor_variable *contenido_tmp = malloc(mensaje.head.tam_extra);
 	memcpy(contenido_tmp, mensaje.mensaje_extra, mensaje.head.tam_extra);
 
-	t_valor_variable contenido_variable = (*contenido_tmp);
+	contenido_variable = (*contenido_tmp);
 
 	// Libero memoria de mensaje
 	freeMensaje(&mensaje);
 	free(contenido_tmp);
-
+	log_trace(logger, "----> Return: %i", contenido_variable);
 	return contenido_variable;
 }
 
 void parser_asignar(t_puntero direccion_variable, t_valor_variable valor) {
-	log_trace(logger, "parser_asignar();");
+	log_trace(logger, "--> parser_asignar((%u,%u,%u),%i);", direccion_variable.numeroPagina, direccion_variable.offset, direccion_variable.size, valor);
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[4];
 	parametros[0] = direccion_variable.numeroPagina;	// Numero de Pagina
 	parametros[1] = direccion_variable.offset;			// Desplazamiento
 	parametros[2] = direccion_variable.size;			// Tamaño
-	parametros[3] = valor;				// Data
+	parametros[3] = valor;								// Data (MARCO_REVISAR) valor es int
 	mensaje.head.codigo = RECORD_DATA;
 	mensaje.head.cantidad_parametros = 4;
 	mensaje.head.tam_extra = 0;
@@ -844,7 +853,8 @@ void parser_asignar(t_puntero direccion_variable, t_valor_variable valor) {
 	recibirMensajeUMC(&mensaje);
 
 	if(mensaje.head.codigo != RETURN_RECORD_DATA){
-		// ERROR
+		log_error(logger, "Se recibio un mensaje diferente a 'RETURN_RECORD_DATA'");
+		abort();
 	}
 
 	if(mensaje.parametros[0] != 1){
@@ -856,7 +866,7 @@ void parser_asignar(t_puntero direccion_variable, t_valor_variable valor) {
 }
 
 t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable){
-	log_trace(logger, "parser_obtenerValorCompartida();");
+	log_trace(logger, "--> parser_obtenerValorCompartida(%s);", variable);
 
 	// Variables
 	t_mensaje mensaje;
@@ -875,16 +885,22 @@ t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable){
 	// Recibo mensaje
 	recibirMensajeNucleo(&mensaje);
 
+	//
+	if(mensaje.head.codigo != RETURN_OBTENER_COMPARTIDA){
+		log_error(logger, "Se recibio un mensaje diferente a 'RETURN_OBTENER_COMPARTIDA'");
+		abort();
+	}
+
 	t_valor_variable valor = mensaje.parametros[0];
 
 	// Libero memoria de mensaje
 	freeMensaje(&mensaje);
-
+	log_trace(logger, "----> return: %i", valor);
 	return valor;
 }
 
 t_valor_variable parser_asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor){
-	log_trace(logger, "parser_asignarValorCompartida();");
+	log_trace(logger, "--> parser_asignarValorCompartida(%s, %i);", variable, valor);
 
 	// Variables
 	t_mensaje mensaje;
@@ -901,18 +917,19 @@ t_valor_variable parser_asignarValorCompartida(t_nombre_compartida variable, t_v
 
 	// Libero memoria de mensaje
 	freeMensaje(&mensaje);
-
+	log_trace(logger, "----> return: %i", valor);
 	return valor;
 }
 
 void parser_irAlLabel(t_nombre_etiqueta etiqueta){
-	log_trace(logger, "parser_irAlLabel();");
+	log_trace(logger, "--> parser_irAlLabel(%s);", etiqueta);
 	unsigned intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
 	pcb_global.pc = intruction;
+	log_trace(logger, "----> Return: %u", pcb_global.pc);
 }
 
 void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta){
-	log_trace(logger, "parser_llamarSinRetorno();");
+	log_trace(logger, "--> parser_llamarSinRetorno(%s);", etiqueta);
 	// Busco PC de la primera instruccion de la funcion
 	unsigned pc_first_intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
 
@@ -922,10 +939,12 @@ void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta){
 
 	// Cambio el PC actual
 	pcb_global.pc = pc_first_intruction;
+
+	log_trace(logger, "----> Return: %u", pcb_global.pc);
 }
 
 void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar){
-	log_trace(logger, "parser_llamarConRetorno();");
+	log_trace(logger, "--> parser_llamarConRetorno(%s,(%u,%u,%u));", etiqueta, donde_retornar.numeroPagina, donde_retornar.offset, donde_retornar.size);
 	// Busco PC de la primera instruccion de la funcion
 	unsigned pc_first_intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
 
@@ -935,11 +954,12 @@ void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retorna
 
 	// Cambio el PC actual
 	pcb_global.pc = pc_first_intruction;
-
+	log_trace(logger, "----> Return: %u", pcb_global.pc);
 }
 
 void parser_finalizar(){
-	log_trace(logger, "parser_finalizar();");
+	log_trace(logger, "--> parser_finalizar();");
+	log_trace(logger, "----> SP: %u", pcb_global.sp);
 
 	t_indiceStack *aux_stack;
 
@@ -968,7 +988,7 @@ void parser_finalizar(){
 }
 
 void parser_retornar(t_valor_variable retorno){
-	log_trace(logger, "parser_retornar();");
+	log_trace(logger, "--> parser_retornar(%i);", retorno);
 
 	t_indiceStack *aux_stack;
 
@@ -994,14 +1014,14 @@ void parser_retornar(t_valor_variable retorno){
 }
 
 void parser_imprimir(t_valor_variable valor_mostrar){
-	log_trace(logger, "parser_imprimir();");
+	log_trace(logger, "--> parser_imprimir(%i);", valor_mostrar);
 
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[2];
 	parametros[0] = pcb_global.pid;	// PID
 	parametros[1] = valor_mostrar;	// Valor a imprimir
-	mensaje.head.codigo = IMPRIMIR;
+	mensaje.head.codigo = IMPRIMIR_NUM;
 	mensaje.head.cantidad_parametros = 2;
 	mensaje.head.tam_extra = 0;
 	mensaje.parametros = parametros;
@@ -1015,7 +1035,7 @@ void parser_imprimir(t_valor_variable valor_mostrar){
 }
 
 void parser_imprimirTexto(char* texto){
-	log_trace(logger, "parser_imprimirTexto();");
+	log_trace(logger, "--> parser_imprimirTexto(%s);", texto);
 
 	// Variables
 	t_mensaje mensaje;
@@ -1035,7 +1055,7 @@ void parser_imprimirTexto(char* texto){
 }
 
 void parser_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
-	log_trace(logger, "parser_entradaSalida();");
+	log_trace(logger, "--> parser_entradaSalida(%s, %i);", dispositivo, tiempo);
 
 	// Variables
 	t_mensaje mensaje;
@@ -1056,7 +1076,7 @@ void parser_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 	estado_ejecucion = 3;
 }
 void parser_wait(t_nombre_semaforo identificador_semaforo){
-	log_trace(logger, "parser_wait();");
+	log_trace(logger, "--> parser_wait(%s);", identificador_semaforo);
 
 	// Variables
 	t_mensaje mensaje;
@@ -1075,7 +1095,8 @@ void parser_wait(t_nombre_semaforo identificador_semaforo){
 	recibirMensajeNucleo(&mensaje);
 
 	if(mensaje.head.codigo != CPU_WAIT){
-		// ERROR
+		log_error(logger, "Se recibio un mensaje diferente a 'CPU_WAIT'");
+		abort();
 	}
 
 	if(mensaje.parametros[0] == 1){
@@ -1092,7 +1113,7 @@ void parser_wait(t_nombre_semaforo identificador_semaforo){
 }
 
 void parser_signal(t_nombre_semaforo identificador_semaforo){
-	log_trace(logger, "parser_signal();");
+	log_trace(logger, "parser_signal(%s);", identificador_semaforo);
 
 	// Variables
 	t_mensaje mensaje;
