@@ -563,6 +563,7 @@ void traducirPaginaAMarco(unsigned pagina,int *marco,unsigned pidActual)
 	if(*marco != -1)
 	{
 		log_trace(logger,"Pagina en TLB, marco correspondiente: %d",*marco);
+		pthread_mutex_unlock(&mutexTablaPaginas);
 		return;
 	}
 
