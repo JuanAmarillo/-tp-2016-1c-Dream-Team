@@ -69,13 +69,18 @@ void conectar_a_umc(void)
 
 int solicitarTamPaginas(void)
 {
-	t_mensajeHead head = {GET_TAM_PAGINA, 0, 0};
+	t_mensajeHead head = {GET_TAM_PAGINA, 1, 1};
 	t_mensaje mensaje;
-	mensaje.head = head;
-	mensaje.parametros = NULL;
-	mensaje.mensaje_extra = NULL;
 
-	return enviarMensaje(fd_umc, mensaje);
+	mensaje.head = head;printf("Hasta aca llego papurri\n");
+	mensaje.parametros = malloc(4);
+	mensaje.mensaje_extra = malloc(1);
+
+	int x = enviarMensaje(fd_umc, mensaje);
+
+	free(mensaje.parametros);
+	free(mensaje.mensaje_extra);
+	return x;
 }
 
 unsigned int mensaje_to_tamPag(t_mensaje *mensaje)
@@ -88,7 +93,7 @@ unsigned int mensaje_to_tamPag(t_mensaje *mensaje)
 void recibirTamPaginas(void)
 {
 	int x;
-	if( (x = solicitarTamPaginas()) == -1)
+	if( (x = solicitarTamPaginas()) <= 0)
 	{
 		perror("Error al enviar solicitud de tamaño de paginas");
 		abort();
