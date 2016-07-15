@@ -9,15 +9,17 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
-//#include <parser/parser.h>
-#include <parser/sintax.h>
 #include <signal.h>
 #include "protocolo_mensaje.h"
 #include "pcb.h"
 #include "cpu.h"
-#include "parser.h" // parser/parser.h -> Modificado los typedef
+#include <parser/parser.h>
+#include <parser/metadata_program.h>
 #include "analizador.h"
 #include "messageCode.h"
+#include <math.h>
+
+static const char* DEFINICION_VARIABLES = "variables a, b, c";
 
 int main(int argc, char** argv){
 
@@ -43,6 +45,8 @@ int main(int argc, char** argv){
 		abort();
 	}
 
+	log_trace(logger, "UMC Conectada");
+
 	// Me conecto a el Nucleo
 	socketNucleo = conectarseNucleo();
 	if(socketNucleo == -1) {
@@ -50,15 +54,17 @@ int main(int argc, char** argv){
 		abort();
 	}
 
+	log_trace(logger, "Nucleo Conectado");
+
 	// Obtener tamaño de paginas UMC
 	tamano_pagina_umc = obtenerTamanoPaginasUMC();
 
 	while(1){
 
 
-		log_trace(logger, "===========================================================");
+		log_trace(logger, "================================");
 		log_trace(logger, "Esperando PCB");
-		log_trace(logger, "===========================================================");
+		log_trace(logger, "================================");
 
 		// Seteo estado en ejecucion
 		estado_ejecucion = 0;
@@ -93,7 +99,6 @@ int main(int argc, char** argv){
 			char *instruccion = obtenerSiguienteIntruccion();
 
 			log_trace(logger, "PID: %u; Quantum %u de %u -> %s", pcb_global.pid, i_quantum, quantum, instruccion);
-			log_trace(logger, "--> Instruccion: %s", instruccion);
 
 			// Actualizar PCB
 			pcb_global.pc++;
@@ -102,7 +107,7 @@ int main(int argc, char** argv){
 			analizadorLinea(instruccion, &functions, &kernel_functions);
 
 			// Libero memoria de la instruccion
-			free(instruccion);
+			//free(instruccion);
 
 			// Sleep
 			usleep(quantum_sleep);
@@ -330,14 +335,15 @@ void signal_sigusr1(int signal){
  * Return: Instruccion
  */
 char *obtenerSiguienteIntruccion(){
+	log_trace(logger, "obtenerSiguienteInstruccion();");
 	t_mensaje mensaje;
 	unsigned parametros[3];
-	//
-	unsigned num_pagina = (pcb_global.indiceCodigo[0].offset_inicio)/(tamano_pagina_umc);
+
+	unsigned num_pagina = (pcb_global.indiceCodigo[pcb_global.pc].offset_inicio)/(tamano_pagina_umc);
 	//
 	parametros[0] = num_pagina; // Numero de Pagina
-	parametros[1] = pcb_global.indiceCodigo[0].offset_inicio; // Desplazamiento
-	parametros[2] = pcb_global.indiceCodigo[0].offset_fin; // Cantidad de bytes a leer
+	parametros[1] = pcb_global.indiceCodigo[pcb_global.pc].offset_inicio; // Desplazamiento
+	parametros[2] = pcb_global.indiceCodigo[pcb_global.pc].offset_fin; // Cantidad de bytes a leer
 	mensaje.head.codigo = GET_DATA;
 	mensaje.head.cantidad_parametros = 3;
 	mensaje.head.tam_extra = 0;
@@ -347,9 +353,6 @@ char *obtenerSiguienteIntruccion(){
 	// Envio al UMC la peticion
 	enviarMensajeUMC(mensaje);
 
-	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
-
 	// Recibo mensaje
 	recibirMensajeUMC(&mensaje);
 
@@ -358,13 +361,7 @@ char *obtenerSiguienteIntruccion(){
 		abort();
 	}
 
-	char *instruccion = malloc(mensaje.head.tam_extra);
-	memcpy(instruccion, mensaje.mensaje_extra, mensaje.head.tam_extra);
-
-	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
-
-	return instruccion;
+	return mensaje.mensaje_extra;
 }
 
 /*
@@ -384,9 +381,6 @@ unsigned obtenerTamanoPaginasUMC(){
 
 	// Envio al UMC la peticion
 	enviarMensajeUMC(mensaje);
-
-	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
 
 	// Recibo mensaje
 	recibirMensajeUMC(&mensaje);
@@ -458,9 +452,6 @@ void notificarCambioProceso(){
 
 	// Envio al UMC la peticion
 	enviarMensajeUMC(mensaje);
-
-	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
 }
 
 
@@ -715,6 +706,18 @@ int _is_variableX(t_variable *tmp) {
 	return tmp->identificador == nombreVariable_aBuscar;
 }
 
+t_puntero posToPuntero(t_posicionDeMemoria posicionMemoria){
+	return tamano_pagina_umc * posicionMemoria.numeroPagina + posicionMemoria.offset;
+}
+
+t_posicionDeMemoria punteroToPos(t_puntero puntero){
+	t_posicionDeMemoria posicionMemoria;
+	posicionMemoria.numeroPagina = puntero/tamano_pagina_umc;
+	posicionMemoria.offset = puntero - tamano_pagina_umc * posicionMemoria.numeroPagina;
+	posicionMemoria.size = sizeof(t_puntero);
+	return posicionMemoria;
+}
+
 t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 	log_trace(logger, "--> parser_definirVariable(%c);", identificador_variable);
 	t_indiceStack *aux_stack;
@@ -722,7 +725,11 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 	t_posicionDeMemoria posicionMemoria;
 	int cantidad_vars;
 	unsigned sp_tmp = pcb_global.sp;
+	int cantidad_stack = list_size(pcb_global.indiceStack);
 
+	if(cantidad_stack == 0){
+		list_add(pcb_global.indiceStack, stack_create(0, 0, 0, 0));
+	}
 
 	// Obtengo la ultima direccion de memoria que se encuentra guardada
 	while(1){
@@ -750,7 +757,11 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 		posicionMemoria.offset = 0;
 	} else {
 		posicionMemoria.numeroPagina = aux_vars->posicionMemoria.numeroPagina;
-		posicionMemoria.offset = aux_vars->posicionMemoria.offset + 4;
+		if(cantidad_vars == 0){
+			posicionMemoria.offset = 0;
+		} else {
+			posicionMemoria.offset = aux_vars->posicionMemoria.offset + 4;
+		}
 	}
 
 	posicionMemoria.size = 4;
@@ -761,14 +772,15 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 
 	// Devuelvo posicion de la variable en el contexto actual
 	log_trace(logger, "----> Return: %c: (%u,%u,%u)", identificador_variable, posicionMemoria.numeroPagina, posicionMemoria.offset, posicionMemoria.size);
-	return posicionMemoria;
+
+	return posToPuntero(posicionMemoria);
 }
 
 t_puntero parser_obtenerPosicionVariable(t_nombre_variable identificador_variable) {
 	log_trace(logger, "--> parser_obtenerPosicionVariable(%c);", identificador_variable);
 	nombreVariable_aBuscar = identificador_variable;
 
-	t_puntero puntero_variable;
+	t_posicionDeMemoria puntero_variable;
 	t_indiceStack *aux_stack;
 	t_variable *aux_vars;
 
@@ -778,10 +790,12 @@ t_puntero parser_obtenerPosicionVariable(t_nombre_variable identificador_variabl
 
 	puntero_variable = aux_vars->posicionMemoria;
 	log_trace(logger, "----> Return: %c: (%u,%u,%u)", identificador_variable, puntero_variable.numeroPagina, puntero_variable.offset, puntero_variable.size);
-	return puntero_variable;
+
+	return posToPuntero(puntero_variable);
 }
 
-t_valor_variable parser_dereferenciar(t_puntero direccion_variable) {
+t_valor_variable parser_dereferenciar(t_puntero direccion_variable_puntero) {
+	t_posicionDeMemoria direccion_variable = punteroToPos(direccion_variable_puntero);
 	log_trace(logger, "--> parser_dereferenciar((%u,%u,%u));", direccion_variable.numeroPagina, direccion_variable.offset, direccion_variable.size);
 	// Variables
 	t_valor_variable contenido_variable;
@@ -798,9 +812,6 @@ t_valor_variable parser_dereferenciar(t_puntero direccion_variable) {
 
 	// Envio al UMC la peticion
 	enviarMensajeUMC(mensaje);
-
-	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
 
 	// Recibo mensaje
 	recibirMensajeUMC(&mensaje);
@@ -828,7 +839,8 @@ t_valor_variable parser_dereferenciar(t_puntero direccion_variable) {
 	return contenido_variable;
 }
 
-void parser_asignar(t_puntero direccion_variable, t_valor_variable valor) {
+void parser_asignar(t_puntero direccion_variable_puntero, t_valor_variable valor) {
+	t_posicionDeMemoria direccion_variable = punteroToPos(direccion_variable_puntero);
 	log_trace(logger, "--> parser_asignar((%u,%u,%u),%i);", direccion_variable.numeroPagina, direccion_variable.offset, direccion_variable.size, valor);
 	// Variables
 	t_mensaje mensaje;
@@ -845,9 +857,6 @@ void parser_asignar(t_puntero direccion_variable, t_valor_variable valor) {
 
 	// Envio al UMC la peticion
 	enviarMensajeUMC(mensaje);
-
-	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
 
 	// Recibo mensaje
 	recibirMensajeUMC(&mensaje);
@@ -943,7 +952,8 @@ void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta){
 	log_trace(logger, "----> Return: %u", pcb_global.pc);
 }
 
-void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar){
+void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar_puntero){
+	t_posicionDeMemoria donde_retornar = punteroToPos(donde_retornar_puntero);
 	log_trace(logger, "--> parser_llamarConRetorno(%s,(%u,%u,%u));", etiqueta, donde_retornar.numeroPagina, donde_retornar.offset, donde_retornar.size);
 	// Busco PC de la primera instruccion de la funcion
 	unsigned pc_first_intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
@@ -998,8 +1008,11 @@ void parser_retornar(t_valor_variable retorno){
 	// Actualizo PC
 	pcb_global.pc = aux_stack->retPos;
 
+	//
+	t_puntero aux_puntero = posToPuntero(aux_stack->retVar);
+
 	// Asigno lo devuelto en la varaible correspondiente
-	parser_asignar(aux_stack->retVar, retorno);
+	parser_asignar(aux_puntero, retorno);
 
 	// Borro contexto
 	aux_stack = list_remove(pcb_global.indiceStack, pcb_global.sp);
