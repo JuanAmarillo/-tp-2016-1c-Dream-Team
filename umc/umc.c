@@ -85,13 +85,7 @@ void pedirReservaDeEspacio(unsigned pid,unsigned paginasSolicitadas) {
 
 void empaquetarYEnviar(t_mensaje mensaje,int clienteUMC)
 {
-	void *mensaje_empaquetado = empaquetar_mensaje(mensaje);
-	unsigned tamanio_mensaje = sizeof(unsigned)*3 + sizeof(unsigned) * mensaje.head.cantidad_parametros + mensaje.head.tam_extra;
-
-	send(clienteUMC, mensaje_empaquetado, tamanio_mensaje, MSG_NOSIGNAL);
-
-	freeMensaje(mensaje_empaquetado);
-
+	enviarMensaje(clienteUMC, mensaje);
 	return;
 }
 
@@ -607,10 +601,12 @@ void enviarBytesDeUnaPagina(t_mensaje mensaje,int clienteUMC,unsigned pidActual)
 void enviarTamanioDePagina(int clienteUMC)
 {
 	t_mensaje mensaje;
+	unsigned parametros[1];
+	parametros[0] = infoMemoria.tamanioDeMarcos;
 	mensaje.head.codigo = RETURN_TAM_PAGINA;
 	mensaje.head.cantidad_parametros = 1;
 	mensaje.head.tam_extra = 0;
-	mensaje.parametros[0] = infoMemoria.tamanioDeMarcos;
+	mensaje.parametros = parametros;
 	mensaje.mensaje_extra = NULL;
 	empaquetarYEnviar(mensaje,clienteUMC);
 
@@ -627,7 +623,7 @@ void accionSegunCabecera(int clienteUMC,unsigned pid)
 	while(1){
 		if(recibirMensaje(clienteUMC,&mensaje) < 0) clienteDesconectado(clienteUMC);
 		cabeceraDelMensaje = mensaje.head.codigo;
-
+		log_trace(logger,"--> %u", cabeceraDelMensaje);
 		switch(cabeceraDelMensaje){
 			case INIT_PROG: inicializarPrograma(mensaje,clienteUMC);
 				break;
