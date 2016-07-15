@@ -216,8 +216,8 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 	log_trace(logger,"Entro a la funcion incializarPrograma");
 	unsigned pid = mensaje.parametros[0];
 	unsigned paginasSolicitadas = mensaje.parametros[1];
-	char*codigoPrograma = malloc(paginasSolicitadas*infoMemoria.tamanioDeMarcos);
-	codigoPrograma = mensaje.mensaje_extra;
+	char* codigoPrograma = malloc(paginasSolicitadas*infoMemoria.tamanioDeMarcos);
+	memcpy(codigoPrograma, mensaje.mensaje_extra, mensaje.head.tam_extra);
 	unsigned tamanioCodigo=mensaje.head.tam_extra;
 
 	crearTablaDePaginas(pid,paginasSolicitadas);
@@ -469,6 +469,7 @@ void algoritmoDeReemplazo(void* codigoPrograma,unsigned tamanioPrograma,unsigned
 }
 
 void pedirPagAlSWAP(unsigned pagina,unsigned pidActual) {
+	log_trace(logger,"pedirPagAlSWAP()");
 	//Pedimos pagina al SWAP
 	t_mensaje aEnviar;
 	aEnviar.head.codigo = BRING_PAGE_TO_UMC;
@@ -480,6 +481,7 @@ void pedirPagAlSWAP(unsigned pagina,unsigned pidActual) {
 	aEnviar.mensaje_extra = NULL;
 	aEnviar.head.tam_extra = 0;
 	enviarMensaje(clienteSWAP, aEnviar);
+	log_trace(logger,"fin -> pedirPagAlSWAP()");
 }
 
 void traerPaginaAMemoria(unsigned pagina,unsigned pidActual)
@@ -492,8 +494,9 @@ void traerPaginaAMemoria(unsigned pagina,unsigned pidActual)
 
 	//Recibimos pagina del SWAP
 	recibirMensaje(clienteSWAP, &aRecibir);
+	log_trace(logger,"Codigo recibido: %u", aRecibir.head.codigo);
 	algoritmoDeReemplazo(aRecibir.mensaje_extra,aRecibir.head.tam_extra,pagina,pidActual);
-
+	log_trace(logger,"pase algoritmoDeReemplazo");
 
 	return;
 }
@@ -524,7 +527,7 @@ int buscarEnTLB(unsigned paginaBuscada,unsigned pidActual)
 	int indice;
 	int marco;
 	t_entradaTLB *entradaTLB;
-	for(indice=0;indice < infoMemoria.entradasTLB;indice++)
+	for(indice=0;indice < list_size(TLB);indice++)
 	{
 		entradaTLB = list_get(TLB,indice);
 		if(entradaTLB[indice].pid == pidActual && entradaTLB[indice].pagina == paginaBuscada)
@@ -571,7 +574,7 @@ void traducirPaginaAMarco(unsigned pagina,int *marco,unsigned pidActual)
 				//Esta en memoria se copia el marco
 				log_trace(logger,"La pagina se encuentra en memoria");
 				*marco = tablaDePaginas->entradaTablaPaginas[pagina].marco;
-				log_trace(logger,"El marco correspondiente: %d",*marco);
+				log_trace(logger,"El marco correspondiente: %d", *marco);
 				pthread_mutex_unlock(&mutexTablaPaginas);
 				log_trace(logger,"Se actualiza la TLB");
 				actualizarTLB(tablaDePaginas->entradaTablaPaginas[pagina],pagina,pidActual);
@@ -582,7 +585,7 @@ void traducirPaginaAMarco(unsigned pagina,int *marco,unsigned pidActual)
 				log_trace(logger,"La pagina no se encuentra en memoria, se procede a traer del SWAP");
 				traerPaginaAMemoria(pagina,pidActual);
 				*marco = tablaDePaginas->entradaTablaPaginas[pagina].marco;
-				log_trace(logger,"El marco correspondiente: %d",marco);
+				log_trace(logger,"El marco correspondiente: %d", *marco);
 				pthread_mutex_unlock(&mutexTablaPaginas);
 				actualizarTLB(tablaDePaginas->entradaTablaPaginas[pagina],pagina,pidActual);
 			}
@@ -634,7 +637,7 @@ void enviarBytesDeUnaPagina(t_mensaje mensaje,int clienteUMC,unsigned pidActual)
 	log_trace(logger,"Se envia la instruccion al CPU");
 	enviarCodigoAlCPU(codigoAEnviar,tamanio,clienteUMC);
 	free(codigoAEnviar);
-
+	log_trace(logger,"Fin Enviar instruccion al CPU");
 	return;
 }
 
