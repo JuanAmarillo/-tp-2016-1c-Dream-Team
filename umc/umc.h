@@ -103,7 +103,7 @@ void enviarNoHaySuficienteEspacio(int clienteUMC);
 void enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigned pid,unsigned tamanioCodigo,int clienteUMC);
 void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas);
 void borrarEntradasTLBSegun(unsigned pidActivo);
-unsigned cambioProcesoActivo(unsigned pid,int clienteUMC, unsigned pidActivo);
+unsigned cambioProcesoActivo(unsigned pid,unsigned pidActivo);
 void inicializarPrograma(t_mensaje mensaje,int clienteUMC);
 int eliminarDeMemoria(unsigned pid);
 void finPrograma(t_mensaje finalizarProg);
