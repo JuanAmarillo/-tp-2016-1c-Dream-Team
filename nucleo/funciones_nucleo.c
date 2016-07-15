@@ -653,31 +653,14 @@ void administrarConexiones(void)
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
 
-								//
 								int laConsola = Pid_to_Consola(pcb->pid);
-								//
-
-
-								/*
-																t_mensajeHead hh = {EXIT_PROGRAMA, 1, 1};
-																t_mensaje mm;
-																mm.head = hh;
-																mm.parametros = malloc(4);
-																mm.mensaje_extra = malloc(1);
-																enviarMensaje(laConsola, mm);
-																free(mm.parametros);
-																free(mm.mensaje_extra);
-
-																*/
 
 								avisar_UMC_FIN_PROG(pcb->pid);
 								FD_CLR(pcb->pid, &conjunto_procesos_ejecutando);
-							//	desasociarPidConsola(pcb->pid);
-							//	mostrarParesPorLog();
+
 								terminar(pcb);
 
 								avisar_Consola_Fin_Programa(laConsola);
-
 
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
 								escribirLog("Hasta aca llego papurri taca taca\n");
