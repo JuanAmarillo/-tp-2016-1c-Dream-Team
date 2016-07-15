@@ -204,12 +204,26 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 	enviarCodigoAlSwap(paginasSolicitadas,codigoPrograma,pid,tamanioCodigo,clienteUMC);
 	recibirMensaje(clienteSWAP,&espacioSuficiente);
 
-	if(espacioSuficiente.head == ENOUGH_SPACE)
-		enviarMensaje(clienteUMC,ALMACENAR_OK);
+	if(espacioSuficiente.head.codigo == ENOUGH_SPACE)
+	{
+		espacioSuficiente.parametros = NULL;
+		espacioSuficiente.mensaje_extra = NULL;
+		espacioSuficiente.head.cantidad_parametros = 0;
+		espacioSuficiente.head.codigo = ALMACENAR_OK;
+		espacioSuficiente.head.tam_extra = 0;
+		enviarMensaje(clienteUMC,espacioSuficiente);
+	}
 	else
-		enviarMensaje(clienteUMC,ALMACENAR_FAILED);
+	{
+		espacioSuficiente.parametros = NULL;
+		espacioSuficiente.mensaje_extra = NULL;
+		espacioSuficiente.head.cantidad_parametros = 0;
+		espacioSuficiente.head.codigo = ALMACENAR_FAILED;
+		espacioSuficiente.head.tam_extra = 0;
+		enviarMensaje(clienteUMC,espacioSuficiente);
+	}
  	free(codigoPrograma);
-
+ 	free(&mensaje);
 	return;
 
 }
