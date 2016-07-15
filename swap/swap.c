@@ -19,7 +19,8 @@
 int main(){
 	initialConf();
 	socketConf();
-	while (funcionamientoSWAP()!=-1);
+	while (funcionamientoSWAP()!=0);
+
 	accionesDeFinalizacion();
 	return 0;
 }
@@ -47,7 +48,7 @@ void limpiarMensaje(){
 int funcionamientoSWAP() {
 		int a = recibirMensaje(socketCliente, &received);
 		log_trace(logger,"La cabecera recibida es %d", received.head.codigo);
-		if(a!=-1){
+		if(a!=0){
 			switch (received.head.codigo) {
 				case RESERVE_SPACE:
 					reservarEspacio();
