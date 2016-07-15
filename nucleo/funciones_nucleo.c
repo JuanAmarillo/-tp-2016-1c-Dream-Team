@@ -67,6 +67,15 @@ void conectar_a_umc(void)
 	}
 }
 
+int solicitarTamPaginas(void)
+{
+	t_mensajeHead head = {GET_TAM_PAGINA, 1, 0};
+	t_mensaje mensaje;
+	mensaje.head = head;
+
+	return enviarMensaje(fd_umc, mensaje);
+}
+
 unsigned int mensaje_to_tamPag(t_mensaje *mensaje)
 {
 	unsigned int tam;
@@ -76,6 +85,11 @@ unsigned int mensaje_to_tamPag(t_mensaje *mensaje)
 
 void recibirTamPaginas(void)
 {
+	if(solicitarTamPaginas() == -1)
+	{
+		perror("Error al enviar solicitud de tamaño de paginas");
+		abort();
+	}
 
 	int tamMsg;
 	t_mensaje *mensaje = malloc(sizeof(t_mensaje));
@@ -329,7 +343,7 @@ void imprimir(int imp, int consola)
 	}
 }
 
-void imprimirTexto(char *imp, int consola)
+void imprimirTexto(const char *imp, int consola)
 {
 	t_mensajeHead head = {IMPRIMIR_TEXTO_PROGRAMA, 1, 0};
 	t_mensaje mensaje;
@@ -341,8 +355,14 @@ void imprimirTexto(char *imp, int consola)
 		perror("Error al imprimir en consola\n");
 		abort();
 	}
+}
 
-	free(imp);
+void avisar_Consola_Fin_Programa(int consola)
+{
+	t_mensajeHead head = {EXIT_PROGRAMA, 1, 0};
+	t_mensaje mensaje;
+	mensaje.head = head;
+	enviarMensaje(consola, mensaje);
 }
 
 void abrirPuertos(void)
@@ -570,6 +590,7 @@ void administrarConexiones(void)
 								FD_CLR(fd_explorer, &conj_cpu);
 								close(fd_explorer);
 								escribirLog("Error de recepción en una cpu (fd[%d])\n", fd_explorer);
+								continue;
 							}
 							if(nbytes == 0)
 							{
@@ -598,17 +619,7 @@ void administrarConexiones(void)
 								actualizarMaster();
 								//Poner a la cpu como libre
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
-							}
-
-							if(mensajeCPU.head.codigo == STRUCT_PCB_IO)//Pidio I/O, Bloquear
-							{
-								t_PCB *pcb = malloc(sizeof(t_PCB));
-								*pcb = mensaje_to_pcb(mensajeCPU);
-
-								FD_CLR(pcb->pid, &conjunto_procesos_ejecutando);
-								bloquear(pcb);
-								actualizarMaster();
-								FD_SET(fd_explorer, &conjunto_cpus_libres);
+								continue;
 							}
 
 							if(mensajeCPU.head.codigo == STRUCT_PCB_FIN)//Termino el programa
@@ -620,8 +631,10 @@ void administrarConexiones(void)
 								desasociarPidConsola(pcb->pid);
 								mostrarParesPorLog();
 								terminar(pcb);
+								avisar_Consola_Fin_Programa(Pid_to_Consola(pcb->pid));
 								actualizarMaster();
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
+								continue;
 							}
 
 							if(mensajeCPU.head.codigo == STRUCT_PCB_FIN_ERROR)//Tuvo un error: Abortar
@@ -629,10 +642,12 @@ void administrarConexiones(void)
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
 								avisar_UMC_FIN_PROG(pcb->pid);
+								imprimirTexto("Programa Abortado", Pid_to_Consola(pcb->pid));
+								avisar_Consola_Fin_Programa(Pid_to_Consola(pcb->pid));
 								abortarProceso(pcb->pid);
-
 								actualizarMaster();
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
+								continue;
 							}
 
 							if(mensajeCPU.head.codigo == IMPRIMIR_NUM)
@@ -640,13 +655,79 @@ void administrarConexiones(void)
 								int pid = mensajeCPU.parametros[0];
 								int imp = mensajeCPU.parametros[1];
 								imprimir(imp, Pid_to_Consola(pid));
+								continue;
 							}
-							if(mensajeCPU.head.codigo == IMPRIMIR_NUM)
+							if(mensajeCPU.head.codigo == IMPRIMIR_TEXTO)
 							{
 								int pid = mensajeCPU.parametros[0];
 								char* imp = strdup(mensajeCPU.mensaje_extra);
 								imprimirTexto(imp, Pid_to_Consola(pid));
 								free(imp);
+								continue;
+							}
+
+							/**********************************/
+							/*A partir de acá son System Calls*/
+							/**********************************/
+
+
+
+							if(mensajeCPU.head.codigo == OBTENER_COMPARTIDA)
+							{
+								continue;
+							}
+
+							if(mensajeCPU.head.codigo == ASIGNAR_COMPARTIDA)
+							{
+								continue;
+							}
+
+							if(mensajeCPU.head.codigo == ENTRADA_SALIDA)//Pidio I/O, Bloquear
+							{
+								//Sacarle los datos y luego volver a recibir mensaje
+								int pid = mensajeCPU.parametros[0];(void) pid;
+								int tiempo = mensajeCPU.parametros[1];(void)tiempo;
+								char* nombreDispositivo = strdup(mensajeCPU.mensaje_extra);(void)nombreDispositivo;
+
+								nbytes = recibirMensaje(fd_explorer, &mensajeCPU);
+								if(nbytes <= 0)
+								{
+									perror("Error al recibir PCB que solicitó I/O");
+									abort();
+								}
+
+								if(mensajeCPU.head.codigo == STRUCT_PCB_IO)//Verificar que sea un PCB
+								{
+									t_PCB *pcb = malloc(sizeof(t_PCB));
+									*pcb = mensaje_to_pcb(mensajeCPU);
+									FD_CLR(pcb->pid, &conjunto_procesos_ejecutando);
+									bloquear(pcb);
+									actualizarMaster();
+									FD_SET(fd_explorer, &conjunto_cpus_libres);
+									continue;
+								}
+								else
+								{
+									perror("Luego de una solicitud de I/O, no se recibio un PCB (Revisar codigos de header)");
+									abort();
+								}
+
+								continue;
+							}
+
+							if(mensajeCPU.head.codigo == WAIT)
+							{
+								if(mensajeCPU.head.codigo == STRUCT_PCB_WAIT)
+								{
+									continue;
+								}
+
+								continue;
+							}
+
+							if(mensajeCPU.head.codigo == SIGNAL)
+							{
+								continue;
 							}
 
 						}
