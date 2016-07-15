@@ -31,7 +31,9 @@ int main(int argc, char** argv) {
 
 	// Abre el archivo en modo lectura
 	FILE * file;
+	puts("1");
 	file = fopen( argv[1] , "r");
+
 
 	// Verifica si se puede abrir
 	if (file==NULL){
@@ -53,7 +55,7 @@ int main(int argc, char** argv) {
 
 	// Leer archivo config.conf
 	leerArchivoConfig();
-
+	puts("1");
 	printf("Codigo AnsiSOP:\n%s\n\n", codigo);
 
 	//inicializar estructura de socket con los datos del nucleo
@@ -91,7 +93,7 @@ int main(int argc, char** argv) {
 			case IMPRIMIR_TEXTO_PROGRAMA:
 				printf("Imprimir texto: %s \n", mensaje_recibido.mensaje_extra);
 				break;
-			case FIN_PROGRAMA:
+			case EXIT_PROGRAMA:
 				printf("Finalizo el programa. \n");
 				return 0;
 			case ERROR_PROGRAMA:
@@ -111,7 +113,7 @@ int main(int argc, char** argv) {
 
 void leerArchivoConfig() {
 
-	t_config *config = config_create("config.conf");
+	t_config *config = config_create("../config.conf");
 
 	if (config == NULL) {
 		free(config);
