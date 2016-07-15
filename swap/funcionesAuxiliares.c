@@ -77,6 +77,7 @@ void negarEjecucion(){
 
 void permitirEjecucion(){
 	unsigned a = ENOUGH_SPACE;
+	log_trace(logger, "Se le permite el almacenamiento");
 	send(socketCliente,(void*) &a,4,0);
 }
 
