@@ -155,6 +155,9 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 		tablaPaginas->entradaTablaPaginas[pagina].estaEnMemoria = 0;
 		tablaPaginas->entradaTablaPaginas[pagina].fueModificado = 0;
 	}
+	log_trace(logger,"\n  Se creo una tabla de Pagina\n:");
+	log_trace(logger,"- PID : %d\n",tablaPaginas->pid);
+	log_trace(logger,"- Paginas : %d\n",sizeof(tablaPaginas->entradaTablaPaginas)/sizeof(t_entradaTablaPaginas));
 
 	pthread_mutex_lock(&mutexTablaPaginas);
 	list_add(tablasDePaginas,tablaPaginas);
@@ -189,6 +192,7 @@ unsigned cambioProcesoActivo(unsigned pid,int clienteUMC, unsigned pidActivo)
 
 void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 {
+	t_mensaje espacioSuficiente;
 	unsigned pid = mensaje.parametros[0];
 	unsigned paginasSolicitadas = mensaje.parametros[1];
 	char*codigoPrograma = malloc(paginasSolicitadas*infoMemoria.tamanioDeMarcos);
@@ -198,7 +202,14 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 	crearTablaDePaginas(pid,paginasSolicitadas);
 
 	enviarCodigoAlSwap(paginasSolicitadas,codigoPrograma,pid,tamanioCodigo,clienteUMC);
-	free(codigoPrograma);
+	recibirMensaje(clienteSWAP,&espacioSuficiente);
+
+	if(espacioSuficiente.head == ENOUGH_SPACE)
+		enviarMensaje(clienteUMC,ALMACENAR_OK);
+	else
+		enviarMensaje(clienteUMC,ALMACENAR_FAILED);
+ 	free(codigoPrograma);
+
 	return;
 
 }
