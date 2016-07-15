@@ -503,11 +503,12 @@ void traerPaginaAMemoria(unsigned pagina,unsigned pidActual)
 
 void actualizarTLB(t_entradaTablaPaginas entradaDePaginas,unsigned pagina,unsigned pidActual)
 {
+	log_trace(logger,"actualizarTLB();");
 	//LRU
 	int tamanioMaximoTLB = infoMemoria.entradasTLB;
 	int tamanioTLB = list_size(TLB);
 
-	t_entradaTLB *entradaTLB = malloc(sizeof(entradaTLB));
+	t_entradaTLB *entradaTLB = malloc(sizeof(t_entradaTLB));
 	entradaTLB->pid = pidActual;
 	entradaTLB->pagina = pagina;
 	entradaTLB->estaEnMemoria = entradaDePaginas.estaEnMemoria;
@@ -518,6 +519,8 @@ void actualizarTLB(t_entradaTablaPaginas entradaDePaginas,unsigned pagina,unsign
 		list_replace(TLB,tamanioTLB-1,entradaTLB);
 	else
 		list_add_in_index(TLB,tamanioTLB,entradaTLB);
+
+	log_trace(logger,"Fin ActualizarTLB();");
 
 	return;
 }
