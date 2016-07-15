@@ -310,14 +310,8 @@ int buscaNoPresenciaSiModificado(unsigned pidActivo)
 	}
 	return 0;
 }
-*/
-/*
-void algoritmoClockMejorado(unsigned pidActivo,unsigned *indice)
+void algoritmoClockMejorado(unsigned pidActivo)
 {
-	unsigned punteroClock;
-	t_tablaDePaginas* tablaBuscada = buscarTablaSegun(pidActivo,indice,&punteroClock);
-	unsigned paginaApuntada;
-
 	while(1)
 	{
 		if(buscaNoPresenciaNoModificado() == 1)
@@ -326,8 +320,8 @@ void algoritmoClockMejorado(unsigned pidActivo,unsigned *indice)
 			return;
 	}
 	return;
-}*/
-
+}
+*/
 
 t_tablaDePaginas* buscarTablaSegun(unsigned pidActivo,unsigned *indice,unsigned *punteroClock)
 {
@@ -443,11 +437,10 @@ void algoritmoDeReemplazo(void* codigoPrograma,unsigned tamanioPrograma,unsigned
 	//Eleccion entre Algoritmos
 	if(!strcmp("CLOCK",infoConfig.algoritmo))
 		punteroClock = algoritmoclock(pidActivo,&indice);
-
 	/*
 	if(!strcmp("CLOCKMEJORADO",infoConfig.algoritmo))
-		punteroClock = algoritmoClockMejorado(pidActivo,&indice);
-*/
+		punteroClock = algoritmoClockMejorado(pidActivo);
+	*/
 
 	//Escribe en memoria la nueva pagina que mando el SWAP
 	escribirEnMemoria(codigoPrograma,tamanioPrograma,pagina,pidActivo,punteroClock,indice);
@@ -626,15 +619,13 @@ void enviarTamanioDePagina(int clienteUMC)
 
 void accionSegunCabecera(int clienteUMC,unsigned pid)
 {
-	log_trace(logger,"Se creo un Hilo ");
+	log_trace(logger,"Se creo un Hilo");
 	unsigned pidActivo = pid;
 	int cabeceraDelMensaje;
 	t_mensaje mensaje;
 
 	while(1){
-		if(recibirMensaje(clienteUMC,&mensaje) <= 0)
-			clienteDesconectado(clienteUMC);
-		desempaquetar_mensaje(&mensaje);
+		if(recibirMensaje(clienteUMC,&mensaje) < 0) clienteDesconectado(clienteUMC);
 		cabeceraDelMensaje = mensaje.head.codigo;
 
 		switch(cabeceraDelMensaje){
@@ -661,7 +652,6 @@ void* gestionarSolicitudesDeOperacion(int clienteUMC)
 {
 	//Hago esto porque no se como pasarle varios parametros a un hilo
 	accionSegunCabecera(clienteUMC,0);
-	return NULL;
 }
 
 int recibirConexiones()
@@ -757,9 +747,9 @@ void gestionarConexiones()
 		for(fdBuscador=3; fdBuscador <= maximoFD; fdBuscador++) // explora los FDs que estan listos para leer
 		{
 			if( FD_ISSET(fdBuscador,&fdsParaLectura) ) { //entra una conexion, la acepta y la agrega al master
-				if(fdBuscador == servidorUMC)
+				if(fdBuscador == servidorUMC){
 					clienteUMC = aceptarConexion();
-				else{
+				} else {
 					FD_SET(clienteUMC, &master);
 					if(clienteUMC > maximoFD) //Actualzar el maximo fd
 						maximoFD = clienteUMC;
@@ -768,7 +758,8 @@ void gestionarConexiones()
 			}
 			else{
 				log_trace(logger,"Se crea un hilo");
-				pthread_create(&cliente,NULL,gestionarSolicitudesDeOperacion,clienteUMC);
+				pthread_create(&cliente, NULL, gestionarSolicitudesDeOperacion, clienteUMC);
+
 			}
 		}
 	}
