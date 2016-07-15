@@ -186,7 +186,7 @@ int recibirMensaje(int serverSocket, t_mensaje *mensaje){
  */
 
 int recibirBytes(int serverSocket, void *buffer, unsigned tamano){
-	int recibir = recv(serverSocket, buffer, tamano, MSG_WAITALL);
+	int recibir = recv(serverSocket, buffer, tamano, 0);
 	return recibir;
 }
 

@@ -27,7 +27,7 @@ int main(int argc, char** argv){
 	int quantum;
 	int quantum_sleep;
 
-	//
+	// Inicializo Log
 	logger = log_create("log.txt", "CPU", 1, LOG_LEVEL_TRACE);
 
 	// Leer archivo config.conf
@@ -328,7 +328,10 @@ void signal_sigusr1(int signal){
 char *obtenerSiguienteIntruccion(){
 	t_mensaje mensaje;
 	unsigned parametros[3];
-	parametros[0] = 0; // Numero de Pagina
+	//
+	unsigned num_pagina = (pcb_global.indiceCodigo[0].offset_inicio)/(tamano_pagina_umc);
+	//
+	parametros[0] = num_pagina; // Numero de Pagina
 	parametros[1] = pcb_global.indiceCodigo[0].offset_inicio; // Desplazamiento
 	parametros[2] = pcb_global.indiceCodigo[0].offset_fin; // Cantidad de bytes a leer
 	mensaje.head.codigo = GET_DATA;
@@ -455,6 +458,7 @@ void notificarCambioProceso(){
 	freeMensaje(&mensaje);
 	log_trace(logger, "");
 }
+
 
 /*
  * FIN CPU.c
@@ -722,7 +726,7 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 		if(sp_tmp == 0){
 			cantidad_vars = list_size(aux_stack->vars);
 			if(cantidad_vars == 0){
-				aux_vars->posicionMemoria.numeroPagina = 0;
+				aux_vars->posicionMemoria.numeroPagina = pcb_global.cantidadPaginas;
 				aux_vars->posicionMemoria.offset = 0;
 				aux_vars->posicionMemoria.size = 0;
 			} else {
