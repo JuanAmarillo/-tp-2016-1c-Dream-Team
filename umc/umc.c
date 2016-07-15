@@ -249,6 +249,9 @@ int eliminarDeMemoria(unsigned pid)
 		{
 			list_remove(tablasDePaginas,index);
 			pthread_mutex_unlock(&mutexTablaPaginas);
+			free(buscador->paginasEnMemoria);
+			free(buscador->entradaTablaPaginas);
+			free(buscador);
 			return 1;
 		}
 	}
@@ -270,7 +273,7 @@ void finPrograma(t_mensaje finalizarProg)
 
 void falloPagina(t_tablaDePaginas* tablaBuscada,unsigned indice,unsigned pidActivo,unsigned paginaApuntada)
 {
-
+	log_trace(logger,"Se produce un fallo de pagina en la pagina:%d del proceso:%d",paginaApuntada,pidActivo);
 	void* codigoDelMarco = malloc(infoMemoria.tamanioDeMarcos);
 	unsigned marco = tablaBuscada->entradaTablaPaginas[paginaApuntada].marco ;
 
@@ -282,6 +285,7 @@ void falloPagina(t_tablaDePaginas* tablaBuscada,unsigned indice,unsigned pidActi
 	pthread_mutex_lock(&mutexMemoria);
 	memcpy(codigoDelMarco, memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco , infoMemoria.tamanioDeMarcos);
 	pthread_mutex_unlock(&mutexMemoria);
+	log_trace(logger,"Se envia la pagina:%d del proceso:%d al SWAP",paginaApuntada,pidActivo);
 	enviarPaginaAlSWAP(paginaApuntada,codigoDelMarco,pidActivo);
 
 	return;
@@ -349,6 +353,7 @@ t_tablaDePaginas* buscarTablaSegun(unsigned pidActivo,unsigned *indice,unsigned 
 }
 unsigned algoritmoClockMejorado(unsigned pidActivo,unsigned *indice)
 {
+	log_trace(logger,"Se ejecuta el algortimo clock mejorado");
 	unsigned punteroClock;
 	t_tablaDePaginas* tablaBuscada = buscarTablaSegun(pidActivo,indice,&punteroClock);
 
@@ -379,6 +384,7 @@ void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo)
 }
 unsigned algoritmoclock(unsigned pidActivo,unsigned *indice)
 {
+	log_trace(logger,"Se ejecuta el algoritmo clock");
 	unsigned punteroClock;
 	t_tablaDePaginas* tablaBuscada = buscarTablaSegun(pidActivo,indice,&punteroClock);
 	unsigned paginaApuntada;
@@ -600,9 +606,12 @@ void almacenarBytesEnPagina(t_mensaje mensaje,unsigned pidActivo)
 	unsigned pagina  = mensaje.parametros[0];
 	unsigned offset  = mensaje.parametros[1];
 	unsigned tamanio = mensaje.parametros[2];
+	log_trace(logger,"Se procede a almacenar -> pagina:%d, offset:%d, tamaño:%d, pid:%d",pagina,offset,tamanio,pidActivo);
 
 	int marco;
+	log_trace(logger,"Se traduce la pagina: %d con pid:%d al marco correspondiente \n" ,pagina,pidActivo);
 	traducirPaginaAMarco(pagina,&marco,pidActivo);
+	log_trace(logger,"Se almacena: %s en el marco:%d",(char*)mensaje.parametros[3],marco);
 	memcpy(memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco+offset,(void*)mensaje.parametros[3],tamanio);
 
 	return;
