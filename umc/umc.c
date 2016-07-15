@@ -614,7 +614,7 @@ void almacenarBytesEnPagina(t_mensaje mensaje,unsigned pidActivo, int clienteUMC
 	log_trace(logger,"Se traduce la pagina: %d con pid:%d al marco correspondiente \n" ,pagina,pidActivo);
 	traducirPaginaAMarco(pagina,&marco,pidActivo);
 	log_trace(logger,"Se almacena: %d en el marco:%d",mensaje.parametros[3],marco);
-	memcpy(memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco+offset,(void*)mensaje.parametros[3],tamanio);
+	memcpy(memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco+offset,&(mensaje.parametros[3]),tamanio);
 
 
 	// Agregado por marco, falta comprobar si hay error de Violacion de Segmento
