@@ -601,7 +601,7 @@ void traducirPaginaAMarco(unsigned pagina,int *marco,unsigned pidActual)
 	return;
 }
 
-void almacenarBytesEnPagina(t_mensaje mensaje,unsigned pidActivo)
+void almacenarBytesEnPagina(t_mensaje mensaje,unsigned pidActivo, int clienteUMC)
 {
 	unsigned pagina  = mensaje.parametros[0];
 	unsigned offset  = mensaje.parametros[1];
@@ -613,6 +613,23 @@ void almacenarBytesEnPagina(t_mensaje mensaje,unsigned pidActivo)
 	traducirPaginaAMarco(pagina,&marco,pidActivo);
 	log_trace(logger,"Se almacena: %s en el marco:%d",(char*)mensaje.parametros[3],marco);
 	memcpy(memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco+offset,(void*)mensaje.parametros[3],tamanio);
+
+
+	// Agregado por marco, falta comprobar si hay error de Violacion de Segmento
+	t_mensaje mensaje_enviar;
+	unsigned parametros_enviar[1];
+	parametros_enviar[0] = 1; //1: Todo OK ; 2: Fuera de Segmento
+	mensaje_enviar.head.codigo = RETURN_RECORD_DATA;
+	mensaje_enviar.head.cantidad_parametros = 1;
+	mensaje_enviar.head.tam_extra = 0;
+	mensaje_enviar.parametros = parametros_enviar;
+	mensaje_enviar.mensaje_extra = NULL;
+
+	// Envio al UMC la peticion
+	enviarMensaje(clienteUMC, mensaje_enviar);
+
+	// Fin Agregado por marco
+
 
 	return;
 }
@@ -690,7 +707,8 @@ void accionSegunCabecera(int clienteUMC,unsigned pid)
 			case CAMBIO_PROCESO:
 				pidActivo = cambioProcesoActivo(mensaje.parametros[0],pidActivo);
 				break;
-			case RECORD_DATA: almacenarBytesEnPagina(mensaje,pidActivo);
+			case RECORD_DATA:
+				almacenarBytesEnPagina(mensaje,pidActivo, clienteUMC);
 				break;
 		}
 		freeMensaje(&mensaje);

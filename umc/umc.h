@@ -119,7 +119,7 @@ void traerPaginaAMemoria(unsigned pagina,unsigned pidActual);
 void actualizarTLB(t_entradaTablaPaginas entradaDePaginas,unsigned pagina,unsigned pidActual);
 int buscarEnTLB(unsigned paginaBuscada,unsigned pidActual);
 void traducirPaginaAMarco(unsigned pagina,int *marco,unsigned pidActual);
-void almacenarBytesEnPagina(t_mensaje mensaje,unsigned pidActivo);
+void almacenarBytesEnPagina(t_mensaje mensaje,unsigned pidActivo, int clienteUMC);
 void enviarCodigoAlCPU(char* codigoAEnviar, unsigned tamanio,int clienteUMC);
 void enviarBytesDeUnaPagina(t_mensaje mensaje,int clienteUMC,unsigned pidActual);
 void enviarTamanioDePagina(int clienteUMC);
