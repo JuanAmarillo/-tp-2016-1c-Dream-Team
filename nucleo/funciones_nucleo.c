@@ -663,7 +663,6 @@ void administrarConexiones(void)
 								avisar_Consola_Fin_Programa(laConsola);
 
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
-								escribirLog("Hasta aca llego papurri taca taca\n");
 
 								continue;
 							}
