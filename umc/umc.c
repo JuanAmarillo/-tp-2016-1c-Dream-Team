@@ -65,6 +65,7 @@ void clienteDesconectado(int clienteUMC)
 	pthread_mutex_unlock(&mutexClientes);
 
 	close(clienteUMC);
+	pthread_exit(NULL);
 	//pthreadexit fijate!
 	return;
 }
@@ -621,7 +622,9 @@ void accionSegunCabecera(int clienteUMC,unsigned pid)
 	t_mensaje mensaje;
 
 	while(1){
-		if(recibirMensaje(clienteUMC,&mensaje) < 0) clienteDesconectado(clienteUMC);
+		if(recibirMensaje(clienteUMC,&mensaje) <= 0){
+			clienteDesconectado(clienteUMC);
+		}
 		cabeceraDelMensaje = mensaje.head.codigo;
 		log_trace(logger,"--> %u", cabeceraDelMensaje);
 		switch(cabeceraDelMensaje){
