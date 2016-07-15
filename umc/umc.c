@@ -595,6 +595,7 @@ void traducirPaginaAMarco(unsigned pagina,int *marco,unsigned pidActual)
 				log_trace(logger,"El marco correspondiente: %d", *marco);
 				pthread_mutex_unlock(&mutexTablaPaginas);
 				actualizarTLB(tablaDePaginas->entradaTablaPaginas[pagina],pagina,pidActual);
+				return;
 			}
 		}
 
