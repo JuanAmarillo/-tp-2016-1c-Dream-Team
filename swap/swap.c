@@ -103,6 +103,7 @@ void saveProgram(){
 	pagInicial = buscarPagInicial(received.parametros[0]);
 	while(cantidadGuardada<espacio){
 		strncpy(bufferPagina,received.mensaje_extra,TAMANIO_PAGINA);
+		log_trace(logger,bufferPagina);
 		savePage(pagInicial+cantidadGuardada);
 		cantidadGuardada++;
 	}
