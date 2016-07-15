@@ -56,6 +56,8 @@ typedef struct{
 	unsigned pid;
 	unsigned punteroClock;
 	unsigned *paginasEnMemoria;
+	unsigned cantidadEntradasTablaPagina;
+	unsigned cantidadEntradasMemoria;
 	t_entradaTablaPaginas *entradaTablaPaginas;
 } t_tablaDePaginas;
 

@@ -162,11 +162,16 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 	tablaPaginas->pid = pid;
 	tablaPaginas->punteroClock = 0;
 	tablaPaginas->entradaTablaPaginas = calloc(paginasSolicitadas,sizeof(t_entradaTablaPaginas));
-	if(paginasSolicitadas > infoMemoria.maxMarcosPorPrograma)
-		tablaPaginas->paginasEnMemoria = calloc(infoMemoria.maxMarcosPorPrograma,sizeof(int));
-	else
-		tablaPaginas->paginasEnMemoria = calloc(paginasSolicitadas,sizeof(int));
+	tablaPaginas->cantidadEntradasTablaPagina = paginasSolicitadas;
 
+	if(paginasSolicitadas > infoMemoria.maxMarcosPorPrograma){
+		tablaPaginas->paginasEnMemoria = calloc(infoMemoria.maxMarcosPorPrograma,sizeof(int));
+		tablaPaginas->cantidadEntradasMemoria = infoMemoria.maxMarcosPorPrograma;
+	}
+	else{
+		tablaPaginas->paginasEnMemoria = calloc(paginasSolicitadas,sizeof(int));
+		tablaPaginas->cantidadEntradasMemoria = paginasSolicitadas;
+	}
 	for(pagina=0;pagina < paginasSolicitadas; pagina++)
 	{
 		tablaPaginas->entradaTablaPaginas[pagina].estaEnMemoria = 0;
@@ -174,7 +179,7 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 	}
 	log_trace(logger,"\n  Se creo una tabla de Pagina\n:");
 	log_trace(logger,"- PID : %d\n",tablaPaginas->pid);
-	log_trace(logger,"- Paginas : %d\n",sizeof(tablaPaginas->entradaTablaPaginas)/sizeof(t_entradaTablaPaginas));
+	log_trace(logger,"- Paginas : %d\n",tablaPaginas->cantidadEntradasTablaPagina);
 
 	pthread_mutex_lock(&mutexTablaPaginas);
 	list_add(tablasDePaginas,tablaPaginas);
@@ -287,13 +292,13 @@ int buscaNoPresenciaNoModificado(t_tablaDePaginas *tablaBuscada,unsigned *punter
 {
 	unsigned paginaApuntada;
 	int pagina;
-	for(pagina = 0 ; pagina  < sizeof(tablaBuscada->paginasEnMemoria)/sizeof(unsigned);pagina++ )
+	for(pagina = 0 ; pagina  < tablaBuscada->cantidadEntradasMemoria;pagina++ )
 	{
 		paginaApuntada = tablaBuscada->paginasEnMemoria[*punteroClock];
 		if(tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 0)
 			if(tablaBuscada->entradaTablaPaginas[paginaApuntada].fueModificado == 0)
 				return 1;
-		if(*punteroClock < sizeof(tablaBuscada->paginasEnMemoria)/sizeof(unsigned))
+		if(*punteroClock < tablaBuscada->cantidadEntradasMemoria)
 			*punteroClock=*punteroClock +1;
 		else
 			*punteroClock=0;
@@ -307,7 +312,7 @@ int buscaNoPresenciaSiModificado(t_tablaDePaginas *tablaBuscada,unsigned *punter
 	unsigned paginaApuntada;
 	unsigned pagina;
 
-	for(pagina = 0 ; pagina  < sizeof(tablaBuscada->paginasEnMemoria)/sizeof(unsigned);pagina++ )
+	for(pagina = 0 ; pagina  < tablaBuscada->cantidadEntradasMemoria;pagina++ )
 	{
 		paginaApuntada = tablaBuscada->paginasEnMemoria[*punteroClock];
 
@@ -320,7 +325,7 @@ int buscaNoPresenciaSiModificado(t_tablaDePaginas *tablaBuscada,unsigned *punter
 			falloPagina(tablaBuscada,indice,pidActivo,paginaApuntada);
 
 		//avanza el puntero
-		if(*punteroClock < sizeof(tablaBuscada->paginasEnMemoria)/sizeof(unsigned))
+		if(*punteroClock < tablaBuscada->cantidadEntradasMemoria)
 			*punteroClock=*punteroClock +1;
 		else
 			*punteroClock=0;
@@ -383,7 +388,7 @@ unsigned algoritmoclock(unsigned pidActivo,unsigned *indice)
 		if(tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 1)
 		{
 			falloPagina(tablaBuscada,*indice,pidActivo,paginaApuntada);
-			if(punteroClock < sizeof(tablaBuscada->paginasEnMemoria)/sizeof(int))
+			if(punteroClock < tablaBuscada->cantidadEntradasMemoria)
 				punteroClock++;
 			else
 				punteroClock=0;
@@ -402,7 +407,7 @@ unsigned buscarMarcoDisponible()
 	for(indice=0; indice < list_size(tablasDePaginas); indice++)
 	{
 		tablaDePaginas = list_get(tablasDePaginas,indice);
-		for(pagina = 0 ; pagina < sizeof(tablaDePaginas)/sizeof(t_entradaTablaPaginas);pagina++)
+		for(pagina = 0 ; pagina < tablaDePaginas->cantidadEntradasMemoria;pagina++)
 		{
 			if(tablaDePaginas->entradaTablaPaginas[pagina].estaEnMemoria == 1)
 				if(tablaDePaginas->entradaTablaPaginas[pagina].marco == marcoDisponible)
@@ -449,10 +454,10 @@ void algoritmoDeReemplazo(void* codigoPrograma,unsigned tamanioPrograma,unsigned
 	//Eleccion entre Algoritmos
 	if(!strcmp("CLOCK",infoConfig.algoritmo))
 		punteroClock = algoritmoclock(pidActivo,&indice);
-	/*
+
 	if(!strcmp("CLOCKMEJORADO",infoConfig.algoritmo))
 		punteroClock = algoritmoClockMejorado(pidActivo,&indice);
-	*/
+
 
 	//Escribe en memoria la nueva pagina que mando el SWAP
 	escribirEnMemoria(codigoPrograma,tamanioPrograma,pagina,pidActivo,punteroClock,indice);
