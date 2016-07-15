@@ -54,6 +54,8 @@ typedef struct{
 
 typedef struct{
 	unsigned pid;
+	unsigned punteroClock;
+	unsigned *paginasEnMemoria;
 	t_entradaTablaPaginas *entradaTablaPaginas;
 } t_tablaDePaginas;
 
@@ -70,6 +72,7 @@ typedef struct{
 /*
  * Variables Globales
  */
+int* marcoDisponible;
 t_log* logger;
 t_memoria infoMemoria;
 t_infoConfig infoConfig;
@@ -77,7 +80,6 @@ int servidorUMC,clienteSWAP;
 struct sockaddr_in direccionServidorUMC;
 struct sockaddr_in direccionServidorSWAP;
 fd_set master;
-unsigned punteroClock;
 void* memoriaPrincipal;
 t_list *tablasDePaginas;
 t_list *TLB;
@@ -85,7 +87,6 @@ t_list *TLB;
 pthread_mutex_t mutexClientes;
 pthread_mutex_t mutexMemoria;
 pthread_mutex_t mutexTablaPaginas;
-pthread_mutex_t mutexClock;
 pthread_mutex_t mutexTLB;
 
 /*
@@ -109,8 +110,8 @@ void finPrograma(t_mensaje finalizarProg);
 void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo);
 void falloDePagina(unsigned pidActivo);
 void actualizarPagina(unsigned pagina,unsigned pidActivo);
-void escribirEnMemoria(void* codigoPrograma,unsigned tamanioPrograma, unsigned pagina,unsigned pidActivo);
-void algoritmoClock(void* codigoPrograma,unsigned tamanioPrograma,unsigned pagina,unsigned pidActivo);
+void escribirEnMemoria(void* codigoPrograma,unsigned tamanioPrograma, unsigned pagina,unsigned pidActivo,unsigned punteroClock,unsigned indice);
+unsigned algoritmoclock(unsigned pidActivo,unsigned *indice);
 void pedirPagAlSWAP(unsigned pagina,unsigned pidActual);
 void traerPaginaAMemoria(unsigned pagina,unsigned pidActual);
 void actualizarTLB(t_entradaTablaPaginas entradaDePaginas,unsigned pagina,unsigned pidActual);

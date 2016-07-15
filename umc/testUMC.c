@@ -67,13 +67,12 @@ void testSolicitarBytesDeUnaPagina(unsigned pagina, unsigned offset, unsigned ta
 	return;
 }
 
-
+/*
 int main(){
 
 	pthread_mutex_init(&mutexClientes,NULL);
 	pthread_mutex_init(&mutexMemoria,NULL);
 	pthread_mutex_init(&mutexTablaPaginas,NULL);
-	pthread_mutex_init(&mutexClock,NULL);
 	pthread_mutex_init(&mutexTLB,NULL);
 
 	//Config
@@ -92,8 +91,8 @@ int main(){
 	testInicioPrograma(5,3);
 	testFinPrograma(4);
 
-
+*
 	return 0;
 
-}
+}*/
 
