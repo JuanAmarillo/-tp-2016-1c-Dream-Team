@@ -347,7 +347,20 @@ void falloPagina(t_tablaDePaginas* tablaBuscada,unsigned indice,unsigned pidActi
 	return;
 }
 
-
+void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo)
+{
+	t_mensaje aEnviar;
+	aEnviar.head.codigo = SAVE_PAGE;
+	unsigned parametros[2];
+	parametros[0] = pidActivo;
+	parametros[1] = pagina;
+	aEnviar.head.cantidad_parametros = 2;
+	aEnviar.head.tam_extra = infoMemoria.tamanioDeMarcos;
+	aEnviar.parametros = parametros;
+	aEnviar.mensaje_extra = codigoDelMarco;
+	enviarMensaje(clienteSWAP,aEnviar);
+	return;
+}
 unsigned algoritmoclock(unsigned pidActivo,unsigned *indice)
 {
 	unsigned punteroClock;
