@@ -613,7 +613,7 @@ void almacenarBytesEnPagina(t_mensaje mensaje,unsigned pidActivo, int clienteUMC
 	int marco;
 	log_trace(logger,"Se traduce la pagina: %d con pid:%d al marco correspondiente \n" ,pagina,pidActivo);
 	traducirPaginaAMarco(pagina,&marco,pidActivo);
-	log_trace(logger,"Se almacena: %s en el marco:%d",(char*)mensaje.parametros[3],marco);
+	log_trace(logger,"Se almacena: %d en el marco:%d",mensaje.parametros[3],marco);
 	memcpy(memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco+offset,(void*)mensaje.parametros[3],tamanio);
 
 
