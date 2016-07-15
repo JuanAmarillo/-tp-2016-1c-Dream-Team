@@ -90,24 +90,29 @@ void empaquetarYEnviar(t_mensaje mensaje,int clienteUMC)
 	return;
 }
 
-void enviarProgramaAlSWAP(unsigned pid, unsigned paginasSolicitadas,
-		unsigned tamanioCodigo, char* codigoPrograma) {
+void enviarProgramaAlSWAP(unsigned pid, unsigned paginasSolicitadas, unsigned tamanioCodigo, char* codigoPrograma) {
 	t_mensaje codigo;
 	unsigned parametrosParaEnviar[1];
 	unsigned byte;
+
 	//Enviar programa al SWAP
 	codigo.head.codigo = SAVE_PROGRAM;
 	codigo.head.cantidad_parametros = 1;
 	parametrosParaEnviar[0] = pid;
 	codigo.parametros = parametrosParaEnviar;
 	codigo.head.tam_extra = paginasSolicitadas * infoMemoria.tamanioDeMarcos;
-	for (byte = 0; byte < infoMemoria.tamanioDeMarcos * paginasSolicitadas;
-			byte++) {
-		if (byte < tamanioCodigo)
+
+	char *hola = malloc(paginasSolicitadas * infoMemoria.tamanioDeMarcos);
+	codigo.mensaje_extra = hola;
+	log_trace(logger,"llegue al for");
+	for (byte = 0; byte < (infoMemoria.tamanioDeMarcos * paginasSolicitadas); byte++) {
+		if (byte < tamanioCodigo){
 			codigo.mensaje_extra[byte] = codigoPrograma[byte];
-		else
+		} else {
 			codigo.mensaje_extra[byte] = '\0';
+		}
 	}
+	log_trace(logger,"%s", codigo.mensaje_extra);
 	enviarMensaje(clienteSWAP, codigo);
 }
 
@@ -131,7 +136,7 @@ void enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigne
 
 	//fijarse si pudo reservar
 	recibirMensaje(clienteSWAP,&respuesta);
-	log_trace(logger,"La cabecera recibida es: %d",respuesta->head.codigo);
+	log_trace(logger,"La cabecera recibida es: %d",respuesta.head.codigo);
 	if(respuesta.head.codigo == NOT_ENOUGH_SPACE)
 	{
 		log_trace(logger,"No hay suficiente espacio para almacenar el programa");
