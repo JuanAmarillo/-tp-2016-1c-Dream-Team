@@ -111,10 +111,10 @@ void enviarProgramaAlSWAP(unsigned pid, unsigned paginasSolicitadas,
 	enviarMensaje(clienteSWAP, codigo);
 }
 
-void enviarNoHaySuficienteEspacio(int clienteUMC)
+void enviarSuficienteEspacio(int clienteUMC, int codigo)
 {
 	t_mensaje noEspacio;
-	noEspacio.head.codigo = ALMACENAR_FAILED;
+	noEspacio.head.codigo = codigo;
 	noEspacio.head.cantidad_parametros = 1;
 	noEspacio.head.tam_extra = 0;
 
@@ -131,10 +131,11 @@ void enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigne
 	//fijarse si pudo reservar
 	recv(clienteSWAP,&respuesta,4,0);
 	if(respuesta == NOT_ENOUGH_SPACE)
-		 enviarNoHaySuficienteEspacio(clienteUMC);
+		 enviarSuficienteEspacio(clienteUMC,ALMACENAR_FAILED);
 
 	//Enviar programa al SWAP
 	enviarProgramaAlSWAP(pid, paginasSolicitadas, tamanioCodigo, codigoPrograma);
+	enviarSuficienteEspacio(clienteUMC,ALMACENAR_OK);
 }
 
 void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
@@ -202,28 +203,9 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 	crearTablaDePaginas(pid,paginasSolicitadas);
 
 	enviarCodigoAlSwap(paginasSolicitadas,codigoPrograma,pid,tamanioCodigo,clienteUMC);
-	recibirMensaje(clienteSWAP,&espacioSuficiente);
 
-	if(espacioSuficiente.head.codigo == ENOUGH_SPACE)
-	{
-		espacioSuficiente.parametros = NULL;
-		espacioSuficiente.mensaje_extra = NULL;
-		espacioSuficiente.head.cantidad_parametros = 0;
-		espacioSuficiente.head.codigo = ALMACENAR_OK;
-		espacioSuficiente.head.tam_extra = 0;
-		enviarMensaje(clienteUMC,espacioSuficiente);
-	}
-	else
-	{
-		espacioSuficiente.parametros = NULL;
-		espacioSuficiente.mensaje_extra = NULL;
-		espacioSuficiente.head.cantidad_parametros = 0;
-		espacioSuficiente.head.codigo = ALMACENAR_FAILED;
-		espacioSuficiente.head.tam_extra = 0;
-		enviarMensaje(clienteUMC,espacioSuficiente);
-	}
  	free(codigoPrograma);
- 	free(&mensaje);
+
 	return;
 
 }
@@ -262,20 +244,6 @@ void finPrograma(t_mensaje finalizarProg)
 }
 
 
-void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo)
-{
-	t_mensaje aEnviar;
-	aEnviar.head.codigo = SAVE_PAGE;
-	unsigned parametros[2];
-	parametros[0] = pidActivo;
-	parametros[1] = pagina;
-	aEnviar.head.cantidad_parametros = 2;
-	aEnviar.head.tam_extra = infoMemoria.tamanioDeMarcos;
-	aEnviar.parametros = parametros;
-	aEnviar.mensaje_extra = codigoDelMarco;
-	enviarMensaje(clienteSWAP,aEnviar);
-	return;
-}
 
 /*
 //Busca Bit presencia = 0 && bit Modificado = 0
