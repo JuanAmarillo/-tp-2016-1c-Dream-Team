@@ -311,6 +311,7 @@ int buscaNoPresenciaSiModificado(unsigned pidActivo)
 	return 0;
 }
 */
+/*
 void algoritmoClockMejorado(unsigned pidActivo,unsigned *indice)
 {
 	unsigned punteroClock;
@@ -325,7 +326,7 @@ void algoritmoClockMejorado(unsigned pidActivo,unsigned *indice)
 			return;
 	}
 	return;
-}
+}*/
 
 
 t_tablaDePaginas* buscarTablaSegun(unsigned pidActivo,unsigned *indice,unsigned *punteroClock)
@@ -443,9 +444,10 @@ void algoritmoDeReemplazo(void* codigoPrograma,unsigned tamanioPrograma,unsigned
 	if(!strcmp("CLOCK",infoConfig.algoritmo))
 		punteroClock = algoritmoclock(pidActivo,&indice);
 
+	/*
 	if(!strcmp("CLOCKMEJORADO",infoConfig.algoritmo))
 		punteroClock = algoritmoClockMejorado(pidActivo,&indice);
-
+*/
 
 	//Escribe en memoria la nueva pagina que mando el SWAP
 	escribirEnMemoria(codigoPrograma,tamanioPrograma,pagina,pidActivo,punteroClock,indice);
