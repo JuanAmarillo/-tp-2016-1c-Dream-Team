@@ -626,7 +626,7 @@ void accionSegunCabecera(int clienteUMC,unsigned pid)
 			clienteDesconectado(clienteUMC);
 		}
 		cabeceraDelMensaje = mensaje.head.codigo;
-		log_trace(logger,"--> %u", cabeceraDelMensaje);
+		log_trace(logger,"Codigo Recibido: %u", cabeceraDelMensaje);
 		switch(cabeceraDelMensaje){
 			case INIT_PROG: inicializarPrograma(mensaje,clienteUMC);
 				break;
@@ -651,6 +651,8 @@ void* gestionarSolicitudesDeOperacion(int clienteUMC)
 {
 	//Hago esto porque no se como pasarle varios parametros a un hilo
 	accionSegunCabecera(clienteUMC,0);
+
+	return NULL;
 }
 
 int recibirConexiones()
@@ -755,7 +757,7 @@ void gestionarConexiones()
 						maximoFD = clienteUMC;
 					log_trace(logger,"ID Hilo: %i", clienteUMC);
 					log_trace(logger,"Se crea un hilo");
-					pthread_create(&cliente, NULL, gestionarSolicitudesDeOperacion, clienteUMC);
+					pthread_create(&cliente, NULL, (void *) gestionarSolicitudesDeOperacion, (void *) clienteUMC);
 				} 
 				else //Se recibieron datos de otro tipo
 				{
