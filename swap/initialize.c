@@ -84,6 +84,7 @@ void acceptSocket() {
 }
 
 void accionesDeFinalizacion() {
+	log_trace(logger,"Se ha desconectado de la UMC");
 	fclose(SWAPFILE);
 	bitarray_destroy(DISP_PAGINAS);
 	free(bufferPagina);
