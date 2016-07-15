@@ -90,31 +90,36 @@ void empaquetarYEnviar(t_mensaje mensaje,int clienteUMC)
 	return;
 }
 
-void enviarProgramaAlSWAP(unsigned pid, unsigned paginasSolicitadas,
-		unsigned tamanioCodigo, char* codigoPrograma) {
+void enviarProgramaAlSWAP(unsigned pid, unsigned paginasSolicitadas, unsigned tamanioCodigo, char* codigoPrograma) {
 	t_mensaje codigo;
 	unsigned parametrosParaEnviar[1];
 	unsigned byte;
+
 	//Enviar programa al SWAP
 	codigo.head.codigo = SAVE_PROGRAM;
 	codigo.head.cantidad_parametros = 1;
 	parametrosParaEnviar[0] = pid;
 	codigo.parametros = parametrosParaEnviar;
 	codigo.head.tam_extra = paginasSolicitadas * infoMemoria.tamanioDeMarcos;
-	for (byte = 0; byte < infoMemoria.tamanioDeMarcos * paginasSolicitadas;
-			byte++) {
-		if (byte < tamanioCodigo)
+
+	char *hola = malloc(paginasSolicitadas * infoMemoria.tamanioDeMarcos);
+	codigo.mensaje_extra = hola;
+	log_trace(logger,"llegue al for");
+	for (byte = 0; byte < (infoMemoria.tamanioDeMarcos * paginasSolicitadas); byte++) {
+		if (byte < tamanioCodigo){
 			codigo.mensaje_extra[byte] = codigoPrograma[byte];
-		else
+		} else {
 			codigo.mensaje_extra[byte] = '\0';
+		}
 	}
+	log_trace(logger,"%s", codigo.mensaje_extra);
 	enviarMensaje(clienteSWAP, codigo);
 }
 
-void enviarNoHaySuficienteEspacio(int clienteUMC)
+void enviarSuficienteEspacio(int clienteUMC, int codigo)
 {
 	t_mensaje noEspacio;
-	noEspacio.head.codigo = ALMACENAR_FAILED;
+	noEspacio.head.codigo = codigo;
 	noEspacio.head.cantidad_parametros = 1;
 	noEspacio.head.tam_extra = 0;
 
@@ -123,18 +128,24 @@ void enviarNoHaySuficienteEspacio(int clienteUMC)
 
 void enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigned pid,unsigned tamanioCodigo,int clienteUMC)
 {
-	unsigned respuesta;
+	t_mensaje respuesta;
 
 	//Reservar espacio en el SWAP
+	log_trace(logger,"Pide espacio para reservar el programa al SWAP");
 	pedirReservaDeEspacio(pid, paginasSolicitadas);
 
 	//fijarse si pudo reservar
-	recv(clienteSWAP,&respuesta,4,0);
-	if(respuesta == NOT_ENOUGH_SPACE)
-		 enviarNoHaySuficienteEspacio(clienteUMC);
-
+	recibirMensaje(clienteSWAP,&respuesta);
+	log_trace(logger,"La cabecera recibida es: %d",respuesta.head.codigo);
+	if(respuesta.head.codigo == NOT_ENOUGH_SPACE)
+	{
+		log_trace(logger,"No hay suficiente espacio para almacenar el programa");
+		enviarSuficienteEspacio(clienteUMC,ALMACENAR_FAILED);
+	}
 	//Enviar programa al SWAP
+	log_trace(logger,"Hay suficiente espacio, se envia el programa al SWAP");
 	enviarProgramaAlSWAP(pid, paginasSolicitadas, tamanioCodigo, codigoPrograma);
+	enviarSuficienteEspacio(clienteUMC,ALMACENAR_OK);
 }
 
 void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
@@ -155,6 +166,9 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 		tablaPaginas->entradaTablaPaginas[pagina].estaEnMemoria = 0;
 		tablaPaginas->entradaTablaPaginas[pagina].fueModificado = 0;
 	}
+	log_trace(logger,"\n  Se creo una tabla de Pagina\n:");
+	log_trace(logger,"- PID : %d\n",tablaPaginas->pid);
+	log_trace(logger,"- Paginas : %d\n",sizeof(tablaPaginas->entradaTablaPaginas)/sizeof(t_entradaTablaPaginas));
 
 	pthread_mutex_lock(&mutexTablaPaginas);
 	list_add(tablasDePaginas,tablaPaginas);
@@ -189,6 +203,7 @@ unsigned cambioProcesoActivo(unsigned pid,int clienteUMC, unsigned pidActivo)
 
 void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 {
+	t_mensaje espacioSuficiente;
 	unsigned pid = mensaje.parametros[0];
 	unsigned paginasSolicitadas = mensaje.parametros[1];
 	char*codigoPrograma = malloc(paginasSolicitadas*infoMemoria.tamanioDeMarcos);
@@ -198,7 +213,9 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 	crearTablaDePaginas(pid,paginasSolicitadas);
 
 	enviarCodigoAlSwap(paginasSolicitadas,codigoPrograma,pid,tamanioCodigo,clienteUMC);
-	free(codigoPrograma);
+
+ 	free(codigoPrograma);
+
 	return;
 
 }
@@ -237,20 +254,6 @@ void finPrograma(t_mensaje finalizarProg)
 }
 
 
-void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo)
-{
-	t_mensaje aEnviar;
-	aEnviar.head.codigo = SAVE_PAGE;
-	unsigned parametros[2];
-	parametros[0] = pidActivo;
-	parametros[1] = pagina;
-	aEnviar.head.cantidad_parametros = 2;
-	aEnviar.head.tam_extra = infoMemoria.tamanioDeMarcos;
-	aEnviar.parametros = parametros;
-	aEnviar.mensaje_extra = codigoDelMarco;
-	enviarMensaje(clienteSWAP,aEnviar);
-	return;
-}
 
 /*
 //Busca Bit presencia = 0 && bit Modificado = 0
@@ -354,7 +357,20 @@ void falloPagina(t_tablaDePaginas* tablaBuscada,unsigned indice,unsigned pidActi
 	return;
 }
 
-
+void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo)
+{
+	t_mensaje aEnviar;
+	aEnviar.head.codigo = SAVE_PAGE;
+	unsigned parametros[2];
+	parametros[0] = pidActivo;
+	parametros[1] = pagina;
+	aEnviar.head.cantidad_parametros = 2;
+	aEnviar.head.tam_extra = infoMemoria.tamanioDeMarcos;
+	aEnviar.parametros = parametros;
+	aEnviar.mensaje_extra = codigoDelMarco;
+	enviarMensaje(clienteSWAP,aEnviar);
+	return;
+}
 unsigned algoritmoclock(unsigned pidActivo,unsigned *indice)
 {
 	unsigned punteroClock;
@@ -626,7 +642,7 @@ void accionSegunCabecera(int clienteUMC,unsigned pid)
 			clienteDesconectado(clienteUMC);
 		}
 		cabeceraDelMensaje = mensaje.head.codigo;
-		log_trace(logger,"--> %u", cabeceraDelMensaje);
+		log_trace(logger,"Codigo Recibido: %u", cabeceraDelMensaje);
 		switch(cabeceraDelMensaje){
 			case INIT_PROG: inicializarPrograma(mensaje,clienteUMC);
 				break;
@@ -651,6 +667,8 @@ void* gestionarSolicitudesDeOperacion(int clienteUMC)
 {
 	//Hago esto porque no se como pasarle varios parametros a un hilo
 	accionSegunCabecera(clienteUMC,0);
+
+	return NULL;
 }
 
 int recibirConexiones()
@@ -755,7 +773,7 @@ void gestionarConexiones()
 						maximoFD = clienteUMC;
 					log_trace(logger,"ID Hilo: %i", clienteUMC);
 					log_trace(logger,"Se crea un hilo");
-					pthread_create(&cliente, NULL, gestionarSolicitudesDeOperacion, clienteUMC);
+					pthread_create(&cliente, NULL, (void *) gestionarSolicitudesDeOperacion, (void *) clienteUMC);
 				} 
 				else //Se recibieron datos de otro tipo
 				{
