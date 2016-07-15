@@ -167,13 +167,20 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 	if(paginasSolicitadas > infoMemoria.maxMarcosPorPrograma){
 		tablaPaginas->paginasEnMemoria = calloc(infoMemoria.maxMarcosPorPrograma,sizeof(int));
 		tablaPaginas->cantidadEntradasMemoria = infoMemoria.maxMarcosPorPrograma;
+		for(pagina = 0; pagina < infoMemoria.maxMarcosPorPrograma;pagina++)
+			tablaPaginas->paginasEnMemoria[pagina]= pagina;
 	}
 	else{
 		tablaPaginas->paginasEnMemoria = calloc(paginasSolicitadas,sizeof(int));
 		tablaPaginas->cantidadEntradasMemoria = paginasSolicitadas;
+		for(pagina=0;pagina < paginasSolicitadas;pagina++)
+			tablaPaginas->paginasEnMemoria[pagina] = pagina;
+
 	}
+	tablaPaginas->cantidadEntradasMemoria = 0;
 	for(pagina=0;pagina < paginasSolicitadas; pagina++)
 	{
+
 		tablaPaginas->entradaTablaPaginas[pagina].estaEnMemoria = 0;
 		tablaPaginas->entradaTablaPaginas[pagina].fueModificado = 0;
 	}
@@ -384,9 +391,11 @@ void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo)
 }
 unsigned algoritmoclock(unsigned pidActivo,unsigned *indice)
 {
-	log_trace(logger,"Se ejecuta el algoritmo clock");
+	log_trace(logger,"Se ejecuta el algoritmo clock\n");
 	unsigned punteroClock;
+	unsigned huboFalloPagina;
 	t_tablaDePaginas* tablaBuscada = buscarTablaSegun(pidActivo,indice,&punteroClock);
+	log_trace(logger,"EL puntero clock:%d\n",punteroClock);
 	unsigned paginaApuntada;
 	while(1)
 	{
@@ -394,13 +403,22 @@ unsigned algoritmoclock(unsigned pidActivo,unsigned *indice)
 		if(tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 1)
 		{
 			falloPagina(tablaBuscada,*indice,pidActivo,paginaApuntada);
+
 			if(punteroClock < tablaBuscada->cantidadEntradasMemoria)
+			{
 				punteroClock++;
+				log_trace(logger,"El puntero clock :%d\n",punteroClock);
+			}
 			else
+			{
 				punteroClock=0;
+				log_trace(logger,"El puntero clock %d\n:",punteroClock);
+			}
 		}
 		else
+		{
 			return punteroClock;
+		}
 	}
 	return punteroClock;
 }
