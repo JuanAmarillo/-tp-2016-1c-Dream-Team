@@ -91,6 +91,7 @@ void empaquetarYEnviar(t_mensaje mensaje,int clienteUMC)
 }
 
 void enviarProgramaAlSWAP(unsigned pid, unsigned paginasSolicitadas, unsigned tamanioCodigo, char* codigoPrograma) {
+	log_trace("Entro a la funcion enviarProgramaAlSwap");
 	t_mensaje codigo;
 	unsigned parametrosParaEnviar[1];
 	unsigned byte;
@@ -114,20 +115,23 @@ void enviarProgramaAlSWAP(unsigned pid, unsigned paginasSolicitadas, unsigned ta
 	}
 	log_trace(logger,"%s", codigo.mensaje_extra);
 	enviarMensaje(clienteSWAP, codigo);
+	log_trace("Salio de la funcion enviarProgramaAlSwap");
 }
 
 void enviarSuficienteEspacio(int clienteUMC, int codigo)
 {
+	log_trace("Entro a la funcion enviarSuficienteEspacio");
 	t_mensaje noEspacio;
 	noEspacio.head.codigo = codigo;
 	noEspacio.head.cantidad_parametros = 1;
 	noEspacio.head.tam_extra = 0;
-
 	empaquetarYEnviar(noEspacio,clienteUMC);
+	log_trace("Salio de la funcion enviarSuficienteEspacio");
 }
 
 void enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigned pid,unsigned tamanioCodigo,int clienteUMC)
 {
+	log_trace("Entro a la funcion enviarCodigoAlSwap");
 	t_mensaje respuesta;
 
 	//Reservar espacio en el SWAP
@@ -146,10 +150,12 @@ void enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigne
 	log_trace(logger,"Hay suficiente espacio, se envia el programa al SWAP");
 	enviarProgramaAlSWAP(pid, paginasSolicitadas, tamanioCodigo, codigoPrograma);
 	enviarSuficienteEspacio(clienteUMC,ALMACENAR_OK);
+	log_trace("Salio de la funcion enviarCodigoAlSwap");
 }
 
 void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 {
+	log_trace("Entro a la funcion crearTablaDePaginas");
 	log_trace(logger,"Se procede a crear una tabla de paginas para el proceso %d, con %d paginas\n",pid,paginasSolicitadas);
 	int pagina;
 	t_tablaDePaginas *tablaPaginas = malloc(sizeof(t_tablaDePaginas));
@@ -173,6 +179,7 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 	pthread_mutex_lock(&mutexTablaPaginas);
 	list_add(tablasDePaginas,tablaPaginas);
 	pthread_mutex_unlock(&mutexTablaPaginas);
+	log_trace("Salio de  la funcion crearTablaDePaginas");
 	return;
 
 }
@@ -206,6 +213,7 @@ unsigned cambioProcesoActivo(unsigned pid,unsigned pidActivo)
 
 void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 {
+	log_trace("Entro a la funcion incializarPrograma");
 	unsigned pid = mensaje.parametros[0];
 	unsigned paginasSolicitadas = mensaje.parametros[1];
 	char*codigoPrograma = malloc(paginasSolicitadas*infoMemoria.tamanioDeMarcos);
