@@ -107,7 +107,7 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas);
 void borrarEntradasTLBSegun(unsigned pidActivo);
 unsigned cambioProcesoActivo(unsigned pid,unsigned pidActivo);
 void inicializarPrograma(t_mensaje mensaje,int clienteUMC);
-int eliminarDeMemoria(unsigned pid);
+void eliminarDeMemoria(unsigned pid);
 void finPrograma(t_mensaje finalizarProg);
 void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo);
 void falloDePagina(unsigned pidActivo);

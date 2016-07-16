@@ -241,7 +241,7 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 
 }
 
-int eliminarDeMemoria(unsigned pid)
+void eliminarDeMemoria(unsigned pid)
 {
 	t_tablaDePaginas *buscador;
 	int index;
@@ -259,22 +259,19 @@ int eliminarDeMemoria(unsigned pid)
 			free(buscador->paginasEnMemoria);
 			free(buscador->entradaTablaPaginas);
 			free(buscador);
-			return 1;
+			pthread_mutex_unlock(&mutexTablaPaginas);
+			return;
 		}
 	}
-	pthread_mutex_unlock(&mutexTablaPaginas);
-
-	return 0;
+	return;
 }
 
 void finPrograma(t_mensaje finalizarProg)
 {
 	unsigned pid = finalizarProg.parametros[0];
 	log_trace(logger,"Se finaliza el programa con pid:%d ",pid);
-	if(eliminarDeMemoria(pid) == 0)
-	{
-		enviarMensaje(clienteSWAP,finalizarProg);
-	}
+	eliminarDeMemoria(pid);
+	enviarMensaje(clienteSWAP,finalizarProg);
 	return;
 }
 
@@ -740,7 +737,6 @@ void accionSegunCabecera(int clienteUMC,unsigned pid)
 	while(1){
 		procesosEnTabla();
 		if(recibirMensaje(clienteUMC,&mensaje) <= 0){
-			free(&mensaje);
 			clienteDesconectado(clienteUMC);
 		}
 		cabeceraDelMensaje = mensaje.head.codigo;
