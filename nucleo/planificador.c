@@ -1,7 +1,5 @@
 #include "planificador.h"
 
-
-
 int imprimir_i = 1, vuelta = 0;
 void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_queue *listos, t_queue *bloqueados, t_queue *salida)
 {
@@ -41,7 +39,6 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 				FD_CLR(cpu_explorer, &conjunto_cpus_libres);
 				//Ejecutar proceso
 				ejecutar(*proceso, quantum, quantumSleep, cpu_explorer);
-
 
 				break;
 			}
