@@ -359,9 +359,10 @@ void imprimir(int imp, int consola)
 
 void imprimirTexto(const char *imp, int consola)
 {
-	t_mensajeHead head = {IMPRIMIR_TEXTO_PROGRAMA, 1, 0};
+	t_mensajeHead head = {IMPRIMIR_TEXTO_PROGRAMA, 1, strlen(imp)};
 	t_mensaje mensaje;
 	mensaje.head = head;
+	mensaje.parametros = malloc(4);
 	mensaje.mensaje_extra = strdup(imp);
 
 	if( enviarMensaje(consola, mensaje) == -1 )
@@ -369,6 +370,9 @@ void imprimirTexto(const char *imp, int consola)
 		perror("Error al imprimir en consola\n");
 		abort();
 	}
+
+	free(mensaje.parametros);
+	free(mensaje.mensaje_extra);
 }
 
 void avisar_Consola_Fin_Programa(int consola)
