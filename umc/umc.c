@@ -21,6 +21,7 @@ void leerArchivoConfig()
 	infoMemoria.tamanioDeMarcos = config_get_int_value(config, "MARCO_SIZE");
 	infoMemoria.maxMarcosPorPrograma = config_get_int_value(config,"MARCO_X_PROC");
 	infoMemoria.entradasTLB = config_get_int_value(config,"ENTRADAS_TLB");
+	infoMemoria.retardo = config_get_int_value(config,"RETARDO");
 
 	free(config->path);
 	free(config);
@@ -418,8 +419,8 @@ unsigned algoritmoclock(unsigned pidActivo,unsigned *indice)
 		}
 		else
 		{
-			return punteroClock;
 			log_trace(logger,"=========================================\n");
+			return punteroClock;
 		}
 	}
 	return punteroClock;
@@ -446,7 +447,9 @@ unsigned buscarMarcoDisponible()
 
 unsigned actualizaPagina(unsigned pagina,unsigned pidActivo,unsigned punteroClock,unsigned indice)
 {
+	log_trace(logger,"Se actualiza la tabla de pagina del pid:%d",pidActivo);
 	t_tablaDePaginas *tablaDePagina;
+	t_tablaDePaginas *tablaPrueba;
 	unsigned marcoDisponible = buscarMarcoDisponible();
 	tablaDePagina = list_get(tablasDePaginas,indice);
 	if(tablaDePagina->pid == pidActivo)
@@ -456,11 +459,18 @@ unsigned actualizaPagina(unsigned pagina,unsigned pidActivo,unsigned punteroCloc
 		if(punteroClock == tablaDePagina->cantidadEntradasMemoria)
 			tablaDePagina->punteroClock = 0;
 		else
-			tablaDePagina->punteroClock = 0;
+			tablaDePagina->punteroClock = tablaDePagina->punteroClock+1;
+		log_trace(logger,"El puntero clock luego del algortimo:%d",tablaDePagina->punteroClock);
 
 		tablaDePagina->entradaTablaPaginas[pagina].estaEnMemoria = 1;
 		tablaDePagina->entradaTablaPaginas[pagina].marco = marcoDisponible;
 		list_replace(tablasDePaginas,indice,tablaDePagina);
+		tablaPrueba = list_get(tablasDePaginas,indice);
+		if(tablaPrueba->entradaTablaPaginas[pagina].estaEnMemoria == 1)
+			log_trace(logger,"La tabla de pagina se actualizo correctamente");
+		else
+			log_error(logger,"La tabla de paginas No se actualizo correctamente");
+
 		return tablaDePagina->entradaTablaPaginas[pagina].marco;
 	}
 	return tablaDePagina->entradaTablaPaginas[pagina].marco;
@@ -613,7 +623,6 @@ void traducirPaginaAMarco(unsigned pagina,int *marco,unsigned pidActual)
 			*marco = tablaDePaginas->entradaTablaPaginas[pagina].marco;
 			log_trace(logger,"El marco correspondiente: %d", *marco);
 			pthread_mutex_unlock(&mutexTablaPaginas);
-			actualizarTLB(tablaDePaginas->entradaTablaPaginas[pagina],pagina,pidActual);
 			return;
 		}
 

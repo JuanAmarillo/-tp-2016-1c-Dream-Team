@@ -43,6 +43,7 @@ typedef struct{
 	int tamanioDeMarcos;
 	int maxMarcosPorPrograma;
 	int entradasTLB;
+	int retardo;
 } t_memoria;
 
 
