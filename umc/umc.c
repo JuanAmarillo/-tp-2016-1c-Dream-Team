@@ -167,13 +167,20 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 	if(paginasSolicitadas > infoMemoria.maxMarcosPorPrograma){
 		tablaPaginas->paginasEnMemoria = calloc(infoMemoria.maxMarcosPorPrograma,sizeof(int));
 		tablaPaginas->cantidadEntradasMemoria = infoMemoria.maxMarcosPorPrograma;
+		for(pagina = 0; pagina < infoMemoria.maxMarcosPorPrograma;pagina++)
+			tablaPaginas->paginasEnMemoria[pagina]= pagina;
 	}
 	else{
 		tablaPaginas->paginasEnMemoria = calloc(paginasSolicitadas,sizeof(int));
 		tablaPaginas->cantidadEntradasMemoria = paginasSolicitadas;
+		for(pagina=0;pagina < paginasSolicitadas;pagina++)
+			tablaPaginas->paginasEnMemoria[pagina] = pagina;
+
 	}
+	tablaPaginas->cantidadEntradasMemoria = 0;
 	for(pagina=0;pagina < paginasSolicitadas; pagina++)
 	{
+
 		tablaPaginas->entradaTablaPaginas[pagina].estaEnMemoria = 0;
 		tablaPaginas->entradaTablaPaginas[pagina].fueModificado = 0;
 	}
@@ -191,10 +198,10 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 
 void borrarEntradasTLBSegun(unsigned pidActivo)
 {
-	unsigned cantidadEntradas = infoMemoria.entradasTLB;
 	unsigned entrada;
 	t_entradaTLB *entradaTLB;
 	pthread_mutex_lock(&mutexTLB);
+	unsigned cantidadEntradas = list_size(TLB);
 	for(entrada = 0 ; entrada < cantidadEntradas ; entrada++)
 	{
 		entradaTLB = list_get(TLB,entrada);
@@ -234,7 +241,7 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 
 }
 
-int eliminarDeMemoria(unsigned pid)
+void eliminarDeMemoria(unsigned pid)
 {
 	t_tablaDePaginas *buscador;
 	int index;
@@ -252,21 +259,19 @@ int eliminarDeMemoria(unsigned pid)
 			free(buscador->paginasEnMemoria);
 			free(buscador->entradaTablaPaginas);
 			free(buscador);
-			return 1;
+			pthread_mutex_unlock(&mutexTablaPaginas);
+			return;
 		}
 	}
-	pthread_mutex_unlock(&mutexTablaPaginas);
-
-	return 0;
+	return;
 }
 
 void finPrograma(t_mensaje finalizarProg)
 {
 	unsigned pid = finalizarProg.parametros[0];
-	if(eliminarDeMemoria(pid) == 0)
-	{
-		enviarMensaje(clienteSWAP,finalizarProg);
-	}
+	log_trace(logger,"Se finaliza el programa con pid:%d ",pid);
+	eliminarDeMemoria(pid);
+	enviarMensaje(clienteSWAP,finalizarProg);
 	return;
 }
 
@@ -384,9 +389,10 @@ void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo)
 }
 unsigned algoritmoclock(unsigned pidActivo,unsigned *indice)
 {
-	log_trace(logger,"Se ejecuta el algoritmo clock");
+	log_trace(logger,"Se ejecuta el algoritmo clock\n");
 	unsigned punteroClock;
 	t_tablaDePaginas* tablaBuscada = buscarTablaSegun(pidActivo,indice,&punteroClock);
+	log_trace(logger,"EL puntero clock:%d\n",punteroClock);
 	unsigned paginaApuntada;
 	while(1)
 	{
@@ -394,13 +400,22 @@ unsigned algoritmoclock(unsigned pidActivo,unsigned *indice)
 		if(tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 1)
 		{
 			falloPagina(tablaBuscada,*indice,pidActivo,paginaApuntada);
+
 			if(punteroClock < tablaBuscada->cantidadEntradasMemoria)
+			{
 				punteroClock++;
+				log_trace(logger,"El puntero clock :%d\n",punteroClock);
+			}
 			else
+			{
 				punteroClock=0;
+				log_trace(logger,"El puntero clock %d\n:",punteroClock);
+			}
 		}
 		else
+		{
 			return punteroClock;
+		}
 	}
 	return punteroClock;
 }

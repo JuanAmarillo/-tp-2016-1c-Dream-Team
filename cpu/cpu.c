@@ -17,9 +17,6 @@
 #include <parser/metadata_program.h>
 #include "analizador.h"
 #include "messageCode.h"
-#include <math.h>
-
-static const char* DEFINICION_VARIABLES = "variables a, b, c";
 
 int main(int argc, char** argv){
 
@@ -93,12 +90,12 @@ int main(int argc, char** argv){
 		notificarCambioProceso();
 
 		// LOOP QUANTUM
-		for(i_quantum = 0; i_quantum < quantum; i_quantum++){
+		for(i_quantum = 1; i_quantum <= quantum; i_quantum++){
 
 			// Obtener siguiente instruccion
 			char *instruccion = obtenerSiguienteIntruccion();
 
-			log_trace(logger, "PID: %u; Quantum %u de %u -> %s", pcb_global.pid, i_quantum, quantum, instruccion);
+			log_trace(logger, "PID: %u; Quantum %u de %u", pcb_global.pid, i_quantum, quantum);
 
 			// Actualizar PCB
 			pcb_global.pc++;
@@ -106,8 +103,10 @@ int main(int argc, char** argv){
 			// analizadorLinea (parser)
 			analizadorLinea(instruccion, &functions, &kernel_functions);
 
+			log_trace(logger, "TRACEadd: dps analizadorLinea();");
+
 			// Libero memoria de la instruccion
-			//free(instruccion);
+			free(instruccion);
 
 			// Sleep
 			usleep(quantum_sleep);
@@ -737,8 +736,9 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 		if(sp_tmp == 0){
 			cantidad_vars = list_size(aux_stack->vars);
 			if(cantidad_vars == 0){
-				aux_vars->posicionMemoria.numeroPagina = pcb_global.cantidadPaginas;
-				aux_vars->posicionMemoria.offset = 0;
+				aux_vars = malloc(sizeof(t_variable));
+				aux_vars->posicionMemoria.numeroPagina = pcb_global.cantidadPaginas-1;
+				aux_vars->posicionMemoria.offset = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_inicio + pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_fin;
 				aux_vars->posicionMemoria.size = 0;
 			} else {
 				aux_vars = list_get(aux_stack->vars, cantidad_vars-1);
@@ -758,7 +758,8 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 	} else {
 		posicionMemoria.numeroPagina = aux_vars->posicionMemoria.numeroPagina;
 		if(cantidad_vars == 0){
-			posicionMemoria.offset = 0;
+			posicionMemoria.offset = aux_vars->posicionMemoria.offset;
+			free(aux_vars);
 		} else {
 			posicionMemoria.offset = aux_vars->posicionMemoria.offset + 4;
 		}
@@ -773,7 +774,8 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 	// Devuelvo posicion de la variable en el contexto actual
 	log_trace(logger, "----> Return: %c: (%u,%u,%u)", identificador_variable, posicionMemoria.numeroPagina, posicionMemoria.offset, posicionMemoria.size);
 
-	return posToPuntero(posicionMemoria);
+	t_puntero puntero_r = posToPuntero(posicionMemoria);
+	return puntero_r;
 }
 
 t_puntero parser_obtenerPosicionVariable(t_nombre_variable identificador_variable) {
@@ -821,20 +823,16 @@ t_valor_variable parser_dereferenciar(t_puntero direccion_variable_puntero) {
 		abort();
 	}
 
-	if(mensaje.parametros[0] != 1){
-		estado_ejecucion = 3; // Fuera de segmento
+/*	if(mensaje.parametros[0] != 1){
+		estado_ejecucion = 2; // Fuera de segmento
 		freeMensaje(&mensaje);
 		return contenido_variable;
-	}
+	}*/
 
-	t_valor_variable *contenido_tmp = malloc(mensaje.head.tam_extra);
-	memcpy(contenido_tmp, mensaje.mensaje_extra, mensaje.head.tam_extra);
-
-	contenido_variable = (*contenido_tmp);
+	contenido_variable = *mensaje.mensaje_extra;
 
 	// Libero memoria de mensaje
 	freeMensaje(&mensaje);
-	free(contenido_tmp);
 	log_trace(logger, "----> Return: %i", contenido_variable);
 	return contenido_variable;
 }
@@ -1439,6 +1437,7 @@ static void stack_destroy(t_indiceStack *self) {
  */
 void freePCB(t_PCB *pcb){
 	int cantidad_indiceStack = list_size(pcb->indiceStack);
+	log_trace(logger,"--> %i", cantidad_indiceStack);
 	if(cantidad_indiceStack != 0){
 		void _list_elements2(t_indiceStack *tmp2) {
 			// Destruyo los args

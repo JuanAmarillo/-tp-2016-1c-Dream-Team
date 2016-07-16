@@ -101,9 +101,10 @@ void saveProgram(){
 
 	espacio = buscarLongPrograma(received.parametros[0]);
 	pagInicial = buscarPagInicial(received.parametros[0]);
+	log_trace(logger,"El codigo de la pagina es:\n");
+	log_trace(logger,bufferPagina);
 	while(cantidadGuardada<espacio){
 		strncpy(bufferPagina,received.mensaje_extra,TAMANIO_PAGINA);
-		log_trace(logger,bufferPagina);
 		savePage(pagInicial+cantidadGuardada);
 		cantidadGuardada++;
 	}
