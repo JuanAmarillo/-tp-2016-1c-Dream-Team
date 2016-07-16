@@ -19,6 +19,15 @@ t_list *lista_master_procesos;
 t_queue *cola_listos;
 t_queue *cola_bloqueados;
 
+typedef struct
+{
+	char *nombre;
+	unsigned int io_sleep;
+	t_queue *cola;
+} t_dispositivo;
+
+t_dispositivo *vector_dispositivos;
+
 fd_set conjunto_cpus_libres;
 fd_set conjunto_procesos_listos;
 fd_set conjunto_procesos_bloqueados;
@@ -44,10 +53,13 @@ void esperaPorProcesos(t_queue*);
 void ejecutar(t_PCB proceso, unsigned short int quantum, unsigned int quantumSleep, int cpu);
 void ponerListo(t_PCB *proceso);
 void terminar(t_PCB *proceso);
-void bloquear(t_PCB *proceso);
+void bloquear(t_PCB *proceso, const char *dispositivo);
 int estaLibre(int cpu);
 void mostrarCola(const t_queue*);
 void actualizarMaster(void);
+
+int cantidadDispositivos(void);
+void abortarProceso(int pid);
 
 int es_el_PCB_a_actualizar(t_PCB pcb);
 t_mensaje quantum_to_mensaje(unsigned short int quantum, unsigned int quantumSleep);

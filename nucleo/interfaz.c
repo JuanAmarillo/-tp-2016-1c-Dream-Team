@@ -8,7 +8,7 @@ void interfaz(void)
 
 		imprimirListos();
 
-		imprimirBloqueados();
+		imprimirColasDispositivos();
 
 		printf("____________________________________________\n");
 
@@ -37,6 +37,17 @@ void imprimirBloqueados(void)
 	printf("Bloqueados: ");
 	imprimirListaProcesos(cola_bloqueados->elements);
 
+}
+
+void imprimirColasDispositivos(void)
+{
+	int i;
+	for(i = 0; i < cantidadDispositivos(); ++i)
+	{
+		printf("____________________________________________\n");
+		printf("%s: ", vector_dispositivos[i].nombre);
+		imprimirListaProcesos((vector_dispositivos[i].cola)->elements);
+	}
 }
 
 void imprimirListaProcesos(const t_list *lista)

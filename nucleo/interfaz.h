@@ -13,5 +13,8 @@ void imprimirListos(void);
 void imprimirBloqueados(void);
 void imprimirMaster(void);
 void imprimirListaProcesos(const t_list*);
+void imprimirColasDispositivos(void);
+
+int cantidadDispositivos(void);
 
 #endif /* INTERFAZ_H_ */

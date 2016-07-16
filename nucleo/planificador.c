@@ -149,12 +149,38 @@ void terminar(t_PCB *proceso)
 	free(proceso);
 }
 
-void bloquear(t_PCB *proceso)
+t_dispositivo *nombre_to_dispositivo(const char *dispositivo)
+{
+	int i;
+	for(i = 0; i < cantidadDispositivos(); ++i)
+	{
+		if(!strcmp(vector_dispositivos[i].nombre, dispositivo))
+			return &vector_dispositivos[i];
+	}
+	return NULL;
+}
+
+void bloquear(t_PCB *proceso, const char *dispositivo)
 {
 	FD_CLR(proceso->pid, &conjunto_procesos_ejecutando);
 	FD_SET(proceso->pid, &conjunto_procesos_bloqueados);
 	proceso->estado = 3;
-	queue_push(cola_bloqueados, proceso);
+//	queue_push(cola_bloqueados, proceso);
+
+	t_dispositivo *disp = nombre_to_dispositivo(dispositivo);
+
+	if(disp)
+	{
+		t_queue *cola = disp->cola;
+		queue_push(cola, proceso);
+	}
+
+	else
+	{
+		escribirLog("El proceso solicito I/O de un dispositivo inexistente\n");
+		abortarProceso(proceso->pid);
+	}
+
 	actualizarMaster();
 }
 

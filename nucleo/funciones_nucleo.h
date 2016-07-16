@@ -32,6 +32,8 @@ struct t_infoConfig
 	char *puerto_umc;
 	char *quantum;
 	char *quantum_sleep;
+	char **array_dispositivos;
+	char **array_io_sleeps;
 };
 
 

@@ -31,6 +31,8 @@ void leerArchivoConfig(char *ruta)
 	infoConfig.puerto_umc = config_get_string_value(config, "PUERTO_UMC");
 	infoConfig.quantum = config_get_string_value(config, "QUANTUM");
 	infoConfig.quantum_sleep = config_get_string_value(config, "QUANTUM_SLEEP");
+	infoConfig.array_dispositivos = config_get_array_value(config, "IO_ID");
+	infoConfig.array_io_sleeps = config_get_array_value(config, "IO_SLEEP");
 
 	// No uso config_destroy(config) porque bugea
 	free(config->path);
@@ -453,6 +455,13 @@ int maximofd(int fd1, int fd2)
 		return fd2;
 }
 
+int cantidadDispositivos(void)
+{
+	int i;
+	for(i = 0; infoConfig.array_dispositivos[i]; ++i);
+	return i;
+}
+
 void inicializarListas(void)
 {
 	FD_ZERO(&conjunto_procesos_listos);
@@ -463,6 +472,15 @@ void inicializarListas(void)
 	cola_bloqueados = queue_create();
 	cola_listos = queue_create();
 	lista_Pares = list_create();
+
+	vector_dispositivos = malloc(cantidadDispositivos() * sizeof(t_dispositivo));
+	int i;
+	for(i = 0; i < cantidadDispositivos(); ++i)
+	{
+		vector_dispositivos[i].nombre = infoConfig.array_dispositivos[i];
+		vector_dispositivos[i].io_sleep = atoi(infoConfig.array_io_sleeps[i]);
+		vector_dispositivos[i].cola = queue_create();
+	}
 }
 
 void administrarConexiones(void)
@@ -742,6 +760,11 @@ void administrarConexiones(void)
 								int tiempo = mensajeCPU.parametros[1];(void)tiempo;
 								char* nombreDispositivo = strdup(mensajeCPU.mensaje_extra);(void)nombreDispositivo;
 
+								escribirLog("Se recibio para I/O: ");
+								escribirLog("pid: %d, ", pid);
+								escribirLog("tiempo: %d, ", tiempo);
+								escribirLog("nombre dispositivo: %s\n", nombreDispositivo);
+
 								nbytes = recibirMensaje(fd_explorer, &mensajeCPU);
 								if(nbytes <= 0)
 								{
@@ -754,7 +777,7 @@ void administrarConexiones(void)
 									t_PCB *pcb = malloc(sizeof(t_PCB));
 									*pcb = mensaje_to_pcb(mensajeCPU);
 									FD_CLR(pcb->pid, &conjunto_procesos_ejecutando);
-									bloquear(pcb);
+									bloquear(pcb, nombreDispositivo);
 									actualizarMaster();
 									FD_SET(fd_explorer, &conjunto_cpus_libres);
 									continue;
@@ -764,7 +787,7 @@ void administrarConexiones(void)
 									perror("Luego de una solicitud de I/O, no se recibio un PCB (Revisar codigos de header)");
 									abort();
 								}
-
+								free(nombreDispositivo);
 								continue;
 							}
 
