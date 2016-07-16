@@ -224,13 +224,12 @@ int conectarseNucleo() {
  * 		-> -1 :: Error
  * 		->  Other :: -
  */
-int enviarMensajeUMC(t_mensaje mensaje) {
+void enviarMensajeUMC(t_mensaje mensaje) {
 	int enviar = enviarMensaje(socketUMC,mensaje);
-	if(enviar == -1){
-		perror("Error al enviar mensaje a la UMC");
-		return -1;
+	if(enviar <= 0){
+		log_error(logger, "Se desconecto la UMC.");
+		abort();
 	}
-	return enviar;
 }
 
 /*
@@ -242,13 +241,12 @@ int enviarMensajeUMC(t_mensaje mensaje) {
  * 		-> -1 :: Error
  * 		->  Other :: -
  */
-int enviarMensajeNucleo(t_mensaje mensaje) {
+void enviarMensajeNucleo(t_mensaje mensaje) {
 	int enviar = enviarMensaje(socketNucleo,mensaje);
-	if(enviar == -1){
-		perror("Error al enviar mensaje al Nucleo");
-		return -1;
+	if(enviar <= 0){
+		log_error(logger, "Se desconecto el Nucleo.");
+		abort();
 	}
-	return enviar;
 }
 
 /*
@@ -260,13 +258,12 @@ int enviarMensajeNucleo(t_mensaje mensaje) {
  * 		-> -1 :: Error
  * 		->  Other :: -
  */
-int recibirMensajeNucleo(t_mensaje *mensaje) {
+void recibirMensajeNucleo(t_mensaje *mensaje) {
 	int recibir = recibirMensaje(socketNucleo,mensaje);
-	if(recibir == -1){
-		perror("Error al recibir mensaje del Nucleo");
-		return -1;
+	if(recibir <= 0){
+		log_error(logger, "Se desconecto el Nucleo.");
+		abort();
 	}
-	return recibir;
 }
 
 /*
@@ -278,13 +275,12 @@ int recibirMensajeNucleo(t_mensaje *mensaje) {
  * 		-> -1 :: Error
  * 		->  Other :: -
  */
-int recibirMensajeUMC(t_mensaje *mensaje) {
+void recibirMensajeUMC(t_mensaje *mensaje) {
 	int recibir = recibirMensaje(socketUMC,mensaje);
-	if(recibir == -1){
-		perror("Error al recibir mensaje de la UMC");
-		return -1;
+	if(recibir <= 0){
+		log_error(logger, "Se desconecto la UMC.");
+		abort();
 	}
-	return recibir;
 }
 
 /*
@@ -324,6 +320,22 @@ void signal_sigusr1(int signal){
   notificacion_signal_sigusr1 = 1;
 }
 
+int _esEspacio_cpu(char caracter){
+	if(caracter==' ' || caracter=='\t' || caracter=='\f' || caracter=='\r' || caracter=='\v'){
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+char* _string_trim_cpu(char* texto){
+    int i;
+    while (_esEspacio_cpu(*texto) == 1) texto++;   //Anda a el primer no-espacio
+    for (i = strlen (texto) - 1; i>0 && (_esEspacio_cpu(texto[i]) == 1); i--);   //y de atras para adelante
+    texto[i + 1] = '\0';
+    return texto;
+}
+
 
 /*
  * obtenerSiguienteIntruccion();
@@ -339,7 +351,7 @@ char *obtenerSiguienteIntruccion(){
 	unsigned num_pagina = (pcb_global.indiceCodigo[pcb_global.pc].offset_inicio)/(tamano_pagina_umc);
 	//
 	parametros[0] = num_pagina; // Numero de Pagina
-	parametros[1] = pcb_global.indiceCodigo[pcb_global.pc].offset_inicio; // Desplazamiento
+	parametros[1] = pcb_global.indiceCodigo[pcb_global.pc].offset_inicio - tamano_pagina_umc * num_pagina; // Desplazamiento
 	parametros[2] = pcb_global.indiceCodigo[pcb_global.pc].offset_fin; // Cantidad de bytes a leer
 	mensaje.head.codigo = GET_DATA;
 	mensaje.head.cantidad_parametros = 3;
@@ -365,7 +377,16 @@ char *obtenerSiguienteIntruccion(){
 			break;
 		}
 	}
-	return mensaje.mensaje_extra;
+
+
+	char *tmp = _string_trim_cpu(mensaje.mensaje_extra);
+	char *tmp2 = malloc(strlen(tmp)+1);
+	memcpy(tmp2, tmp, strlen(tmp));
+	memset(tmp2+strlen(tmp),'\0',1);
+
+	free(mensaje.mensaje_extra);
+
+	return tmp2;
 }
 
 /*
