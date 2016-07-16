@@ -102,7 +102,7 @@ void pedirReservaDeEspacio(unsigned pid,unsigned paginasSolicitadas);
 void empaquetarYEnviar(t_mensaje mensaje,int clienteUMC);
 void enviarProgramaAlSWAP(unsigned pid, unsigned paginasSolicitadas,unsigned tamanioCodigo, char* codigoPrograma);
 void enviarNoHaySuficienteEspacio(int clienteUMC);
-void enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigned pid,unsigned tamanioCodigo,int clienteUMC);
+unsigned enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigned pid,unsigned tamanioCodigo,int clienteUMC);
 void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas);
 void borrarEntradasTLBSegun(unsigned pidActivo);
 unsigned cambioProcesoActivo(unsigned pid,unsigned pidActivo);
