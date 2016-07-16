@@ -259,10 +259,6 @@ void eliminarDeMemoria(unsigned pid)
 		{
 			list_remove(tablasDePaginas,index);
 			pthread_mutex_unlock(&mutexTablaPaginas);
-			free(buscador->paginasEnMemoria);
-			free(buscador->entradaTablaPaginas);
-			free(buscador);
-			pthread_mutex_unlock(&mutexTablaPaginas);
 			return;
 		}
 	}
