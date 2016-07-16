@@ -103,8 +103,6 @@ int main(int argc, char** argv){
 			// analizadorLinea (parser)
 			analizadorLinea(instruccion, &functions, &kernel_functions);
 
-			log_trace(logger, "TRACEadd: dps analizadorLinea();");
-
 			// Libero memoria de la instruccion
 			free(instruccion);
 
@@ -886,9 +884,6 @@ t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable){
 	// Envio al UMC la peticion
 	enviarMensajeNucleo(mensaje);
 
-	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
-
 	// Recibo mensaje
 	recibirMensajeNucleo(&mensaje);
 
@@ -1040,9 +1035,6 @@ void parser_imprimir(t_valor_variable valor_mostrar){
 
 	// Envio al UMC la peticion
 	enviarMensajeNucleo(mensaje);
-
-	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
 }
 
 void parser_imprimirTexto(char* texto){
@@ -1060,9 +1052,6 @@ void parser_imprimirTexto(char* texto){
 
 	// Envio al UMC la peticion
 	enviarMensajeNucleo(mensaje);
-
-	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
 }
 
 void parser_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
@@ -1080,9 +1069,6 @@ void parser_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 
 	// Envio al UMC la peticion
 	enviarMensajeNucleo(mensaje);
-
-	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
 
 	estado_ejecucion = 3;
 }
@@ -1117,10 +1103,6 @@ void parser_wait(t_nombre_semaforo identificador_semaforo){
 	// Libero memoria de mensaje
 	freeMensaje(&mensaje);
 
-
-	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
-
 }
 
 void parser_signal(t_nombre_semaforo identificador_semaforo){
@@ -1140,7 +1122,7 @@ void parser_signal(t_nombre_semaforo identificador_semaforo){
 	enviarMensajeNucleo(mensaje);
 
 	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
+	free(mensaje.mensaje_extra);
 }
 
 /*
@@ -1424,8 +1406,6 @@ static void vars_destroy(t_variable *self) {
 }
 
 static void stack_destroy(t_indiceStack *self) {
-    free(self->args);
-    free(self->vars);
     free(self);
 }
 
@@ -1437,11 +1417,11 @@ static void stack_destroy(t_indiceStack *self) {
  */
 void freePCB(t_PCB *pcb){
 	int cantidad_indiceStack = list_size(pcb->indiceStack);
-	log_trace(logger,"--> %i", cantidad_indiceStack);
 	if(cantidad_indiceStack != 0){
 		void _list_elements2(t_indiceStack *tmp2) {
 			// Destruyo los args
 			list_destroy_and_destroy_elements(tmp2->args, (void*) args_destroy);
+
 			// Destruyo los vars
 			list_destroy_and_destroy_elements(tmp2->vars, (void*) vars_destroy);
 		}
