@@ -49,7 +49,7 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 			}
 		}
 		escribirLog("vuelta: %d\n", ++vuelta);
-		sleep(3);
+	//	sleep(3);
 	}
 }
 

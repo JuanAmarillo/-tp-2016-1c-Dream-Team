@@ -671,12 +671,20 @@ void administrarConexiones(void)
 							{
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
+
+								int laConsola = Pid_to_Consola(pcb->pid);
+
 								avisar_UMC_FIN_PROG(pcb->pid);
-								imprimirTexto("Programa Abortado", Pid_to_Consola(pcb->pid));
-								avisar_Consola_Fin_Programa(Pid_to_Consola(pcb->pid));
-								abortarProceso(pcb->pid);
-								actualizarMaster();
+								FD_CLR(pcb->pid, &conjunto_procesos_ejecutando);
+
+								terminar(pcb);
+
+								imprimirTexto("Programa abortado por Error", laConsola);
+
+								avisar_Consola_Fin_Programa(laConsola);
+
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
+
 								continue;
 							}
 
