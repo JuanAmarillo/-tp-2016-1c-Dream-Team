@@ -43,6 +43,7 @@ typedef struct{
 	int tamanioDeMarcos;
 	int maxMarcosPorPrograma;
 	int entradasTLB;
+	int retardo;
 } t_memoria;
 
 
@@ -76,6 +77,7 @@ typedef struct{
  */
 int* marcoDisponible;
 t_log* logger;
+t_log* loggerConsola;
 t_memoria infoMemoria;
 t_infoConfig infoConfig;
 int servidorUMC,clienteSWAP;
