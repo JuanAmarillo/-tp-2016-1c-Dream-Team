@@ -95,7 +95,7 @@ int main(int argc, char** argv){
 			// Obtener siguiente instruccion
 			char *instruccion = obtenerSiguienteIntruccion();
 
-			log_trace(logger, "PID: %u; Quantum %u de %u", pcb_global.pid, i_quantum, quantum);
+			log_trace(logger, "PID: %u; PC: %u; Quantum %u de %u -> '%s'", pcb_global.pid, pcb_global.pc, i_quantum, quantum, instruccion);
 
 			// Actualizar PCB
 			pcb_global.pc++;
@@ -358,6 +358,13 @@ char *obtenerSiguienteIntruccion(){
 		abort();
 	}
 
+	int i;
+	for(i=0; mensaje.mensaje_extra[i] != '\0'; i++){
+		if( mensaje.mensaje_extra[i] == '\n' ){
+			mensaje.mensaje_extra[i] = '\0';
+			break;
+		}
+	}
 	return mensaje.mensaje_extra;
 }
 
@@ -884,6 +891,9 @@ t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable){
 	// Envio al UMC la peticion
 	enviarMensajeNucleo(mensaje);
 
+	// Libero memoria de mensaje
+	freeMensaje(&mensaje);
+
 	// Recibo mensaje
 	recibirMensajeNucleo(&mensaje);
 
@@ -927,7 +937,7 @@ void parser_irAlLabel(t_nombre_etiqueta etiqueta){
 	log_trace(logger, "--> parser_irAlLabel(%s);", etiqueta);
 	unsigned intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
 	pcb_global.pc = intruction;
-	log_trace(logger, "----> Return: %u", pcb_global.pc);
+	log_trace(logger, "----> PC: %u", pcb_global.pc);
 }
 
 void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta){
@@ -948,8 +958,14 @@ void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta){
 void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar_puntero){
 	t_posicionDeMemoria donde_retornar = punteroToPos(donde_retornar_puntero);
 	log_trace(logger, "--> parser_llamarConRetorno(%s,(%u,%u,%u));", etiqueta, donde_retornar.numeroPagina, donde_retornar.offset, donde_retornar.size);
+
+
+	log_trace(logger,"%s",etiqueta);
+
 	// Busco PC de la primera instruccion de la funcion
-	unsigned pc_first_intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
+	int pc_first_intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
+
+	log_trace(logger, "----> PC: %i --> TAM: %i", pc_first_intruction, pcb_global.tam_indiceEtiquetas);
 
 	// Creo nuevo contexto, y guardo retPos y retVar
 	list_add(pcb_global.indiceStack, stack_create(pcb_global.pc, donde_retornar.numeroPagina, donde_retornar.offset, donde_retornar.size));
@@ -957,7 +973,7 @@ void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retorna
 
 	// Cambio el PC actual
 	pcb_global.pc = pc_first_intruction;
-	log_trace(logger, "----> Return: %u", pcb_global.pc);
+	log_trace(logger, "----> PC: %u", pcb_global.pc);
 }
 
 void parser_finalizar(){
