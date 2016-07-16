@@ -129,7 +129,7 @@ void recibirTamPaginas(void)
 int enviarInfoUMC(unsigned int pid, unsigned int cantidadPaginas, const char *codigo)
 {
 	int ret;
-	t_mensajeHead head = {INIT_PROG, 2, strlen(codigo)};
+	t_mensajeHead head = {INIT_PROG, 2, strlen(codigo) + 1};
 
 	unsigned int *parametros = malloc(2 * sizeof(unsigned int));
 	parametros[0] = pid;
@@ -700,7 +700,7 @@ void administrarConexiones(void)
 								continue;
 							}
 
-							if(mensajeCPU.head.codigo == IMPRIMIR_NUM)
+							if(mensajeCPU.head.codigo == IMPRIMIR_NUM)//Quiere imprimir un numero
 							{
 								int pid = mensajeCPU.parametros[0];
 								int imp = mensajeCPU.parametros[1];
@@ -710,7 +710,7 @@ void administrarConexiones(void)
 								imprimir(imp, laConsola);
 								continue;
 							}
-							if(mensajeCPU.head.codigo == IMPRIMIR_TEXTO)
+							if(mensajeCPU.head.codigo == IMPRIMIR_TEXTO)//Quiere imprimir texto
 							{
 								int pid = mensajeCPU.parametros[0];
 								char* imp = strdup(mensajeCPU.mensaje_extra);
@@ -735,7 +735,7 @@ void administrarConexiones(void)
 								continue;
 							}
 
-							if(mensajeCPU.head.codigo == ENTRADA_SALIDA)//Pidio I/O, Bloquear
+							if(mensajeCPU.head.codigo == ENTRADA_SALIDA)//Pidio I/O: Bloquear y poner en la cola de espera que corresponda
 							{
 								//Sacarle los datos y luego volver a recibir mensaje
 								int pid = mensajeCPU.parametros[0];(void) pid;
