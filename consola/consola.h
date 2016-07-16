@@ -25,7 +25,7 @@ t_infoConfig infoConfig;
 
 t_mensaje codigo_to_mensaje(char* codigo)
 {
-	unsigned int tamCod = strlen(codigo);
+	unsigned int tamCod = strlen(codigo)+1;
 	t_mensajeHead head = {NUEVO_PROGRAMA, 0, tamCod};
 	t_mensaje mensaje;
 	mensaje.head = head;
