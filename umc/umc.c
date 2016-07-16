@@ -51,7 +51,7 @@ struct sockaddr_in setDireccionSWAP()
 
 void inicializarEstructuras()
 {
-	logger = log_create("UMC_TEST.txt", "UMC", 0, LOG_LEVEL_TRACE);
+	logger = log_create("UMC_TEST.txt", "UMC", 1, LOG_LEVEL_TRACE);
 	loggerConsola = log_create("UMC_CONSOLA.txt","UMC",1,LOG_LEVEL_TRACE);
 	memoriaPrincipal = malloc(infoMemoria.marcos * infoMemoria.tamanioDeMarcos);
 	TLB = list_create();
@@ -182,7 +182,6 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 			tablaPaginas->paginasEnMemoria[pagina] = pagina;
 
 	}
-	tablaPaginas->cantidadEntradasMemoria = 0;
 	for(pagina=0;pagina < paginasSolicitadas; pagina++)
 	{
 
@@ -259,10 +258,6 @@ void eliminarDeMemoria(unsigned pid)
 		if(buscador->pid == pid)
 		{
 			list_remove(tablasDePaginas,index);
-			pthread_mutex_unlock(&mutexTablaPaginas);
-			free(buscador->paginasEnMemoria);
-			free(buscador->entradaTablaPaginas);
-			free(buscador);
 			pthread_mutex_unlock(&mutexTablaPaginas);
 			return;
 		}
@@ -457,17 +452,19 @@ unsigned actualizaPagina(unsigned pagina,unsigned pidActivo,unsigned punteroCloc
 	{
 		tablaDePagina->paginasEnMemoria[punteroClock] = pagina;
 
+		log_trace(logger,"variable entradasMemoria:%d",tablaDePagina->cantidadEntradasMemoria);
 		if(punteroClock == tablaDePagina->cantidadEntradasMemoria)
 			tablaDePagina->punteroClock = 0;
 		else
 			tablaDePagina->punteroClock = tablaDePagina->punteroClock+1;
+
 		log_trace(logger,"El puntero clock luego del algortimo:%d",tablaDePagina->punteroClock);
 
 		tablaDePagina->entradaTablaPaginas[pagina].estaEnMemoria = 1;
 		tablaDePagina->entradaTablaPaginas[pagina].marco = marcoDisponible;
 		list_replace(tablasDePaginas,indice,tablaDePagina);
 		tablaPrueba = list_get(tablasDePaginas,indice);
-		if(tablaPrueba->entradaTablaPaginas[pagina].estaEnMemoria == 1)
+		if(tablaPrueba->entradaTablaPaginas[pagina].estaEnMemoria == 1 && tablaPrueba->punteroClock == tablaDePagina->punteroClock)
 			log_trace(logger,"La tabla de pagina se actualizo correctamente");
 		else
 			log_error(logger,"La tabla de paginas No se actualizo correctamente");
@@ -482,6 +479,7 @@ void escribirEnMemoria(void* codigoPrograma,unsigned tamanioPrograma, unsigned p
 	unsigned marco = actualizaPagina(pagina,pidActivo,punteroClock,indice);
 	pthread_mutex_lock(&mutexMemoria);
 	memcpy(memoriaPrincipal + infoMemoria.tamanioDeMarcos*marco,codigoPrograma,tamanioPrograma);
+	log_trace(logger,"Se actualiza la memoria con el nuevo marco");
 	pthread_mutex_unlock(&mutexMemoria);
 
 	return;
