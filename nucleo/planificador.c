@@ -1,7 +1,7 @@
 #include "planificador.h"
-#include<pthread.h>
 
-pthread_mutex_t lock;
+
+
 int imprimir_i = 1, vuelta = 0;
 void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_queue *listos, t_queue *bloqueados, t_queue *salida)
 {
@@ -29,7 +29,6 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 			{
 				escribirLog("CPU Libre\n");
 				escribirLog("--------------------------------\n");
-				pthread_mutex_lock(&lock);
 				//Extraer proceso de la cola de listos
 				proceso = queue_pop(listos);
 				//Borrar del conjunto de procesos listos
@@ -42,7 +41,7 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 				FD_CLR(cpu_explorer, &conjunto_cpus_libres);
 				//Ejecutar proceso
 				ejecutar(*proceso, quantum, quantumSleep, cpu_explorer);
-				pthread_mutex_unlock(&lock);
+
 
 				break;
 			}
@@ -132,9 +131,7 @@ void* actualizar_si_corresponde(void *pcb)
 
 void actualizarMaster(void)
 {
-	pthread_mutex_lock(&lock);
 	list_map(lista_master_procesos, actualizar_si_corresponde);
-	pthread_mutex_unlock(&lock);
 }
 
 void ponerListo(t_PCB *proceso)
