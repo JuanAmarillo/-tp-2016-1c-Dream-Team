@@ -273,8 +273,6 @@ static void vars_destroy(t_variable *self) {
 }
 
 static void stack_destroy(t_indiceStack *self) {
-    free(self->args);
-    free(self->vars);
     free(self);
 }
 
