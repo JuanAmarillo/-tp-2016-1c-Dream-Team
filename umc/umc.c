@@ -198,10 +198,10 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 
 void borrarEntradasTLBSegun(unsigned pidActivo)
 {
-	unsigned cantidadEntradas = infoMemoria.entradasTLB;
 	unsigned entrada;
 	t_entradaTLB *entradaTLB;
 	pthread_mutex_lock(&mutexTLB);
+	unsigned cantidadEntradas = list_size(TLB);
 	for(entrada = 0 ; entrada < cantidadEntradas ; entrada++)
 	{
 		entradaTLB = list_get(TLB,entrada);
@@ -270,6 +270,7 @@ int eliminarDeMemoria(unsigned pid)
 void finPrograma(t_mensaje finalizarProg)
 {
 	unsigned pid = finalizarProg.parametros[0];
+	log_trace(logger,"Se finaliza el programa con pid:%d ",pid);
 	if(eliminarDeMemoria(pid) == 0)
 	{
 		enviarMensaje(clienteSWAP,finalizarProg);
@@ -393,7 +394,6 @@ unsigned algoritmoclock(unsigned pidActivo,unsigned *indice)
 {
 	log_trace(logger,"Se ejecuta el algoritmo clock\n");
 	unsigned punteroClock;
-	unsigned huboFalloPagina;
 	t_tablaDePaginas* tablaBuscada = buscarTablaSegun(pidActivo,indice,&punteroClock);
 	log_trace(logger,"EL puntero clock:%d\n",punteroClock);
 	unsigned paginaApuntada;
@@ -740,6 +740,7 @@ void accionSegunCabecera(int clienteUMC,unsigned pid)
 	while(1){
 		procesosEnTabla();
 		if(recibirMensaje(clienteUMC,&mensaje) <= 0){
+			free(&mensaje);
 			clienteDesconectado(clienteUMC);
 		}
 		cabeceraDelMensaje = mensaje.head.codigo;
