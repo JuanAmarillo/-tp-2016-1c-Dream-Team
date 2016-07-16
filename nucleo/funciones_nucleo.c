@@ -339,16 +339,22 @@ void abortarProceso(int pid)
 
 void imprimir(int imp, int consola)
 {
-	t_mensajeHead head = {IMPRIMIR_PROGRAMA, 1, 0};
+	t_mensajeHead head = {IMPRIMIR_PROGRAMA, 1, 1};
 	t_mensaje mensaje;
 	mensaje.head = head;
+	mensaje.parametros = malloc(4);
 	mensaje.parametros[0] = imp;
+
+	mensaje.mensaje_extra = malloc(1);
 
 	if(enviarMensaje(consola, mensaje) == -1)
 	{
 		perror("Error al imprimir en consola\n");
 		abort();
 	}
+
+	free(mensaje.parametros);
+	free(mensaje.mensaje_extra);
 }
 
 void imprimirTexto(const char *imp, int consola)
@@ -692,7 +698,10 @@ void administrarConexiones(void)
 							{
 								int pid = mensajeCPU.parametros[0];
 								int imp = mensajeCPU.parametros[1];
-								imprimir(imp, Pid_to_Consola(pid));
+
+								int laConsola = Pid_to_Consola(pid);
+								escribirLog("Se recibio el numero %d para imprimir\n", imp);
+								imprimir(imp, laConsola);
 								continue;
 							}
 							if(mensajeCPU.head.codigo == IMPRIMIR_TEXTO)
