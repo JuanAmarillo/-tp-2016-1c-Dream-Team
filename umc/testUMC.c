@@ -8,16 +8,22 @@
 
 void testInicioPrograma(unsigned pid,unsigned paginas)
 {
-	char* codigoPrograma = malloc(4);
+	char* hola = malloc(paginas*4);
+	int i= 0;
+	for(i=0;i<paginas-1;i++)
+		memcpy(hola+i*4,"hola",4);
+	memcpy(hola+paginas*3,"hol\0",4);
 	t_mensaje inicioPrograma;
 	inicioPrograma.head.codigo = INIT_PROG;
 	inicioPrograma.head.cantidad_parametros = 2;
 	inicioPrograma.parametros = malloc(2*sizeof(int));
 	inicioPrograma.parametros[0] = pid;
 	inicioPrograma.parametros[1] = paginas;
-	inicioPrograma.head.tam_extra = sizeof(codigoPrograma);
-	inicioPrograma.mensaje_extra = codigoPrograma;
+	inicioPrograma.head.tam_extra = 16;
+	inicioPrograma.mensaje_extra = hola;
+	printf("%s",inicioPrograma.mensaje_extra);
 	inicializarPrograma(inicioPrograma,4);
+	procesosEnTabla();
 
 	return;
 }
@@ -34,6 +40,7 @@ void testFinPrograma(unsigned pid)
 	finaPrograma.head.tam_extra = 0;
 	finaPrograma.mensaje_extra = NULL;
 	finPrograma(finaPrograma);
+	procesosEnTabla();
 
 	return;
 
@@ -47,6 +54,7 @@ void testSolicitarBytesDeUnaPagina(unsigned pagina, unsigned offset, unsigned ta
 	bytesPagina.head.tam_extra = 0;
 	bytesPagina.mensaje_extra = NULL;
 	enviarBytesDeUnaPagina(bytesPagina,4,pid);
+	procesosEnTabla();
 	return;
 }
 
@@ -61,20 +69,38 @@ int main(){
 	//Config
 	leerArchivoConfig();
 	inicializarEstructuras();
-	//conectarAlSWAP();
+	conectarAlSWAP();
 
 	//servidor
 	//gestionarConexiones();
 
 	//test
-	testInicioPrograma(3,4);
+	testInicioPrograma(1,4);
 	testInicioPrograma(2,5);
-	testFinPrograma(2);
-	testInicioPrograma(4,1);
-	testInicioPrograma(5,3);
-	testFinPrograma(4);
+	procesosEnTabla();
+	traerPaginaAMemoria(0,1);
+	procesosEnTabla();
+	traerPaginaAMemoria(0,2);
+	procesosEnTabla();
+	traerPaginaAMemoria(1,1);
+	procesosEnTabla();
+	traerPaginaAMemoria(1,2);
+	procesosEnTabla();
+	traerPaginaAMemoria(3,1);
+	procesosEnTabla();
+	traerPaginaAMemoria(2,1);
+	procesosEnTabla();
+	traerPaginaAMemoria(4,2);
+	procesosEnTabla();
+	traerPaginaAMemoria(0,1);
+	procesosEnTabla();
+	traerPaginaAMemoria(1,1);
+	procesosEnTabla();
+	traerPaginaAMemoria(3,1);
+	procesosEnTabla();
 
-*
+
+
 	return 0;
 
 }*/

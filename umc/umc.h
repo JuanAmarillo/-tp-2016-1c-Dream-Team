@@ -90,6 +90,7 @@ t_list *TLB;
 //t_entradaTLB  *entradaTLB;
 pthread_mutex_t mutexClientes;
 pthread_mutex_t mutexMemoria;
+pthread_mutex_t mutexClock;
 pthread_mutex_t mutexTablaPaginas;
 pthread_mutex_t mutexTLB;
 
@@ -97,6 +98,7 @@ pthread_mutex_t mutexTLB;
  * Funciones
  */
 void leerArchivoConfig();
+void procesosEnTabla();
 struct sockaddr_in setDireccion(const char *puerto);
 void inicializarEstructuras();
 void clienteDesconectado(int clienteUMC);
