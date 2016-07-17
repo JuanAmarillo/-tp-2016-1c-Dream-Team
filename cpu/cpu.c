@@ -37,21 +37,10 @@ int main(int argc, char** argv){
 
 	// Me conecto a la UMC
 	socketUMC = conectarseUMC();
-	if(socketUMC == -1) {
-		log_error(logger, "No se pudo conectarse con la UMC");
-		abort();
-	}
-
-	log_trace(logger, "UMC Conectada");
 
 	// Me conecto a el Nucleo
+	//socketNucleo = socketUMC;
 	socketNucleo = conectarseNucleo();
-	if(socketNucleo == -1) {
-		log_error(logger, "No se pudo conectarse con el Nucleo");
-		abort();
-	}
-
-	log_trace(logger, "Nucleo Conectado");
 
 	// Obtener tamaño de paginas UMC
 	tamano_pagina_umc = obtenerTamanoPaginasUMC();
@@ -192,9 +181,10 @@ void leerArchivoConfig() {
 int conectarseUMC() {
 	int serverSocket = crearConexion(infoConfig.ip_umc, infoConfig.puerto_umc);
 	if(serverSocket == -1){
-		perror("Error al conectarse con UMC");
-		return -1;
+		log_error(logger, "No se pudo conectarse con la UMC");
+		abort();
 	}
+	log_trace(logger, "UMC Conectada");
 	return serverSocket;
 }
 
@@ -209,9 +199,10 @@ int conectarseUMC() {
 int conectarseNucleo() {
 	int serverSocket = crearConexion(infoConfig.ip_nucleo, infoConfig.puerto_nucleo);
 	if(serverSocket == -1){
-		perror("Error al conectarse con Nucleo");
-		return -1;
+		log_error(logger, "No se pudo conectarse con el Nucleo");
+		abort();
 	}
+	log_trace(logger, "Nucleo Conectado");
 	return serverSocket;
 }
 
@@ -358,6 +349,9 @@ char *obtenerSiguienteIntruccion(){
 	mensaje.head.tam_extra = 0;
 	mensaje.parametros = parametros;
 	mensaje.mensaje_extra = NULL;
+
+
+	log_trace(logger, "Inicio: %i Tamanio: %i", pcb_global.indiceCodigo[pcb_global.pc].offset_inicio, pcb_global.indiceCodigo[pcb_global.pc].offset_fin);
 
 	// Envio al UMC la peticion
 	enviarMensajeUMC(mensaje);
