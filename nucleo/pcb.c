@@ -324,8 +324,8 @@ t_PCB crearPCB(t_mensaje programa, unsigned int pid, unsigned int tamPag)
 	pcb.total_instrucciones = metadata->instrucciones_size;
 
 	pcb.indiceCodigo = (t_indiceCodigo*) metadata->instrucciones_serializado;
-//	pcb.indiceStack = (t_list*)stack_create(0, 0, 0, 0);//Valor inicial
 	pcb.indiceStack = list_create();//Valor inicial
+	list_add(pcb.indiceStack, stack_create(0, 0, 0, 0));
 	free(codigo);
 	return pcb;
 }
