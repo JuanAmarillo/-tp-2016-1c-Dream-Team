@@ -32,6 +32,7 @@ t_mensaje codigo_to_mensaje(char* codigo)
 	mensaje.parametros = NULL;
 	mensaje.mensaje_extra = malloc(tamCod);
 	memcpy(mensaje.mensaje_extra, codigo, tamCod);
+	memset(mensaje.mensaje_extra + tamCod - 1, '\0', 1);
 	return mensaje;
 }
 
