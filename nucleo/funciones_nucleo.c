@@ -249,6 +249,7 @@ void desasociarPidConsola(int pid)
 		lista_Pares->head = lista_Pares->head->next;
 		lista_Pares->elements_count --;
 		free(aux);
+		escribirLog("Desasociar ok\n");
 		return;
 	}
 
@@ -259,6 +260,7 @@ void desasociarPidConsola(int pid)
 		aux->next = aux2->next;
 		lista_Pares->elements_count --;
 		free(aux2);
+		escribirLog("Desasociar ok\n");
 	}
 	else
 	{
