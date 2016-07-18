@@ -367,8 +367,8 @@ char *obtenerSiguienteIntruccion(){
 	// Recibo mensaje
 	recibirMensajeUMC(&mensaje);
 
-	if(mensaje.head.codigo != GET_DATA){
-		log_error(logger, "Se recibio un mensaje diferente a 'GET_DATA'");
+	if(mensaje.head.codigo != RETURN_OK){
+		log_error(logger, "Se recibio un mensaje diferente a 'RETURN_OK'");
 		abort();
 	}
 
@@ -841,8 +841,8 @@ t_valor_variable parser_dereferenciar(t_puntero direccion_variable_puntero) {
 	// Recibo mensaje
 	recibirMensajeUMC(&mensaje);
 
-	if(mensaje.head.codigo != GET_DATA){
-		log_error(logger, "Se recibio un mensaje diferente a 'GET_DATA'");
+	if(mensaje.head.codigo != RETURN_OK){
+		log_error(logger, "Se recibio un mensaje diferente a 'RETURN_OK'");
 		abort();
 	}
 
@@ -882,8 +882,8 @@ void parser_asignar(t_puntero direccion_variable_puntero, t_valor_variable valor
 	// Recibo mensaje
 	recibirMensajeUMC(&mensaje);
 
-	if(mensaje.head.codigo != RECORD_DATA){
-		log_error(logger, "Se recibio un mensaje diferente a 'RECORD_DATA'");
+	if(mensaje.head.codigo != RETURN_OK){
+		log_error(logger, "Se recibio un mensaje diferente a 'RETURN_OK'");
 		abort();
 	}
 
