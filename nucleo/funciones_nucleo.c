@@ -226,11 +226,13 @@ void avisar_Consola_ProgramaNoAlmacenado(int fd)
 }
 
 void asociarPidConsola(int pid, int consola)
-{escribirLog("Se intentara asociar el pid %d con al consola fd:%d\n", pid, consola);
+{
+	escribirLog("Se intentara asociar el pid %d con al consola fd:%d\n", pid, consola);
 	t_parPidConsola *par = malloc(sizeof(t_parPidConsola));
 	par->pid = pid;
 	par->fd_consola = consola;
 	list_add(lista_Pares, par);
+	escribirLog("Asociar ok\n");
 }
 
 void desasociarPidConsola(int pid)
