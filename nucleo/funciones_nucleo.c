@@ -202,17 +202,31 @@ int seAlmacenoElProceso(void)
 
 void avisar_Consola_ProgramaNoAlmacenado(int fd)
 {
+	//Avisar a la consola que no fue posible almacenar el proceso
 	const char aviso[] = "Error: No ha sido posible almacenar el programa en memoria\nAbortado\n";
-	t_mensajeHead head = {IMPRIMIR_TEXTO_PROGRAMA, 0, strlen(aviso)};
+	t_mensajeHead head = {IMPRIMIR_TEXTO_PROGRAMA, 1, strlen(aviso) + 1};
 	t_mensaje mensaje;
 	mensaje.head = head;
+	mensaje.parametros = malloc(4);
 	mensaje.mensaje_extra = strdup(aviso);
+
 	enviarMensaje(fd, mensaje);
+
+	free(mensaje.parametros);
 	free(mensaje.mensaje_extra);
+
+	//Avisar que aborte
+	t_mensajeHead headExit = {EXIT_PROGRAMA, 1, 1};
+	t_mensaje mensajeExit = {headExit, malloc(4), malloc(1)};
+
+	enviarMensaje(fd, mensajeExit);
+
+	free(mensajeExit.parametros);
+	free(mensajeExit.mensaje_extra);
 }
 
 void asociarPidConsola(int pid, int consola)
-{
+{escribirLog("Se intentara asociar el pid %d con al consola fd:%d\n", pid, consola);
 	t_parPidConsola *par = malloc(sizeof(t_parPidConsola));
 	par->pid = pid;
 	par->fd_consola = consola;
@@ -221,11 +235,19 @@ void asociarPidConsola(int pid, int consola)
 
 void desasociarPidConsola(int pid)
 {
+
 	t_link_element *aux = lista_Pares->head, *aux2;
+
+	if(aux == NULL)
+	{
+		escribirLog("Se intento desasociar un pid de una consola, estando la lista de pares vacía\n");
+		return;
+	}
 
 	if(((t_parPidConsola*)(aux->data))->pid == pid)
 	{
 		lista_Pares->head = lista_Pares->head->next;
+		lista_Pares->elements_count --;
 		free(aux);
 		return;
 	}
@@ -235,6 +257,7 @@ void desasociarPidConsola(int pid)
 	{
 		aux2 = aux->next;
 		aux->next = aux2->next;
+		lista_Pares->elements_count --;
 		free(aux2);
 	}
 	else
@@ -290,6 +313,8 @@ int eliminarProcesoSegunPID(t_list *lista, int pid)
 {
 	t_link_element *aux = lista->head, *aux2;
 
+	if(aux == NULL) return 0;
+
 	if(((t_PCB*)(aux->data))->pid == pid)
 	{
 		lista->head = lista->head->next;
@@ -311,14 +336,19 @@ int eliminarProcesoSegunPID(t_list *lista, int pid)
 
 void abortarProceso(int pid)
 {
+	escribirLog("Se abortará el proceso %d\n", pid);
+
 	if(FD_ISSET(pid, &conjunto_procesos_bloqueados))
 	{
-		FD_CLR(pid, &conjunto_procesos_bloqueados);
-		eliminarProcesoSegunPID(cola_bloqueados->elements, pid);
+		int i;
+		FD_CLR(pid, &conjunto_procesos_bloqueados);escribirLog("Se elimino del conj bloq\n");
+		for(i = 0; i < cantidadDispositivos(); ++i)
+			eliminarProcesoSegunPID(vector_dispositivos[i].cola->elements, pid);
 	}
 	if(FD_ISSET(pid, &conjunto_procesos_ejecutando))
 	{
 		FD_CLR(pid, &conjunto_procesos_ejecutando);
+		//Hay que avisar a la cpu
 	}
 	if(FD_ISSET(pid, &conjunto_procesos_listos))
 	{
@@ -326,9 +356,9 @@ void abortarProceso(int pid)
 		eliminarProcesoSegunPID(cola_listos->elements, pid);
 	}
 
-	FD_SET(pid, &conjunto_procesos_abortados);
+	FD_SET(pid, &conjunto_procesos_abortados);escribirLog("Se seteo en el conj abort\n");
 
-	actualizarMaster();
+	actualizarMaster();escribirLog("Se actualizo el master\n");
 
 	desasociarPidConsola(pid);
 
@@ -569,10 +599,16 @@ void administrarConexiones(void)
 								FD_CLR(fd_explorer, &conj_master);
 								FD_CLR(fd_explorer, &conj_consola);
 								escribirLog("Se ha desconectado una consola (fd[%d])\n", fd_explorer);
-								if(FD_ISSET(Consola_to_Pid(fd_explorer), &conjunto_procesos_ejecutando))
+								if(( FD_ISSET(Consola_to_Pid(fd_explorer), &conjunto_procesos_ejecutando) || FD_ISSET(Consola_to_Pid(fd_explorer), &conjunto_procesos_listos) || FD_ISSET(Consola_to_Pid(fd_explorer), &conjunto_procesos_bloqueados) ) )
+								{
+									avisar_UMC_FIN_PROG(Consola_to_Pid(fd_explorer));
 									abortarProceso(Consola_to_Pid(fd_explorer));
+								}
 								else
+								{
 									desasociarPidConsola(Consola_to_Pid(fd_explorer));
+								}
+
 								close(fd_explorer);
 							}
 						}
@@ -598,8 +634,6 @@ void administrarConexiones(void)
 							//Mostrar lista de pares por log
 							mostrarParesPorLog();
 
-							escribirLog("pid:%d     --->  pid_to_consola: %d\n", pcb->pid, Pid_to_Consola(pcb->pid));
-							escribirLog("consola:%d --->  consola_to_pid: %d\n", fd_explorer, Consola_to_Pid(fd_explorer));
 
 							//Enviar a UMC: PID, Cant Paginas, codigo
 							char *code = strdup(mensajeConsola.mensaje_extra);
@@ -625,7 +659,7 @@ void administrarConexiones(void)
 								free(pcb->indiceCodigo);
 								free(pcb->indiceStack);
 								free(pcb);
-								escribirLog("No se almaceno el proceso, se abortara el mismo\n");
+								escribirLog("La umc no pudo almacenar el proceso, se abortara el mismo\n");
 								avisar_Consola_ProgramaNoAlmacenado(fd_explorer);
 							}
 
