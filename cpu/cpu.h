@@ -34,6 +34,8 @@ void recibirMensajeUMC(t_mensaje *);
 void recibirMensajeNucleo(t_mensaje *);
 int crearConexion(const char *, const char *);
 void signal_sigusr1(int);
+int _esEspacio_cpu(char);
+char* _string_trim_cpu(char*);
 char *obtenerSiguienteIntruccion();
 unsigned obtenerTamanoPaginasUMC();
 void enviarPCBnucleo(unsigned);

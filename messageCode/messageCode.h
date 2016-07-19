@@ -23,10 +23,8 @@
 #define RECORD_DATA 703
 
 // UMC -> CPU
-#define RETURN_DATA 704
 #define RETURN_TAM_PAGINA 705
-#define RETURN_POS 706
-#define RETURN_RECORD_DATA 707
+#define RETURN_OK 707
 
 // NUCLEO <- CPU
 #define STRUCT_PCB 708

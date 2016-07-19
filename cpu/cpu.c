@@ -97,6 +97,7 @@ int main(int argc, char** argv){
 
 			// Sleep
 			usleep(quantum_sleep);
+			//getchar();
 
 			// Realizo acciones segun el estado de ejecucion
 			if((estado_ejecucion != 0) || (notificacion_signal_sigusr1 == 1)) break;
@@ -311,6 +312,10 @@ void signal_sigusr1(int signal){
   notificacion_signal_sigusr1 = 1;
 }
 
+
+/*
+ *  _esEspacio_cpu();
+ */
 int _esEspacio_cpu(char caracter){
 	if(caracter==' ' || caracter=='\t' || caracter=='\f' || caracter=='\r' || caracter=='\v'){
 		return 1;
@@ -319,6 +324,9 @@ int _esEspacio_cpu(char caracter){
 	}
 }
 
+/*
+ * _string_trim_cpu();
+ */
 char* _string_trim_cpu(char* texto){
     int i;
     while (_esEspacio_cpu(*texto) == 1) texto++;   //Anda a el primer no-espacio
@@ -359,8 +367,8 @@ char *obtenerSiguienteIntruccion(){
 	// Recibo mensaje
 	recibirMensajeUMC(&mensaje);
 
-	if(mensaje.head.codigo != RETURN_DATA){
-		log_error(logger, "Se recibio un mensaje diferente a 'RETURN_DATA'");
+	if(mensaje.head.codigo != RETURN_OK){
+		log_error(logger, "Se recibio un mensaje diferente a 'RETURN_OK'");
 		abort();
 	}
 
@@ -744,11 +752,6 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 	t_posicionDeMemoria posicionMemoria;
 	int cantidad_vars;
 	unsigned sp_tmp = pcb_global.sp;
-	int cantidad_stack = list_size(pcb_global.indiceStack);
-
-	if(cantidad_stack == 0){
-		list_add(pcb_global.indiceStack, stack_create(0, 0, 0, 0));
-	}
 
 	// Obtengo la ultima direccion de memoria que se encuentra guardada
 	while(1){
@@ -838,22 +841,22 @@ t_valor_variable parser_dereferenciar(t_puntero direccion_variable_puntero) {
 	// Recibo mensaje
 	recibirMensajeUMC(&mensaje);
 
-	if(mensaje.head.codigo != RETURN_DATA){
-		log_error(logger, "Se recibio un mensaje diferente a 'RETURN_DATA'");
+	if(mensaje.head.codigo != RETURN_OK){
+		log_error(logger, "Se recibio un mensaje diferente a 'RETURN_OK'");
 		abort();
 	}
 
-/*	if(mensaje.parametros[0] != 1){
+	if(mensaje.parametros[0] != 1){
 		estado_ejecucion = 2; // Fuera de segmento
 		freeMensaje(&mensaje);
 		return contenido_variable;
-	}*/
+	}
 
-	contenido_variable = *mensaje.mensaje_extra;
+	contenido_variable = *((int*) mensaje.mensaje_extra);
 
 	// Libero memoria de mensaje
 	freeMensaje(&mensaje);
-	log_trace(logger, "----> Return: %i", contenido_variable);
+	log_trace(logger, "----> Return: %i", contenido_variable, contenido_variable);
 	return contenido_variable;
 }
 
@@ -879,8 +882,8 @@ void parser_asignar(t_puntero direccion_variable_puntero, t_valor_variable valor
 	// Recibo mensaje
 	recibirMensajeUMC(&mensaje);
 
-	if(mensaje.head.codigo != RETURN_RECORD_DATA){
-		log_error(logger, "Se recibio un mensaje diferente a 'RETURN_RECORD_DATA'");
+	if(mensaje.head.codigo != RETURN_OK){
+		log_error(logger, "Se recibio un mensaje diferente a 'RETURN_OK'");
 		abort();
 	}
 
@@ -974,13 +977,8 @@ void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retorna
 	t_posicionDeMemoria donde_retornar = punteroToPos(donde_retornar_puntero);
 	log_trace(logger, "--> parser_llamarConRetorno(%s,(%u,%u,%u));", etiqueta, donde_retornar.numeroPagina, donde_retornar.offset, donde_retornar.size);
 
-
-	log_trace(logger,"%s",etiqueta);
-
 	// Busco PC de la primera instruccion de la funcion
 	int pc_first_intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
-
-	log_trace(logger, "----> PC: %i --> TAM: %i", pc_first_intruction, pcb_global.tam_indiceEtiquetas);
 
 	// Creo nuevo contexto, y guardo retPos y retVar
 	list_add(pcb_global.indiceStack, stack_create(pcb_global.pc, donde_retornar.numeroPagina, donde_retornar.offset, donde_retornar.size));
@@ -1080,6 +1078,7 @@ void parser_imprimirTexto(char* texto){
 	mensaje.head.tam_extra = strlen(texto) + 1;
 	mensaje.parametros = parametros;
 	mensaje.mensaje_extra = texto;
+	memset(mensaje.mensaje_extra + mensaje.head.tam_extra - 1, '\0', 1);
 
 	// Envio al UMC la peticion
 	enviarMensajeNucleo(mensaje);
