@@ -750,6 +750,7 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 	t_indiceStack *aux_stack;
 	t_variable *aux_vars;
 	t_posicionDeMemoria posicionMemoria;
+	t_puntero puntero_tmp;
 	int cantidad_vars;
 	unsigned sp_tmp = pcb_global.sp;
 
@@ -774,21 +775,10 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 		break;
 	}
 
-	// Calculo la nueva direccion de memoria
-	if((aux_vars->posicionMemoria.offset + 8) > tamano_pagina_umc){
-		posicionMemoria.numeroPagina = aux_vars->posicionMemoria.numeroPagina + 1;
-		posicionMemoria.offset = 0;
-	} else {
-		posicionMemoria.numeroPagina = aux_vars->posicionMemoria.numeroPagina;
-		if(cantidad_vars == 0){
-			posicionMemoria.offset = aux_vars->posicionMemoria.offset;
-			free(aux_vars);
-		} else {
-			posicionMemoria.offset = aux_vars->posicionMemoria.offset + 4;
-		}
-	}
-
-	posicionMemoria.size = 4;
+	// Calculo la direccion de memoria
+	puntero_tmp = posToPuntero(aux_vars->posicionMemoria);
+	puntero_tmp = puntero_tmp + sizeof(t_valor_variable);
+	posicionMemoria = punteroToPos(puntero_tmp);
 
 	// Registrar variable en el ultimo Indice Stack
 	aux_stack = list_get(pcb_global.indiceStack, pcb_global.sp);
