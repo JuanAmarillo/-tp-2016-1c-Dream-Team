@@ -55,10 +55,10 @@ typedef struct{
 
 typedef struct{
 	unsigned pid;
-	unsigned punteroClock;
-	unsigned *paginasEnMemoria;
+	int *paginasEnMemoria;
 	unsigned cantidadEntradasTablaPagina;
 	unsigned cantidadEntradasMemoria;
+	unsigned punteroClock;
 	t_entradaTablaPaginas *entradaTablaPaginas;
 } t_tablaDePaginas;
 
@@ -116,15 +116,15 @@ void finPrograma(t_mensaje finalizarProg);
 void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo);
 void falloDePagina(unsigned pidActivo);
 void actualizarPagina(unsigned pagina,unsigned pidActivo);
-void escribirEnMemoria(void* codigoPrograma,unsigned tamanioPrograma, unsigned pagina,unsigned pidActivo,unsigned punteroClock,unsigned indice);
-unsigned algoritmoclock(unsigned pidActivo,unsigned *indice);
+void escribirEnMemoria(void* codigoPrograma,unsigned tamanioPrograma, unsigned pagina,unsigned pidActivo,unsigned punteroClock,unsigned indice,int clienteUMC,int paginaEstabaEnMemoria);
+unsigned algoritmoclock(unsigned pidActivo,unsigned *indice,unsigned pagina,int *paginaSiYaEstabaEnMemoria);
 void pedirPagAlSWAP(unsigned pagina,unsigned pidActual);
-void traerPaginaAMemoria(unsigned pagina,unsigned pidActual);
+void traerPaginaAMemoria(unsigned pagina,unsigned pidActual,int clienteUMC);
 void actualizarTLB(t_entradaTablaPaginas entradaDePaginas,unsigned pagina,unsigned pidActual);
 int buscarEnTLB(unsigned paginaBuscada,unsigned pidActual);
-void traducirPaginaAMarco(unsigned pagina,int *marco,unsigned pidActual);
+void traducirPaginaAMarco(unsigned pagina,int *marco,unsigned pidActual,int clienteUMC);
 void almacenarBytesEnPagina(t_mensaje mensaje,unsigned pidActivo, int clienteUMC);
-void enviarCodigoAlCPU(char* codigoAEnviar, unsigned tamanio,int clienteUMC);
+void enviarCodigoAlCPU(char* codigoAEnviar, unsigned tamanio,int clienteUMC,unsigned estado);
 void enviarBytesDeUnaPagina(t_mensaje mensaje,int clienteUMC,unsigned pidActual);
 void enviarTamanioDePagina(int clienteUMC);
 void accionSegunCabecera(int clienteUMC,unsigned pid);
@@ -134,6 +134,7 @@ int aceptarConexion();
 int recibir(void *buffer,unsigned tamanioDelMensaje,int clienteUMC);
 void conectarAlSWAP();
 void enviar(void *buffer,int cliente);
+void copiarInstruccion(int *marco,unsigned paginasALeer,unsigned tamanio,unsigned offset,void* codigoAEnviar);
 void gestionarConexiones();
 
 

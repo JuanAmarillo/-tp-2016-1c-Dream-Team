@@ -77,31 +77,8 @@ int main(){
 	//test
 	testInicioPrograma(1,4);
 	testInicioPrograma(2,5);
-	procesosEnTabla();
-	traerPaginaAMemoria(0,1);
-	procesosEnTabla();
-	traerPaginaAMemoria(0,2);
-	procesosEnTabla();
-	traerPaginaAMemoria(1,1);
-	procesosEnTabla();
-	traerPaginaAMemoria(1,2);
-	procesosEnTabla();
-	traerPaginaAMemoria(3,1);
-	procesosEnTabla();
-	traerPaginaAMemoria(2,1);
-	procesosEnTabla();
-	traerPaginaAMemoria(4,2);
-	procesosEnTabla();
-	traerPaginaAMemoria(0,1);
-	procesosEnTabla();
-	traerPaginaAMemoria(1,1);
-	procesosEnTabla();
-	traerPaginaAMemoria(3,1);
-	procesosEnTabla();
 
 
 
-	return 0;
-
-}*/
-
+}
+*/

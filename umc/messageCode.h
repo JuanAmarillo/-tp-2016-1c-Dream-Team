@@ -13,19 +13,18 @@
 //NUCLEO -> CONSOLA
 #define IMPRIMIR_PROGRAMA 101
 #define IMPRIMIR_TEXTO_PROGRAMA 102
-
+#define EXIT_PROGRAMA 103
+#define ERROR_PROGRAMA 104
 
 // CPU -> UMC
-#define GET_TAM_PAGINA 700 
+#define GET_TAM_PAGINA 700
 #define GET_DATA 701
 #define CAMBIO_PROCESO 702
 #define RECORD_DATA 703
 
 // UMC -> CPU
-#define RETURN_DATA 704
 #define RETURN_TAM_PAGINA 705
-#define RETURN_POS 706
-#define RETURN_RECORD_DATA 707
+#define RETURN_OK 707
 
 // NUCLEO <- CPU
 #define STRUCT_PCB 708
@@ -33,15 +32,18 @@
 #define STRUCT_PCB_FIN_ERROR 710
 #define OBTENER_COMPARTIDA 711
 #define ASIGNAR_COMPARTIDA 712
-#define IMPRIMIR 713
+#define IMPRIMIR_NUM 713
 #define IMPRIMIR_TEXTO 714
 #define ENTRADA_SALIDA 715
 #define WAIT 716
 #define SIGNAL 717
+#define STRUCT_PCB_IO 718
+#define STRUCT_PCB_WAIT 719
 
 // NUCLEO -> CPU
-#define RETURN_OBTENER_COMPARTIDA 303        //PCB para ejecutar
-#define QUANTUM 304         //Parámetros: quantum, quantumSleep(retardo de cada instruccion, usar sleep(quantumSleep);)
+#define RETURN_OBTENER_COMPARTIDA 303
+#define QUANTUM 304
+#define CPU_WAIT 720
 
 //NUCLEO -> UMC
 #define INIT_PROG 300
