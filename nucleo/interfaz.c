@@ -87,6 +87,7 @@ void* master_imprimirProceso(void *pcb)
 	}
 	printf("%04d  |  ", pid);
 	printf("%s\n", estado);
+	system("tput setaf 9");
 	return NULL;
 }
 
@@ -96,5 +97,4 @@ void imprimirMaster(void)
 	printf("PID   |  Estado\n");
 	printf("-------------------\n");
 	list_map(lista_master_procesos, master_imprimirProceso);
-	system("tput setaf 9");
 }

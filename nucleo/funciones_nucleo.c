@@ -613,7 +613,7 @@ void administrarConexiones(void)
 									desasociarPidConsola(Consola_to_Pid(fd_explorer));
 								}
 
-								close(fd_explorer);
+								//close(fd_explorer);
 							}
 						}
 						else//No hubo error ni desconexion
@@ -715,7 +715,6 @@ void administrarConexiones(void)
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
 								continue;
 							}
-
 							if(mensajeCPU.head.codigo == STRUCT_PCB_FIN)//Termino el programa
 							{
 								t_PCB *pcb = malloc(sizeof(t_PCB));
