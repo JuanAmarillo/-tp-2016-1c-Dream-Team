@@ -110,11 +110,11 @@ void enviarProgramaAlSWAP(unsigned pid, unsigned paginasSolicitadas, unsigned ta
 	codigo.parametros = parametrosParaEnviar;
 	codigo.head.tam_extra = paginasSolicitadas * infoMemoria.tamanioDeMarcos;
 
-	codigo.mensaje_extra = malloc(paginasSolicitadas * infoMemoria.tamanioDeMarcos);;
+	codigo.mensaje_extra = codigoPrograma;
 
 	log_trace(logger,"%s", codigo.mensaje_extra);
 	enviarMensaje(clienteSWAP, codigo);
-	free(codigo.mensaje_extra);
+	//free(codigo.mensaje_extra);
 	log_trace(logger,"FIN enviarProgramaAlSwap");
 }
 
@@ -231,12 +231,13 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 	char* codigoPrograma = malloc(paginasSolicitadas*infoMemoria.tamanioDeMarcos);
 	memcpy(codigoPrograma, mensaje.mensaje_extra, mensaje.head.tam_extra);
 	unsigned tamanioCodigo=mensaje.head.tam_extra;
+	log_trace(logger,"Codigo:\n%s",codigoPrograma);
 
 	if(enviarCodigoAlSwap(paginasSolicitadas,codigoPrograma,pid,tamanioCodigo,clienteUMC) == 1)
 		crearTablaDePaginas(pid,paginasSolicitadas);
 
- 	free(codigoPrograma);
- 	free(mensaje.mensaje_extra);
+ 	//free(codigoPrograma);
+ 	//free(mensaje.mensaje_extra);
 
  	log_trace(logger,"Fin Inicializar Programa");
 	return;
@@ -785,7 +786,11 @@ unsigned copiarCodigo(unsigned paginaDondeEmpieza,unsigned paginasALeer,unsigned
 {
 	unsigned paginaATraducir;
 	int marco;
-	unsigned tamanioACopiar = infoMemoria.tamanioDeMarcos - offset;
+	unsigned tamanioACopiar;
+	if(paginasALeer == 1)
+		tamanioACopiar = tamanio;
+	else
+		tamanioACopiar = infoMemoria.tamanioDeMarcos - offset;
 	unsigned seLeyo = 0;
 
 	t_tablaDePaginas *tablaDePaginas = buscarTablaSegun(pidActual,&paginaATraducir);
