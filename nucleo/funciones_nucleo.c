@@ -613,7 +613,7 @@ void administrarConexiones(void)
 									desasociarPidConsola(Consola_to_Pid(fd_explorer));
 								}
 
-								//close(fd_explorer);
+								close(fd_explorer);
 							}
 						}
 						else//No hubo error ni desconexion
