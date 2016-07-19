@@ -791,6 +791,7 @@ unsigned copiarCodigo(unsigned paginaDondeEmpieza,unsigned paginasALeer,unsigned
 		tamanioACopiar = tamanio;
 	else
 		tamanioACopiar = infoMemoria.tamanioDeMarcos - offset;
+
 	unsigned seLeyo = 0;
 
 	t_tablaDePaginas *tablaDePaginas = buscarTablaSegun(pidActual,&paginaATraducir);
@@ -812,10 +813,14 @@ unsigned copiarCodigo(unsigned paginaDondeEmpieza,unsigned paginasALeer,unsigned
 			seLeyo = seLeyo + tamanioACopiar;
 			tamanio = tamanio - tamanioACopiar;
 			//Se fija si esta por leer la ultima pagina
-			if(paginaATraducir < paginasALeer -1)
+			if(paginaATraducir < paginasALeer -2)
+			{
 				tamanioACopiar = infoMemoria.tamanioDeMarcos;
+			}
 			else
+			{
 				tamanioACopiar = tamanio;
+			}
 		}
 		return 1;
 	}
@@ -853,7 +858,7 @@ unsigned guardarCodigo(unsigned paginaDondeEmpieza,unsigned paginasALeer,unsigne
 			tamanio = tamanio - tamanioACopiar;
 
 			//Se fija si esta por leer la ultima pagina
-			if(paginaATraducir < paginasALeer -1)
+			if(paginaATraducir < paginasALeer -2)
 				tamanioACopiar = infoMemoria.tamanioDeMarcos;
 			else
 				tamanioACopiar = tamanio;
