@@ -46,7 +46,7 @@ void esperaPorProcesos(t_queue*);
 void ejecutar(t_PCB proceso, unsigned short int quantum, unsigned int quantumSleep, int cpu);
 void ponerListo(t_PCB *proceso);
 void terminar(t_PCB *proceso);
-void bloquear(t_PCB *proceso, const char *dispositivo);
+void bloquear(t_PCB *proceso, const char *dispositivo, unsigned int cantOp);
 int estaLibre(int cpu);
 void mostrarCola(const t_queue*);
 void actualizarMaster(void);

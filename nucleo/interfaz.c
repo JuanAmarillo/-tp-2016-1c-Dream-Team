@@ -46,8 +46,24 @@ void imprimirColasDispositivos(void)
 	{
 		printf("____________________________________________\n");
 		printf("%s: ", vector_dispositivos[i].nombre);
-		imprimirListaProcesos((vector_dispositivos[i].cola)->elements);
+		imprimirListaProcesosBloq((vector_dispositivos[i].cola)->elements);
 	}
+}
+
+void imprimirListaProcesosBloq(const t_list *lista)
+{
+	if(!lista->head)
+	{
+		printf("[]\n");
+		return;
+	}
+	t_link_element *aux;
+	putchar('[');
+	for(aux = lista->head; aux->next; aux = aux->next)
+	{
+		printf("%d,", ((t_parProcesoCantOp*)(aux->data))->proceso->pid);
+	}
+	printf("%d]\n", ((t_parProcesoCantOp*)(aux->data))->proceso->pid);
 }
 
 void imprimirListaProcesos(const t_list *lista)

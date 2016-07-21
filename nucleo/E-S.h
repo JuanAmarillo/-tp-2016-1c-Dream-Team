@@ -13,7 +13,7 @@
 
 typedef struct
 {
-	t_PCB *dispositivo;
+	t_PCB *proceso;
 	unsigned int cantOp;
 }t_parProcesoCantOp;
 
