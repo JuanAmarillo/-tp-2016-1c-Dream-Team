@@ -62,6 +62,8 @@ void inicializarEstructuras()
 	memoriaPrincipal = malloc(infoMemoria.marcos * infoMemoria.tamanioDeMarcos);
 	TLB = list_create();
 	tablasDePaginas  = list_create();
+
+	marcoDisponible = malloc(infoMemoria.marcos*sizeof(int));
 	return;
 }
 
@@ -134,11 +136,13 @@ unsigned enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,uns
 	log_trace(logger,"Entro a la funcion enviarCodigoAlSwap");
 	t_mensaje respuesta;
 
+	pthread_mutex_lock(&mutexClientes);
 	//Reservar espacio en el SWAP
 	log_trace(logger,"Pide espacio para reservar el programa al SWAP");
 	pedirReservaDeEspacio(pid, paginasSolicitadas);
 
 	//fijarse si pudo reservar
+	log_trace(logger,"esperando respuesta del swap");
 	recibirMensaje(clienteSWAP,&respuesta);
 	log_trace(logger,"La cabecera recibida es: %d",respuesta.head.codigo);
 	if(respuesta.head.codigo == NOT_ENOUGH_SPACE)
@@ -150,6 +154,7 @@ unsigned enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,uns
 	//Enviar programa al SWAP
 	log_trace(logger,"Hay suficiente espacio, se envia el programa al SWAP");
 	enviarProgramaAlSWAP(pid, paginasSolicitadas, tamanioCodigo, codigoPrograma);
+	pthread_mutex_unlock(&mutexClientes);
 	enviarSuficienteEspacio(clienteUMC,ALMACENAR_OK);
 	log_trace(logger,"Salio de la funcion enviarCodigoAlSwap");
 	return 1;
@@ -160,7 +165,6 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 	log_trace(logger,"Entro a la funcion crearTablaDePaginas");
 	log_trace(logger,"Se procede a crear una tabla de paginas para el proceso %d, con %d paginas\n",pid,paginasSolicitadas);
 	int pagina;
-	pthread_mutex_lock(&mutexTablaPaginas);
 	t_tablaDePaginas *tablaPaginas = malloc(sizeof(t_tablaDePaginas));
 	t_entradaTablaPaginas *entradaTablaPaginas = calloc(paginasSolicitadas,sizeof(t_entradaTablaPaginas));
 	tablaPaginas->pid = pid;
@@ -189,6 +193,7 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 	}
 	log_trace(logger,"\n  Se creo una tabla de Pagina:\n- PID : %d\n- Paginas : %d\n- PunteroClock: %d\n",tablaPaginas->pid,tablaPaginas->cantidadEntradasTablaPagina,tablaPaginas->punteroClock);
 
+	pthread_mutex_lock(&mutexTablaPaginas);
 	list_add(tablasDePaginas,tablaPaginas);
 	pthread_mutex_unlock(&mutexTablaPaginas);
 	log_trace(logger,"Salio de  la funcion crearTablaDePaginas");
@@ -228,16 +233,16 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 	log_trace(logger,"Inicio Incializar Programa");
 	unsigned pid = mensaje.parametros[0];
 	unsigned paginasSolicitadas = mensaje.parametros[1];
-	char* codigoPrograma = malloc(paginasSolicitadas*infoMemoria.tamanioDeMarcos);
+	char* codigoPrograma = malloc(paginasSolicitadas*infoMemoria.tamanioDeMarcos+    infoMemoria.tamanioDeMarcos); //CUIDADO! BORRAR ESO
 	memcpy(codigoPrograma, mensaje.mensaje_extra, mensaje.head.tam_extra);
-	unsigned tamanioCodigo=mensaje.head.tam_extra;
+	unsigned tamanioCodigo=mensaje.head.tam_extra    + infoMemoria.tamanioDeMarcos; //Cuidado BORAR!!
 	log_trace(logger,"Codigo:\n%s",codigoPrograma);
 
 	if(enviarCodigoAlSwap(paginasSolicitadas,codigoPrograma,pid,tamanioCodigo,clienteUMC) == 1)
-		crearTablaDePaginas(pid,paginasSolicitadas);
+		crearTablaDePaginas(pid,paginasSolicitadas+1);
 
- 	//free(codigoPrograma);
- 	//free(mensaje.mensaje_extra);
+ 	free(codigoPrograma);
+ 	free(mensaje.mensaje_extra);
 
  	log_trace(logger,"Fin Inicializar Programa");
 	return;
@@ -281,6 +286,7 @@ void falloPagina(t_tablaDePaginas* tablaBuscada,unsigned indice,unsigned pidActi
 	log_trace(logger,"Se produce un fallo de pagina en la pagina:%d del proceso:%d indice:%d",paginaApuntada,pidActivo,indice);
 	void* codigoDelMarco = malloc(infoMemoria.tamanioDeMarcos);
 	unsigned marco = tablaBuscada->entradaTablaPaginas[paginaApuntada].marco ;
+	marcoDisponible[marco] = 0; //liberrar marco
 	t_tablaDePaginas* tablaTest;
 	unsigned size = list_size(tablasDePaginas);
 
@@ -459,9 +465,20 @@ unsigned algoritmoclock(unsigned pidActivo,unsigned *indice,unsigned pagina,int 
 }
 int buscarMarcoDisponible()
 {
+	int marco;
+	for(marco = 0 ; marco < infoMemoria.marcos; marco++)
+	{
+		if(marcoDisponible[marco] == 0)
+		{
+			marcoDisponible[marco] = 1;
+			return marco;
+		}
+	}
+	return -1;
+}
+	/*
 	t_tablaDePaginas* tablaDePaginas;
 	unsigned marcoDisponible =0;
-	unsigned marcosUsados = 0;
 	unsigned indice;
 	unsigned pagina;
 	for(indice=0; indice < list_size(tablasDePaginas); indice++)
@@ -471,17 +488,19 @@ int buscarMarcoDisponible()
 		{
 			if(tablaDePaginas->entradaTablaPaginas[pagina].estaEnMemoria == 1)
 			{
-				marcosUsados++;
 				if(tablaDePaginas->entradaTablaPaginas[pagina].marco == marcoDisponible)
+				{
 					marcoDisponible++;
+				}
 			}
 		}
 	}
-	if(marcosUsados == infoMemoria.marcos)
+	if(marcoDisponible == infoMemoria.marcos)
 		return -1;
 	else
 		return marcoDisponible;
-}
+
+}*/
 
 
 unsigned actualizaPagina(unsigned pagina,unsigned pidActivo,unsigned punteroClock,unsigned indice,int clienteUMC,int paginaEstabaEnMemoria)
@@ -501,7 +520,7 @@ unsigned actualizaPagina(unsigned pagina,unsigned pidActivo,unsigned punteroCloc
 	tablaDePagina = list_get(tablasDePaginas,indice);
 	if(tablaDePagina->pid == pidActivo)
 	{
-		if(paginaEstabaEnMemoria != -1)
+		if(paginaEstabaEnMemoria == -1)
 		{
 			//Se actualiza la nueva pagina a las entradas en memoria
 			tablaDePagina->paginasEnMemoria[punteroClock] = pagina;
@@ -543,7 +562,7 @@ void escribirEnMemoria(void* codigoPrograma,unsigned tamanioPrograma, unsigned p
 	else
 		log_error(logger,"Hubo un problema en actualizar la informacion del marco");
 
-	log_trace(logger,"contenido actual de la memoriaṔrincial:\n%s",memoriaPrincipal);
+	//log_trace(logger,"contenido actual de la memoriaṔrincial:\n%s",memoriaPrincipal);
 	pthread_mutex_unlock(&mutexMemoria);
 	free(codigoPrograma);
 	return;
@@ -608,6 +627,9 @@ void traerPaginaAMemoria(unsigned pagina,unsigned pidActual,int clienteUMC)
 
 void actualizarTLB(t_entradaTablaPaginas entradaDePaginas,unsigned pagina,unsigned pidActual)
 {
+	if(infoMemoria.entradasTLB == 0)
+		return;
+
 	pthread_mutex_lock(&mutexTLB);
 	log_trace(logger,"actualizarTLB();");
 	//LRU
@@ -698,33 +720,6 @@ void traducirPaginaAMarco(unsigned pagina,int *marco,unsigned pidActual,int clie
 	return;
 }
 
-void almacenarBytes(int *marco,unsigned paginasALeer,unsigned offset,unsigned tamanio,void* codigo)
-{
-	unsigned aRecorrer;
-	unsigned seLeyo;
-	//Se guarda el contenido del primer marco
-	memcpy(memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco[0]+offset,codigo,infoMemoria.tamanioDeMarcos-offset);
-
-	if(paginasALeer == 1)
-		return;
-
-	//Se copia el contenido de los marcos intermedios
-	tamanio = tamanio - (infoMemoria.tamanioDeMarcos - offset);
-	seLeyo = infoMemoria.tamanioDeMarcos - offset;
-	for(aRecorrer = 1;aRecorrer +1 < paginasALeer ;aRecorrer++)
-	{
-		memcpy(memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco[aRecorrer],codigo + seLeyo,infoMemoria.tamanioDeMarcos);
-		tamanio = tamanio - infoMemoria.tamanioDeMarcos;
-		seLeyo = seLeyo + infoMemoria.tamanioDeMarcos;
-	}
-
-	//Se copia el contenido del ultimo marco
-	memcpy(memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco[paginasALeer-1],codigo+seLeyo,tamanio);
-
-
-	return;
-}
-
 
 void procesosEnTabla()
 {
@@ -806,8 +801,11 @@ unsigned copiarCodigo(unsigned paginaDondeEmpieza,unsigned paginasALeer,unsigned
 			log_trace(logger,"Se traduce la pagina: %d con pid:%d al marco correspondiente \n" ,paginaDondeEmpieza+paginaATraducir,pidActual);
 			traducirPaginaAMarco(paginaDondeEmpieza+paginaATraducir,&marco,pidActual,clienteUMC);
 
-			log_trace(logger,"Se copia el contenido de la pagina:%d pid:%d marco:%d",paginaDondeEmpieza+paginaATraducir,pidActual,marco);
+			log_trace(logger,"Se copia el contenido de la pagina:%d pid:%d marco:%d tamaño:%d",paginaDondeEmpieza+paginaATraducir,pidActual,marco,tamanioACopiar);
+			log_trace(logger,"Vars aux: seLeyo %d, offset %d",seLeyo,offset);
+			pthread_mutex_lock(&mutexMemoria);
 			memcpy(codigoAEnviar+seLeyo,memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco+offset,tamanioACopiar);
+			pthread_mutex_unlock(&mutexMemoria);
 			log_trace(logger,"Se copio:\n %s",codigoAEnviar);
 			offset = 0;
 			seLeyo = seLeyo + tamanioACopiar;
@@ -836,8 +834,12 @@ unsigned guardarCodigo(unsigned paginaDondeEmpieza,unsigned paginasALeer,unsigne
 {
 	unsigned paginaATraducir;
 	int marco;
-	unsigned tamanioACopiar = infoMemoria.tamanioDeMarcos - offset;
+	unsigned tamanioACopiar;
 	unsigned seLeyo = 0;
+	if(paginasALeer == 1)
+		tamanioACopiar = tamanio;
+	else
+		tamanioACopiar = infoMemoria.tamanioDeMarcos - offset;
 
 	t_tablaDePaginas *tablaDePaginas = buscarTablaSegun(pidActual,&paginaATraducir);
 
@@ -852,7 +854,9 @@ unsigned guardarCodigo(unsigned paginaDondeEmpieza,unsigned paginasALeer,unsigne
 			traducirPaginaAMarco(paginaDondeEmpieza+paginaATraducir,&marco,pidActual,clienteUMC);
 
 			log_trace(logger,"Se copia el contenido de la pagina:%d pid:%d marco:%d",paginaDondeEmpieza+paginaATraducir,pidActual,marco);
+			pthread_mutex_lock(&mutexMemoria);
 			memcpy(memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco+offset,codigoAGuardar+seLeyo,tamanioACopiar);
+			pthread_mutex_unlock(&mutexMemoria);
 			offset = 0;
 			seLeyo = seLeyo + tamanioACopiar;
 			tamanio = tamanio - tamanioACopiar;
@@ -863,6 +867,7 @@ unsigned guardarCodigo(unsigned paginaDondeEmpieza,unsigned paginasALeer,unsigne
 			else
 				tamanioACopiar = tamanio;
 		}
+		log_trace(logger,"Se guardo la variable correctamente");
 		return 1;
 	}
 	else
@@ -884,7 +889,7 @@ void almacenarBytesEnPagina(t_mensaje mensaje,unsigned pidActivo, int clienteUMC
 	unsigned paginasALeer = paginasARecorrer(offset,tamanio);
 	unsigned estado = guardarCodigo(pagina,paginasALeer,pidActivo,clienteUMC,tamanio,offset,codigo);
 
-	enviarCodigoAlCPU(codigo,tamanio,clienteUMC,estado);
+	enviarCodigoAlCPU(NULL,0,clienteUMC,estado);
 
 	free(codigo);
 	return;
