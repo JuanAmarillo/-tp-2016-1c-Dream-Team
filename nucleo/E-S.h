@@ -10,6 +10,7 @@
 
 #include "pcb.h"
 #include <commons/collections/queue.h>
+#include <unistd.h>
 
 typedef struct
 {

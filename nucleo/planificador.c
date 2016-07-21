@@ -13,6 +13,8 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 		imprimir_i = 0;
 	}
 
+
+
 	while(1)
 	{
 		//espera activa a que haya un primer proceso listo
