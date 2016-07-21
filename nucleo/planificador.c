@@ -13,7 +13,7 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 		imprimir_i = 0;
 	}
 
-
+	pthread_t *hilos_por_dispositivo = comenzar_Planificador_EntradaSalida();
 
 	while(1)
 	{
@@ -53,6 +53,10 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 		escribirLog("vuelta: %d\n", ++vuelta);
 		sleep(3);
 	}
+
+	unsigned int i, nDisp = cantidadDispositivos();
+	for(i = 0; i < nDisp; ++i)
+		pthread_join(hilos_por_dispositivo[i], NULL);
 }
 
 void esperaPorProcesos(t_queue* cola)
@@ -199,4 +203,18 @@ void *imprimirPID(void *pcb)
 void mostrarCola(const t_queue* cola)
 {
 	list_map(cola->elements, imprimirPID);
+}
+
+pthread_t* comenzar_Planificador_EntradaSalida(void)
+{
+	int i, nDisp = cantidadDispositivos();
+
+	pthread_t *hilos_por_dispositivo = malloc(3 * sizeof(pthread_t));
+
+	for(i = 0; i < nDisp; ++i)
+	{
+		pthread_create(&hilos_por_dispositivo[i], NULL, llamar_planificarDispositivo, &vector_dispositivos[i]);
+	}
+
+	return hilos_por_dispositivo;
 }

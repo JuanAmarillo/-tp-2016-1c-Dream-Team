@@ -1,18 +1,30 @@
 #include "E-S.h"
 
-void atenderProceso(t_dispositivo *dispositivo)
+t_PCB* atenderProceso(t_dispositivo *dispositivo)
 {
-	while(dispositivo->atendiendo > 0)
+	t_PCB *ret;
+
+	escribirLog("%s: Se atendera el proceso %d (cantidad de operaciones: %d)\n", dispositivo->nombre, dispositivo->atendiendo->proceso->pid, dispositivo->atendiendo->cantOp);
+
+	while(dispositivo->atendiendo->cantOp > 0)
 	{
 		usleep(dispositivo->io_sleep * 1000);
+	//	sleep(3);
 		dispositivo->atendiendo->cantOp --;
 	}
 
+	ret = dispositivo->atendiendo->proceso;
 	dispositivo->atendiendo = NULL;
+
+	return ret;
 }
 
 void planificarDispositivo(t_dispositivo *dispositivo)
 {
+	escribirLog("Se comienza a administrar el dispositivo: %s\n", dispositivo->nombre);
+
+	t_PCB *actual;
+
 	while(1)
 	{
 		//espera activa por procesos bloqueados
@@ -20,7 +32,10 @@ void planificarDispositivo(t_dispositivo *dispositivo)
 
 		dispositivo->atendiendo = queue_pop(dispositivo->cola);
 
-		atenderProceso(dispositivo);
+		actual = atenderProceso(dispositivo);
+		escribirLog("Se atendio al proceso %d y se pondra listo otra vez\n", actual->pid);
+		FD_CLR(actual->pid, &conjunto_procesos_bloqueados);
+		ponerListo(actual);
 	}
 }
 

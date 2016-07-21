@@ -14,6 +14,8 @@
 #include "archivoLog.h"
 #include "messageCode.h"
 #include "E-S.h"
+#include <pthread.h>
+#include "conjuntos_procesos.h"
 
 t_list *lista_master_procesos;
 t_queue *cola_listos;
@@ -21,12 +23,7 @@ t_queue *cola_bloqueados;
 
 t_dispositivo *vector_dispositivos;
 
-fd_set conjunto_cpus_libres;
-fd_set conjunto_procesos_listos;
-fd_set conjunto_procesos_bloqueados;
-fd_set conjunto_procesos_ejecutando;
-fd_set conjunto_procesos_salida;
-fd_set conjunto_procesos_abortados;
+
 
 typedef struct
 {
@@ -56,6 +53,7 @@ void abortarProceso(int pid);
 
 int es_el_PCB_a_actualizar(t_PCB pcb);
 t_mensaje quantum_to_mensaje(unsigned short int quantum, unsigned int quantumSleep);
-//quizas haya que hacer que el tipo de dato de los parametros sea (void*)
+
+pthread_t* comenzar_Planificador_EntradaSalida(void);
 
 #endif /* NUCLEO_5_PLANIFICADOR_H_ */
