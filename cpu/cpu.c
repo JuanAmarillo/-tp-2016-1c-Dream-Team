@@ -358,9 +358,6 @@ char *obtenerSiguienteIntruccion(){
 	mensaje.parametros = parametros;
 	mensaje.mensaje_extra = NULL;
 
-
-	log_trace(logger, "Inicio: %i Tamanio: %i", pcb_global.indiceCodigo[pcb_global.pc].offset_inicio, pcb_global.indiceCodigo[pcb_global.pc].offset_fin);
-
 	// Envio al UMC la peticion
 	enviarMensajeUMC(mensaje);
 
@@ -761,9 +758,10 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 			cantidad_vars = list_size(aux_stack->vars);
 			if(cantidad_vars == 0){
 				aux_vars = malloc(sizeof(t_variable));
-				aux_vars->posicionMemoria.numeroPagina = pcb_global.cantidadPaginas-1;
-				aux_vars->posicionMemoria.offset = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_inicio + pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_fin;
-				aux_vars->posicionMemoria.size = 0;
+				int num_pagina =  pcb_global.cantidadPaginas-1;
+				aux_vars->posicionMemoria.numeroPagina = num_pagina;
+				aux_vars->posicionMemoria.offset = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_inicio - tamano_pagina_umc * num_pagina;
+				aux_vars->posicionMemoria.size = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_fin;
 			} else {
 				aux_vars = list_get(aux_stack->vars, cantidad_vars-1);
 			}
@@ -777,7 +775,7 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 
 	// Calculo la direccion de memoria
 	puntero_tmp = posToPuntero(aux_vars->posicionMemoria);
-	puntero_tmp = puntero_tmp + sizeof(t_valor_variable);
+	puntero_tmp = puntero_tmp + aux_vars->posicionMemoria.size;
 	posicionMemoria = punteroToPos(puntero_tmp);
 
 	// Registrar variable en el ultimo Indice Stack
@@ -878,7 +876,7 @@ void parser_asignar(t_puntero direccion_variable_puntero, t_valor_variable valor
 	}
 
 	if(mensaje.parametros[0] != 1){
-		estado_ejecucion = 3; // Fuera de segmento
+		estado_ejecucion = 2; // Fuera de segmento
 	}
 
 	// Libero memoria de mensaje
