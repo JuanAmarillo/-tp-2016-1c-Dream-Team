@@ -744,6 +744,7 @@ t_posicionDeMemoria punteroToPos(t_puntero puntero){
 
 t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 	log_trace(logger, "--> parser_definirVariable(%c);", identificador_variable);
+	if(estado_ejecucion) return -1;
 	t_indiceStack *aux_stack;
 	t_variable *aux_vars;
 	t_posicionDeMemoria posicionMemoria;
@@ -758,7 +759,8 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 			cantidad_vars = list_size(aux_stack->vars);
 			if(cantidad_vars == 0){
 				aux_vars = malloc(sizeof(t_variable));
-				int num_pagina =  pcb_global.cantidadPaginas-1;
+				//int num_pagina =  pcb_global.cantidadPaginas-1;
+				int num_pagina = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_inicio/tamano_pagina_umc;
 				aux_vars->posicionMemoria.numeroPagina = num_pagina;
 				aux_vars->posicionMemoria.offset = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_inicio - tamano_pagina_umc * num_pagina;
 				aux_vars->posicionMemoria.size = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_fin;
@@ -791,6 +793,7 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 
 t_puntero parser_obtenerPosicionVariable(t_nombre_variable identificador_variable) {
 	log_trace(logger, "--> parser_obtenerPosicionVariable(%c);", identificador_variable);
+	if(estado_ejecucion) return -1;
 	nombreVariable_aBuscar = identificador_variable;
 
 	t_posicionDeMemoria puntero_variable;
@@ -810,6 +813,7 @@ t_puntero parser_obtenerPosicionVariable(t_nombre_variable identificador_variabl
 t_valor_variable parser_dereferenciar(t_puntero direccion_variable_puntero) {
 	t_posicionDeMemoria direccion_variable = punteroToPos(direccion_variable_puntero);
 	log_trace(logger, "--> parser_dereferenciar((%u,%u,%u));", direccion_variable.numeroPagina, direccion_variable.offset, direccion_variable.size);
+	if(estado_ejecucion) return 0;
 	// Variables
 	t_valor_variable contenido_variable;
 	t_mensaje mensaje;
@@ -837,7 +841,7 @@ t_valor_variable parser_dereferenciar(t_puntero direccion_variable_puntero) {
 	if(mensaje.parametros[0] != 1){
 		estado_ejecucion = 2; // Fuera de segmento
 		freeMensaje(&mensaje);
-		return contenido_variable;
+		return 0;
 	}
 
 	contenido_variable = *((int*) mensaje.mensaje_extra);
@@ -851,6 +855,7 @@ t_valor_variable parser_dereferenciar(t_puntero direccion_variable_puntero) {
 void parser_asignar(t_puntero direccion_variable_puntero, t_valor_variable valor) {
 	t_posicionDeMemoria direccion_variable = punteroToPos(direccion_variable_puntero);
 	log_trace(logger, "--> parser_asignar((%u,%u,%u),%i);", direccion_variable.numeroPagina, direccion_variable.offset, direccion_variable.size, valor);
+	if(estado_ejecucion) return;
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[4];
@@ -885,7 +890,7 @@ void parser_asignar(t_puntero direccion_variable_puntero, t_valor_variable valor
 
 t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable){
 	log_trace(logger, "--> parser_obtenerValorCompartida(%s);", variable);
-
+	if(estado_ejecucion) return 0;
 	// Variables
 	t_mensaje mensaje;
 	mensaje.head.codigo = OBTENER_COMPARTIDA;
@@ -919,7 +924,7 @@ t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable){
 
 t_valor_variable parser_asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor){
 	log_trace(logger, "--> parser_asignarValorCompartida(%s, %i);", variable, valor);
-
+	if(estado_ejecucion) return 0;
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[1];
@@ -941,6 +946,7 @@ t_valor_variable parser_asignarValorCompartida(t_nombre_compartida variable, t_v
 
 void parser_irAlLabel(t_nombre_etiqueta etiqueta){
 	log_trace(logger, "--> parser_irAlLabel(%s);", etiqueta);
+	if(estado_ejecucion) return;
 	unsigned intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
 	pcb_global.pc = intruction;
 	log_trace(logger, "----> PC: %u", pcb_global.pc);
@@ -948,6 +954,7 @@ void parser_irAlLabel(t_nombre_etiqueta etiqueta){
 
 void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta){
 	log_trace(logger, "--> parser_llamarSinRetorno(%s);", etiqueta);
+	if(estado_ejecucion) return;
 	// Busco PC de la primera instruccion de la funcion
 	unsigned pc_first_intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
 
@@ -964,6 +971,7 @@ void parser_llamarSinRetorno(t_nombre_etiqueta etiqueta){
 void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar_puntero){
 	t_posicionDeMemoria donde_retornar = punteroToPos(donde_retornar_puntero);
 	log_trace(logger, "--> parser_llamarConRetorno(%s,(%u,%u,%u));", etiqueta, donde_retornar.numeroPagina, donde_retornar.offset, donde_retornar.size);
+	if(estado_ejecucion) return;
 
 	// Busco PC de la primera instruccion de la funcion
 	int pc_first_intruction = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.tam_indiceEtiquetas);
@@ -980,7 +988,7 @@ void parser_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retorna
 void parser_finalizar(){
 	log_trace(logger, "--> parser_finalizar();");
 	log_trace(logger, "----> SP: %u", pcb_global.sp);
-
+	if(estado_ejecucion) return;
 	t_indiceStack *aux_stack;
 
 	// Si es el contexto principal => Finalizo programa
@@ -1009,7 +1017,7 @@ void parser_finalizar(){
 
 void parser_retornar(t_valor_variable retorno){
 	log_trace(logger, "--> parser_retornar(%i);", retorno);
-
+	if(estado_ejecucion) return;
 	t_indiceStack *aux_stack;
 
 	// Obtengo datos
@@ -1038,7 +1046,7 @@ void parser_retornar(t_valor_variable retorno){
 
 void parser_imprimir(t_valor_variable valor_mostrar){
 	log_trace(logger, "--> parser_imprimir(%i);", valor_mostrar);
-
+	if(estado_ejecucion) return;
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[2];
@@ -1056,7 +1064,7 @@ void parser_imprimir(t_valor_variable valor_mostrar){
 
 void parser_imprimirTexto(char* texto){
 	log_trace(logger, "--> parser_imprimirTexto(%s);", texto);
-
+	if(estado_ejecucion) return;
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[1];
@@ -1074,7 +1082,7 @@ void parser_imprimirTexto(char* texto){
 
 void parser_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 	log_trace(logger, "--> parser_entradaSalida(%s, %i);", dispositivo, tiempo);
-
+	if(estado_ejecucion) return;
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[1];
@@ -1092,7 +1100,7 @@ void parser_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 }
 void parser_wait(t_nombre_semaforo identificador_semaforo){
 	log_trace(logger, "--> parser_wait(%s);", identificador_semaforo);
-
+	if(estado_ejecucion) return;
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[1];
@@ -1125,7 +1133,7 @@ void parser_wait(t_nombre_semaforo identificador_semaforo){
 
 void parser_signal(t_nombre_semaforo identificador_semaforo){
 	log_trace(logger, "parser_signal(%s);", identificador_semaforo);
-
+	if(estado_ejecucion) return;
 	// Variables
 	t_mensaje mensaje;
 	unsigned parametros[1];
