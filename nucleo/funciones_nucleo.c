@@ -514,6 +514,7 @@ void inicializarListas(void)
 		vector_dispositivos[i].nombre = infoConfig.array_dispositivos[i];
 		vector_dispositivos[i].io_sleep = atoi(infoConfig.array_io_sleeps[i]);
 		vector_dispositivos[i].cola = queue_create();
+		vector_dispositivos[i].atendiendo = NULL;
 	}
 }
 

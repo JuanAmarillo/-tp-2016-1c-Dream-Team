@@ -13,18 +13,11 @@
 #include <unistd.h>
 #include "archivoLog.h"
 #include "messageCode.h"
-#include "pcb.h"
+#include "E-S.h"
 
 t_list *lista_master_procesos;
 t_queue *cola_listos;
 t_queue *cola_bloqueados;
-
-typedef struct
-{
-	char *nombre;
-	unsigned int io_sleep;
-	t_queue *cola;
-} t_dispositivo;
 
 t_dispositivo *vector_dispositivos;
 
