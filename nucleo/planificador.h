@@ -13,18 +13,11 @@
 #include <unistd.h>
 #include "archivoLog.h"
 #include "messageCode.h"
-#include "pcb.h"
+#include "E-S.h"
 
 t_list *lista_master_procesos;
 t_queue *cola_listos;
 t_queue *cola_bloqueados;
-
-typedef struct
-{
-	char *nombre;
-	unsigned int io_sleep;
-	t_queue *cola;
-} t_dispositivo;
 
 t_dispositivo *vector_dispositivos;
 
@@ -53,7 +46,7 @@ void esperaPorProcesos(t_queue*);
 void ejecutar(t_PCB proceso, unsigned short int quantum, unsigned int quantumSleep, int cpu);
 void ponerListo(t_PCB *proceso);
 void terminar(t_PCB *proceso);
-void bloquear(t_PCB *proceso, const char *dispositivo);
+void bloquear(t_PCB *proceso, const char *dispositivo, unsigned int cantOp);
 int estaLibre(int cpu);
 void mostrarCola(const t_queue*);
 void actualizarMaster(void);

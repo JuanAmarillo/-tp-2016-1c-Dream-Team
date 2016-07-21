@@ -514,6 +514,7 @@ void inicializarListas(void)
 		vector_dispositivos[i].nombre = infoConfig.array_dispositivos[i];
 		vector_dispositivos[i].io_sleep = atoi(infoConfig.array_io_sleeps[i]);
 		vector_dispositivos[i].cola = queue_create();
+		vector_dispositivos[i].atendiendo = NULL;
 	}
 }
 
@@ -794,12 +795,12 @@ void administrarConexiones(void)
 							{
 								//Sacarle los datos y luego volver a recibir mensaje
 								int pid = mensajeCPU.parametros[0];(void) pid;
-								int tiempo = mensajeCPU.parametros[1];(void)tiempo;
+								int cantidadOperaciones = mensajeCPU.parametros[1];(void)cantidadOperaciones;
 								char* nombreDispositivo = strdup(mensajeCPU.mensaje_extra);(void)nombreDispositivo;
 
 								escribirLog("Se recibio para I/O: ");
 								escribirLog("pid: %d, ", pid);
-								escribirLog("tiempo: %d, ", tiempo);
+								escribirLog("cantidad de operaciones a realizar: %d, ", cantidadOperaciones);
 								escribirLog("nombre dispositivo: %s\n", nombreDispositivo);
 
 								nbytes = recibirMensaje(fd_explorer, &mensajeCPU);
@@ -814,7 +815,7 @@ void administrarConexiones(void)
 									t_PCB *pcb = malloc(sizeof(t_PCB));
 									*pcb = mensaje_to_pcb(mensajeCPU);
 									FD_CLR(pcb->pid, &conjunto_procesos_ejecutando);
-									bloquear(pcb, nombreDispositivo);
+									bloquear(pcb, nombreDispositivo, cantidadOperaciones);
 									actualizarMaster();
 									FD_SET(fd_explorer, &conjunto_cpus_libres);
 									continue;

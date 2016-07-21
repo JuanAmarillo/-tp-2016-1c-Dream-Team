@@ -13,6 +13,8 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 		imprimir_i = 0;
 	}
 
+
+
 	while(1)
 	{
 		//espera activa a que haya un primer proceso listo
@@ -160,7 +162,7 @@ t_dispositivo *nombre_to_dispositivo(const char *dispositivo)
 	return NULL;
 }
 
-void bloquear(t_PCB *proceso, const char *dispositivo)
+void bloquear(t_PCB *proceso, const char *dispositivo, unsigned int cantOp)
 {
 	FD_CLR(proceso->pid, &conjunto_procesos_ejecutando);
 	FD_SET(proceso->pid, &conjunto_procesos_bloqueados);
@@ -169,10 +171,14 @@ void bloquear(t_PCB *proceso, const char *dispositivo)
 
 	t_dispositivo *disp = nombre_to_dispositivo(dispositivo);
 
+	t_parProcesoCantOp *par = malloc(sizeof(t_parProcesoCantOp));
+	par->cantOp = cantOp;
+	par->proceso = proceso;
+
 	if(disp)
 	{
 		t_queue *cola = disp->cola;
-		queue_push(cola, proceso);
+		queue_push(cola, par);
 	}
 
 	else
