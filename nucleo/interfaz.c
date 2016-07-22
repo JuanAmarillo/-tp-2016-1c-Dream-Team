@@ -14,7 +14,7 @@ void interfaz(void)
 
 		imprimirMaster();
 
-		sleep(1);
+		usleep(1000 * 500);//500 milisegundos (0,5 segundos)
 	}while(1);
 }
 
@@ -39,6 +39,19 @@ void imprimirBloqueados(void)
 
 }
 
+void mostrarAtencion(t_dispositivo dispositivo)
+{
+	if(dispositivo.atendiendo)
+	{
+		system("tput setaf 2");
+
+		printf("Atendiendo Proceso %d\n", dispositivo.atendiendo->proceso->pid);
+		printf("Operaciones faltantes: %d\n", dispositivo.atendiendo->cantOp);
+
+		system("tput setaf 9");
+	}
+}
+
 void imprimirColasDispositivos(void)
 {
 	int i;
@@ -47,6 +60,7 @@ void imprimirColasDispositivos(void)
 		printf("____________________________________________\n");
 		printf("%s: ", vector_dispositivos[i].nombre);
 		imprimirListaProcesosBloq((vector_dispositivos[i].cola)->elements);
+		mostrarAtencion(vector_dispositivos[i]);
 	}
 }
 
