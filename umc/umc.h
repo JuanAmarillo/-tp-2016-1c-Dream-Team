@@ -77,10 +77,12 @@ typedef struct{
  */
 int* marcoDisponible;
 t_log* logger;
-t_log* logger1;
+t_log* loggerConsola;
+t_log* loggerVariables;
 t_memoria infoMemoria;
 t_infoConfig infoConfig;
 int servidorUMC,clienteSWAP;
+int paginaVariablesTest;
 struct sockaddr_in direccionServidorUMC;
 struct sockaddr_in direccionServidorSWAP;
 fd_set master;
@@ -113,7 +115,6 @@ t_tablaDePaginas* cambioProcesoActivo(unsigned pid,unsigned pidActivo);
 void inicializarPrograma(t_mensaje mensaje,int clienteUMC);
 void eliminarDeMemoria(unsigned pid);
 void finPrograma(t_mensaje finalizarProg);
-t_tablaDePaginas* buscarTablaSegun(unsigned pidActivo,unsigned *indice);
 void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo);
 void falloDePagina(unsigned pidActivo);
 void actualizarPagina(unsigned pagina,unsigned pidActivo);
