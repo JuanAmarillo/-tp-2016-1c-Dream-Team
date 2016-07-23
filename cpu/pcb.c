@@ -288,6 +288,7 @@ void freePCB(t_PCB *pcb){
 		void _list_elements2(t_indiceStack *tmp2) {
 			// Destruyo los args
 			list_destroy_and_destroy_elements(tmp2->args, (void*) args_destroy);
+
 			// Destruyo los vars
 			list_destroy_and_destroy_elements(tmp2->vars, (void*) vars_destroy);
 		}
@@ -297,6 +298,7 @@ void freePCB(t_PCB *pcb){
 	list_destroy_and_destroy_elements(pcb->indiceStack, (void*) stack_destroy);
 	//
 	free(pcb->indiceEtiquetas);
+	free(pcb->indiceCodigo);
 }
 
 /*

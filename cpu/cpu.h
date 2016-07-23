@@ -21,6 +21,7 @@ t_PCB pcb_global;
 int estado_ejecucion; // 0- Todo OK; 1- Fin del Programa ;
 t_log* logger;
 unsigned tamano_pagina_umc;
+t_config* config;
 
 /*
  * Funciones / Procedimientos

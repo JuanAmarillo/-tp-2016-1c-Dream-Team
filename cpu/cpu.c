@@ -39,8 +39,8 @@ int main(int argc, char** argv){
 	socketUMC = conectarseUMC();
 
 	// Me conecto a el Nucleo
-	//socketNucleo = socketUMC;
-	socketNucleo = conectarseNucleo();
+	socketNucleo = socketUMC;
+	//socketNucleo = conectarseNucleo();
 
 	// Obtener tamaño de paginas UMC
 	tamano_pagina_umc = obtenerTamanoPaginasUMC();
@@ -141,6 +141,7 @@ int main(int argc, char** argv){
 	}
 
 	log_trace(logger, "Fin CPU");
+	config_destroy(config);
 	log_destroy(logger);
 
 	return EXIT_SUCCESS;
@@ -153,7 +154,7 @@ int main(int argc, char** argv){
  * Return: -
  */
 void leerArchivoConfig() {
-	t_config *config = config_create("config.conf");
+	config = config_create("config.conf");
 
 	if (config == NULL) {
 		log_error(logger, "Error al leer archivo config.conf");
@@ -166,9 +167,6 @@ void leerArchivoConfig() {
 	infoConfig.ip_umc = config_get_string_value(config, "IP_UMC");
 	infoConfig.puerto_umc = config_get_string_value(config, "PUERTO_UMC");
 
-	// No uso config_destroy(config) porque bugea
-	free(config->path);
-	free(config);
 }
 
 /*
@@ -383,7 +381,7 @@ char *obtenerSiguienteIntruccion(){
 	memcpy(tmp2, tmp, strlen(tmp));
 	memset(tmp2+strlen(tmp),'\0',1);
 
-	free(mensaje.mensaje_extra);
+	freeMensaje(&mensaje);
 
 	return tmp2;
 }
@@ -779,6 +777,8 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 	puntero_tmp = posToPuntero(aux_vars->posicionMemoria);
 	puntero_tmp = puntero_tmp + aux_vars->posicionMemoria.size;
 	posicionMemoria = punteroToPos(puntero_tmp);
+
+	if(cantidad_vars == 0){	free(aux_vars);	}
 
 	// Registrar variable en el ultimo Indice Stack
 	aux_stack = list_get(pcb_global.indiceStack, pcb_global.sp);
@@ -1452,6 +1452,7 @@ void freePCB(t_PCB *pcb){
 	list_destroy_and_destroy_elements(pcb->indiceStack, (void*) stack_destroy);
 	//
 	free(pcb->indiceEtiquetas);
+	free(pcb->indiceCodigo);
 }
 /*
  * FIN PCB.c
