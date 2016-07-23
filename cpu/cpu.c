@@ -902,9 +902,6 @@ t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable){
 	// Envio al UMC la peticion
 	enviarMensajeNucleo(mensaje);
 
-	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
-
 	// Recibo mensaje
 	recibirMensajeNucleo(&mensaje);
 
@@ -938,8 +935,6 @@ t_valor_variable parser_asignarValorCompartida(t_nombre_compartida variable, t_v
 	// Envio al UMC la peticion
 	enviarMensajeNucleo(mensaje);
 
-	// Libero memoria de mensaje
-	freeMensaje(&mensaje);
 	log_trace(logger, "----> return: %i", valor);
 	return valor;
 }
