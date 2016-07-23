@@ -58,7 +58,7 @@ void finalizarUMC()
 void inicializarEstructuras()
 {
 	logger = log_create("UMC_TEST.txt", "UMC", 1, LOG_LEVEL_TRACE);
-	loggerConsola = log_create("UMC_CONSOLA.txt","UMC",1,LOG_LEVEL_TRACE);
+	logger1 = log_create("UMC_CONSOLA.txt","UMC",1,LOG_LEVEL_TRACE);
 	memoriaPrincipal = malloc(infoMemoria.marcos * infoMemoria.tamanioDeMarcos);
 	TLB = list_create();
 	tablasDePaginas  = list_create();
