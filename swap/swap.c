@@ -83,7 +83,7 @@ void unSetPage(unsigned nroPag){
 
 void getPage(unsigned nroPag){
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
-	sleep(RETARDO_ACCESO);
+	usleep(RETARDO_ACCESO);
 	fread(bufferPagina,1,TAMANIO_PAGINA,SWAPFILE);
 	msj_Get_Page(nroPag);
 
@@ -91,7 +91,7 @@ void getPage(unsigned nroPag){
 
 void savePage(unsigned nroPag){
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
-	sleep(RETARDO_ACCESO);
+	usleep(RETARDO_ACCESO);
 	fwrite(bufferPagina,1,TAMANIO_PAGINA,SWAPFILE);
 	msj_Save_Page(nroPag);
 }
@@ -231,5 +231,5 @@ void deleteEmptySpaces(){
 		else
 			contador++;
 	}
-	sleep(RETARDO_COMPACTACION);
+	usleep(RETARDO_COMPACTACION);
 }
