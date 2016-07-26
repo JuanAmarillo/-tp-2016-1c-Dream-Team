@@ -504,6 +504,19 @@ void init_cantidad_varsComp(void)
 	cantidad_variables_compartidas = i;
 }
 
+void mostrarCompartidasPorLog(void)
+{
+	int i;
+	escribirLog("Variables compartidas: [");
+		for(i = 0; i < cantidad_variables_compartidas; ++i)
+		{
+			if(i < cantidad_variables_compartidas - 1)
+				escribirLog("%s = %d, ", variables_compartidas[i].nombre, variables_compartidas[i].valor);
+			else
+				escribirLog("%s = %d]\n", variables_compartidas[i].nombre, variables_compartidas[i].valor);
+		}
+}
+
 void inicializarListas(void)
 {
 	FD_ZERO(&conjunto_procesos_listos);
@@ -533,14 +546,7 @@ void inicializarListas(void)
 		variables_compartidas[i].valor = 0;
 	}
 
-	escribirLog("Variables compartidas: [");
-	for(i = 0; i < cantidad_variables_compartidas; ++i)
-	{
-		if(i < cantidad_variables_compartidas - 1)
-			escribirLog("%s = %d, ", variables_compartidas[i].nombre, variables_compartidas[i].valor);
-		else
-			escribirLog("%s = %d]\n", variables_compartidas[i].nombre, variables_compartidas[i].valor);
-	}
+	mostrarCompartidasPorLog();
 }
 
 void administrarConexiones(void)
@@ -808,11 +814,73 @@ void administrarConexiones(void)
 
 							if(mensajeCPU.head.codigo == OBTENER_COMPARTIDA)
 							{
+								escribirLog("----------------------------------------------------------\n");
+								escribirLog("Se recibio una solicitud de lectura de variable compartida\n");
+
+								int pid = mensajeCPU.parametros[0];
+								char *nombreVariable = strdup(mensajeCPU.mensaje_extra);
+								escribirLog("Nombre de la variable: %s\n", nombreVariable);
+
+								int valor;
+								if(existeVariable(nombreVariable))
+								{
+									valor = obtenerValorCompartida(nombreVariable);
+									escribirLog("Valor obtenido: %d\n", valor);
+								}
+
+								else
+								{
+									escribirLog("La variable compartida solicitada no existe, se abortara el proceso %d\n", pid);
+									perror("Ver Log");
+									abortarProceso(pid);
+								}
+
+								t_mensajeHead head = {RETURN_OBTENER_COMPARTIDA, 1, 1};
+								t_mensaje mensaje;
+								mensaje.head = head;
+								mensaje.parametros = malloc(sizeof(int));
+								mensaje.parametros[0] = valor;
+								mensaje.mensaje_extra = malloc(1);
+								mensaje.mensaje_extra[0] = '\0';
+
+								if( enviarMensaje(fd_explorer, mensaje) == -1 )
+								{
+									perror("Error al retornar valor de variable compartida a una cpu");
+									abort();
+								}
+
+								escribirLog("Se envio el valor a la cpu\n");
+								escribirLog("----------------------------------------------------------\n");
+
+								free(mensaje.parametros);
+								free(mensaje.mensaje_extra);
+								free(nombreVariable);
 								continue;
 							}
 
 							if(mensajeCPU.head.codigo == ASIGNAR_COMPARTIDA)
 							{
+								escribirLog("Se recibio una solicitud de escritura para una variable compartida\n");
+								char *nombre = strdup(mensajeCPU.mensaje_extra);
+								escribirLog("La variable es: %s\n", nombre);
+								int pid = mensajeCPU.parametros[0];
+								int nuevoValor = mensajeCPU.parametros[1];
+								escribirLog("Nuevo valor: %d\n", nuevoValor);
+
+								if(existeVariable(nombre))
+								{
+									asignarCompartida(nombre, nuevoValor);
+								}
+
+								else
+								{
+									escribirLog("La variable compartida solicitada no existe, se abortara el proceso %d\n", pid);
+									perror("Ver Log");
+									abortarProceso(pid);
+								}
+
+								mostrarCompartidasPorLog();
+								free(nombre);
 								continue;
 							}
 
