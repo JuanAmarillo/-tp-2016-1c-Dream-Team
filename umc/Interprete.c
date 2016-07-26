@@ -4,7 +4,7 @@
 #include <commons/string.h>
 #include <commons/collections/list.h>
 #include "umc.h"
-
+/*
 int reconocerComando(char *comando);
 void limpiarPaginas();
 void limpiarTLB();

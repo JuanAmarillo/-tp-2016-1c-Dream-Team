@@ -77,7 +77,7 @@ typedef struct{
  */
 int* marcoDisponible;
 t_log* logger;
-t_log* loggerConsola;
+t_log* logger1;
 t_log* loggerVariables;
 t_memoria infoMemoria;
 t_infoConfig infoConfig;

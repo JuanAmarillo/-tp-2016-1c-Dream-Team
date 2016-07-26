@@ -205,15 +205,18 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 
 void borrarEntradasTLBSegun(unsigned pidActivo)
 {
-	unsigned entrada;
-	t_entradaTLB *entradaTLB;
 	pthread_mutex_lock(&mutexTLB);
-	unsigned cantidadEntradas = list_size(TLB);
-	for(entrada = 0 ; entrada < cantidadEntradas ; entrada++)
+	unsigned entrada = 0;
+	t_entradaTLB *entradaTLB;
+	while(list_size(TLB) != 0)
 	{
 		entradaTLB = list_get(TLB,entrada);
 		if(entradaTLB->pid == pidActivo)
 			list_remove(TLB,entrada);
+		else
+			entrada++;
+
+		log_trace(loggerVariables,"TLB entradas: %d ", list_size(TLB));
 	}
 	pthread_mutex_unlock(&mutexTLB);
 
@@ -642,7 +645,7 @@ void traerPaginaAMemoria(unsigned pagina,t_tablaDePaginas* procesoActivo,int cli
 	if(pagina == paginaVariablesTest)
 	{
 		int offset;
-		log_trace(loggerVariables,"Trae a Memoria Pagina:%d",pagina);
+		log_trace(loggerVariables,"Trae a Memoria Pagina:%d Tamaño:%d",pagina,aRecibir.head.tam_extra);
 		for(offset = 0; offset < 9;offset=offset+4){
 		void* codigoTest = malloc(4);
 		memcpy(codigoTest,aRecibir.mensaje_extra+offset,4);
@@ -843,7 +846,7 @@ unsigned copiarCodigo(unsigned paginaDondeEmpieza,unsigned paginasALeer,t_tablaD
 			}
 		}
 		//TEST
-		if(seLeyo == 4)
+		if(seLeyo == 4 && paginasALeer == 1)
 			{
 			log_trace(loggerVariables,"Envio Variable:Pagina %d var:%d",paginaDondeEmpieza,offsetTest/4);
 			log_trace(loggerVariables,"Var en void*:%s",codigoAEnviar);
@@ -902,7 +905,7 @@ unsigned guardarCodigo(unsigned paginaDondeEmpieza,unsigned paginasALeer,t_tabla
 		actualizarTablaDePaginas(procesoActivo);
 
 		//TEST
-		if(seLeyo == 4)
+		if(seLeyo == 4 && paginasALeer == 1)
 			{
 			log_trace(loggerVariables,"Guardar Variable:Pagina %d var:%d",paginaDondeEmpieza,offsetTest/4);
 			log_trace(loggerVariables,"Var en void*:%s",codigoAGuardar);
