@@ -4,6 +4,7 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../E-S.c \
 ../archivoLog.c \
 ../funciones_nucleo.c \
 ../interfaz.c \
@@ -12,9 +13,11 @@ C_SRCS += \
 ../parser.c \
 ../pcb.c \
 ../planificador.c \
-../protocolo_mensaje.c 
+../protocolo_mensaje.c \
+../variables_compartidas.c 
 
 OBJS += \
+./E-S.o \
 ./archivoLog.o \
 ./funciones_nucleo.o \
 ./interfaz.o \
@@ -23,9 +26,11 @@ OBJS += \
 ./parser.o \
 ./pcb.o \
 ./planificador.o \
-./protocolo_mensaje.o 
+./protocolo_mensaje.o \
+./variables_compartidas.o 
 
 C_DEPS += \
+./E-S.d \
 ./archivoLog.d \
 ./funciones_nucleo.d \
 ./interfaz.d \
@@ -34,7 +39,8 @@ C_DEPS += \
 ./parser.d \
 ./pcb.d \
 ./planificador.d \
-./protocolo_mensaje.d 
+./protocolo_mensaje.d \
+./variables_compartidas.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
