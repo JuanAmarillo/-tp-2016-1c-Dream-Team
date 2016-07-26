@@ -23,7 +23,7 @@
 void readConfigFile(){
 	system("clear");
 	logger = log_create("SWAP.txt", "SWAP", 1, LOG_LEVEL_TRACE);
-	t_config *config = config_create("config.conf");
+	config = config_create("config.conf");
 		if (config == NULL) {
 			free(config);
 			abort();
@@ -89,4 +89,5 @@ void accionesDeFinalizacion() {
 	bitarray_destroy(DISP_PAGINAS);
 	free(bufferPagina);
 	list_destroy_and_destroy_elements(INFO_PROG,(void*) infoProg_destroy);
+	config_destroy(config);
 }

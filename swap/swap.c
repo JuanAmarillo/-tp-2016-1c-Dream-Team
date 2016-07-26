@@ -67,6 +67,7 @@ int funcionamientoSWAP() {
 					break;
 			}
 		}
+		freeMensaje(&received);
 		limpiarMensaje();
 		return a;
 	}
@@ -115,6 +116,7 @@ void saveProgram(){
 }
 
 void returnPage(){
+	log_trace(logger,"--> returnPage(); ");
 	t_mensaje aEnviar;
 	aEnviar.head.codigo = SWAP_SENDS_PAGE;
 	aEnviar.head.cantidad_parametros = 0;
@@ -124,6 +126,7 @@ void returnPage(){
 	getPage(buscarPagInicial(received.parametros[0])+received.parametros[1]);
 	strcpy(aEnviar.mensaje_extra, bufferPagina);
 	enviarMensaje(socketCliente, aEnviar);
+	log_trace(logger,"----> '%s'", aEnviar.mensaje_extra);
 	free(aEnviar.mensaje_extra);
 }
 

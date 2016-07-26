@@ -59,7 +59,8 @@ void inicializarEstructuras()
 {
 	logger = log_create("UMC_TEST.txt", "UMC", 1, LOG_LEVEL_TRACE);
 	loggerVariables = log_create("UMC_VAR.txt","UMC",0,LOG_LEVEL_TRACE);
-	loggerConsola = log_create("UMC_CONSOLA.txt","UMC",1,LOG_LEVEL_TRACE);
+	logger1 = log_create("UMC_CONSOLA.txt","UMC",1,LOG_LEVEL_TRACE);
+	loggerTLB  = log_create("UMC_TLB.txt","UMC",0,LOG_LEVEL_TRACE);
 	memoriaPrincipal = malloc(infoMemoria.marcos * infoMemoria.tamanioDeMarcos);
 	TLB = list_create();
 	tablasDePaginas  = list_create();
@@ -205,15 +206,16 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 
 void borrarEntradasTLBSegun(unsigned pidActivo)
 {
-	unsigned entrada;
-	t_entradaTLB *entradaTLB;
 	pthread_mutex_lock(&mutexTLB);
-	unsigned cantidadEntradas = list_size(TLB);
-	for(entrada = 0 ; entrada < cantidadEntradas ; entrada++)
+	unsigned entrada = 0;
+	t_entradaTLB *entradaTLB;
+	while(list_size(TLB) != 0)
 	{
 		entradaTLB = list_get(TLB,entrada);
 		if(entradaTLB->pid == pidActivo)
 			list_remove(TLB,entrada);
+		else
+			entrada++;
 	}
 	pthread_mutex_unlock(&mutexTLB);
 
@@ -221,7 +223,7 @@ void borrarEntradasTLBSegun(unsigned pidActivo)
 }
 t_tablaDePaginas* buscarTablaSegun(unsigned pidActivo,unsigned *indice)
 {
-	t_tablaDePaginas *tablaBuscada;
+	t_tablaDePaginas *tablaBuscada = NULL;
 	for(*indice = 0; *indice < list_size(tablasDePaginas); *indice = *indice+1)
 	{
 		tablaBuscada = list_get(tablasDePaginas,*indice);
@@ -589,7 +591,7 @@ void escribirEnMemoria(void* codigoPrograma,unsigned tamanioPrograma, unsigned p
 void algoritmoDeReemplazo(void* codigoPrograma,unsigned tamanioPrograma,unsigned pagina,t_tablaDePaginas* procesoActivo,int clienteUMC)
 {
 	pthread_mutex_lock(&mutexClock);
-	unsigned punteroClock;
+	unsigned punteroClock = 0;
 	int paginaEstabaEnMemoria;
 
 	//Eleccion entre Algoritmos
@@ -642,7 +644,7 @@ void traerPaginaAMemoria(unsigned pagina,t_tablaDePaginas* procesoActivo,int cli
 	if(pagina == paginaVariablesTest)
 	{
 		int offset;
-		log_trace(loggerVariables,"Trae a Memoria Pagina:%d",pagina);
+		log_trace(loggerVariables,"Trae a Memoria Pagina:%d Tamaño:%d",pagina,aRecibir.head.tam_extra);
 		for(offset = 0; offset < 9;offset=offset+4){
 		void* codigoTest = malloc(4);
 		memcpy(codigoTest,aRecibir.mensaje_extra+offset,4);
@@ -664,7 +666,7 @@ void actualizarTLB(t_entradaTablaPaginas entradaDePaginas,unsigned pagina,unsign
 
 	pthread_mutex_lock(&mutexTLB);
 	log_trace(logger,"actualizarTLB();");
-	//LRU
+
 	int tamanioMaximoTLB = infoMemoria.entradasTLB;
 	int tamanioTLB = list_size(TLB);
 
@@ -675,6 +677,7 @@ void actualizarTLB(t_entradaTablaPaginas entradaDePaginas,unsigned pagina,unsign
 	entradaTLB->fueModificado = entradaDePaginas.fueModificado;
 	entradaTLB->marco         = entradaDePaginas.marco;
 
+	//LRU
 	if(tamanioTLB == tamanioMaximoTLB)
 		list_replace(TLB,tamanioTLB-1,entradaTLB);
 	else
@@ -843,7 +846,7 @@ unsigned copiarCodigo(unsigned paginaDondeEmpieza,unsigned paginasALeer,t_tablaD
 			}
 		}
 		//TEST
-		if(seLeyo == 4)
+		if(seLeyo == 4 && paginasALeer == 1)
 			{
 			log_trace(loggerVariables,"Envio Variable:Pagina %d var:%d",paginaDondeEmpieza,offsetTest/4);
 			log_trace(loggerVariables,"Var en void*:%s",codigoAEnviar);
@@ -902,7 +905,7 @@ unsigned guardarCodigo(unsigned paginaDondeEmpieza,unsigned paginasALeer,t_tabla
 		actualizarTablaDePaginas(procesoActivo);
 
 		//TEST
-		if(seLeyo == 4)
+		if(seLeyo == 4 && paginasALeer == 1)
 			{
 			log_trace(loggerVariables,"Guardar Variable:Pagina %d var:%d",paginaDondeEmpieza,offsetTest/4);
 			log_trace(loggerVariables,"Var en void*:%s",codigoAGuardar);
@@ -989,7 +992,7 @@ void accionSegunCabecera(int clienteUMC)
 {
 	log_trace(logger,"Se creo un Hilo");
 	unsigned pidActivo = 0;
-	t_tablaDePaginas*procesoActivo;
+	t_tablaDePaginas*procesoActivo = NULL;
 	int cabeceraDelMensaje;
 	t_mensaje mensaje;
 
