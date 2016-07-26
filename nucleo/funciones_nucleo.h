@@ -19,6 +19,7 @@
 #include "interfaz.h"
 #include "planificador.h"
 #include "variables_compartidas.h"
+#include "semaforos.h"
 
 //Cuántas conexiones se aceptarán
 #define BACKLOG 100
@@ -36,6 +37,8 @@ struct t_infoConfig
 	char **array_dispositivos;
 	char **array_io_sleeps;
 	char **array_variables_compartidas;
+	char **array_sem_id;
+	char **array_sem_init;
 };
 
 

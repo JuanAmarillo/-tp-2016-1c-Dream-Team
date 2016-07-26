@@ -22,19 +22,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: Nucleo_10
+all: Nucleo_11
 
 # Tool invocations
-Nucleo_10: $(OBJS) $(USER_OBJS)
+Nucleo_11: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross GCC Linker'
-	gcc  -o "Nucleo_10" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc  -o "Nucleo_11" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(OBJS)$(C_DEPS)$(EXECUTABLES) Nucleo_10
+	-$(RM) $(OBJS)$(C_DEPS)$(EXECUTABLES) Nucleo_11
 	-@echo ' '
 
 .PHONY: all clean dependents

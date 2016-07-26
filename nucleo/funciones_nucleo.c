@@ -34,6 +34,8 @@ void leerArchivoConfig(char *ruta)
 	infoConfig.array_dispositivos = config_get_array_value(config, "IO_ID");
 	infoConfig.array_io_sleeps = config_get_array_value(config, "IO_SLEEP");
 	infoConfig.array_variables_compartidas = config_get_array_value(config, "SHARED_VARS");
+	infoConfig.array_sem_id = config_get_array_value(config, "SEM_ID");
+	infoConfig.array_sem_init = config_get_array_value(config, "SEM_INIT");
 
 	// No uso config_destroy(config) porque bugea
 	free(config->path);
@@ -517,6 +519,26 @@ void mostrarCompartidasPorLog(void)
 		}
 }
 
+void init_cantidad_semaforos(void)
+{
+	int i;
+	for(i = 0; infoConfig.array_sem_id[i]; ++i);
+	cantidadSemaforos = i;
+}
+
+void mostrarSemaforosPorLog(void)
+{
+	int i;
+	escribirLog("Semaforos: [");
+	for(i = 0; i < cantidadSemaforos; ++i)
+	{
+		if(i < cantidadSemaforos - 1)
+			escribirLog("%s = %d, ", semaforos[i].id, semaforos[i].cuenta);
+		else
+			escribirLog("%s = %d]\n", semaforos[i].id, semaforos[i].cuenta);
+	}
+}
+
 void inicializarListas(void)
 {
 	FD_ZERO(&conjunto_procesos_listos);
@@ -547,6 +569,17 @@ void inicializarListas(void)
 	}
 
 	mostrarCompartidasPorLog();
+
+	init_cantidad_semaforos();
+	semaforos = malloc(cantidadSemaforos * sizeof(t_semaforo));
+	for(i = 0; i < cantidadSemaforos; ++i)
+	{
+		semaforos[i].id = strdup(infoConfig.array_sem_id[i]);
+		semaforos[i].cuenta = atoi(infoConfig.array_sem_init[i]);
+		semaforos[i].cola = queue_create();
+	}
+
+	mostrarSemaforosPorLog();
 }
 
 void administrarConexiones(void)
