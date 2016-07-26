@@ -39,8 +39,8 @@ int main(int argc, char** argv){
 	socketUMC = conectarseUMC();
 
 	// Me conecto a el Nucleo
-	socketNucleo = socketUMC;
-	//socketNucleo = conectarseNucleo();
+	//socketNucleo = socketUMC;
+	socketNucleo = conectarseNucleo();
 
 	// Obtener tamaño de paginas UMC
 	tamano_pagina_umc = obtenerTamanoPaginasUMC();
