@@ -33,6 +33,7 @@ void leerArchivoConfig(char *ruta)
 	infoConfig.quantum_sleep = config_get_string_value(config, "QUANTUM_SLEEP");
 	infoConfig.array_dispositivos = config_get_array_value(config, "IO_ID");
 	infoConfig.array_io_sleeps = config_get_array_value(config, "IO_SLEEP");
+	infoConfig.array_variables_compartidas = config_get_array_value(config, "SHARED_VARS");
 
 	// No uso config_destroy(config) porque bugea
 	free(config->path);
@@ -496,6 +497,13 @@ int cantidadDispositivos(void)
 	return i;
 }
 
+void init_cantidad_varsComp(void)
+{
+	int i;
+	for(i = 0; infoConfig.array_variables_compartidas[i]; ++i);
+	cantidad_variables_compartidas = i;
+}
+
 void inicializarListas(void)
 {
 	FD_ZERO(&conjunto_procesos_listos);
@@ -515,6 +523,23 @@ void inicializarListas(void)
 		vector_dispositivos[i].io_sleep = atoi(infoConfig.array_io_sleeps[i]);
 		vector_dispositivos[i].cola = queue_create();
 		vector_dispositivos[i].atendiendo = NULL;
+	}
+
+	init_cantidad_varsComp();
+	variables_compartidas = malloc(cantidad_variables_compartidas * sizeof(t_variable_compartida));
+	for(i = 0; i < cantidad_variables_compartidas; ++i)
+	{
+		variables_compartidas[i].nombre = strdup(infoConfig.array_variables_compartidas[i]);
+		variables_compartidas[i].valor = 0;
+	}
+
+	escribirLog("Variables compartidas: [");
+	for(i = 0; i < cantidad_variables_compartidas; ++i)
+	{
+		if(i < cantidad_variables_compartidas - 1)
+			escribirLog("%s = %d, ", variables_compartidas[i].nombre, variables_compartidas[i].valor);
+		else
+			escribirLog("%s = %d]\n", variables_compartidas[i].nombre, variables_compartidas[i].valor);
 	}
 }
 
