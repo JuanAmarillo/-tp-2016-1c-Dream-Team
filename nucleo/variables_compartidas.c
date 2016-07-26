@@ -27,8 +27,10 @@ void asignarCompartida(const char *nombre, int nuevoValor)
 	for(i = 0; i < cantidad_variables_compartidas; ++i)
 	{
 		if(!strcmp(nombre, variables_compartidas[i].nombre))
+		{
 			variables_compartidas[i].valor = nuevoValor;
-		return;
+			return;
+		}
 	}
 	if(i >= cantidad_variables_compartidas)
 	{

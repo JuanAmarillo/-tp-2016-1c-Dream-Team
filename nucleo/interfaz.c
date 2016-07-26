@@ -10,6 +10,8 @@ void interfaz(void)
 
 		imprimirColasDispositivos();
 
+		mostrarCompartidas();
+
 		printf("____________________________________________\n");
 
 		imprimirMaster();
@@ -120,6 +122,20 @@ void* master_imprimirProceso(void *pcb)
 	printf("%s\n", estado);
 	system("tput setaf 9");
 	return NULL;
+}
+
+void mostrarCompartidas(void)
+{
+	int i;
+	printf("____________________________________________\n");
+	printf("Variables compartidas: [");
+		for(i = 0; i < cantidad_variables_compartidas; ++i)
+		{
+			if(i < cantidad_variables_compartidas - 1)
+				printf("%s = %d, ", variables_compartidas[i].nombre, variables_compartidas[i].valor);
+			else
+				printf("%s = %d]\n", variables_compartidas[i].nombre, variables_compartidas[i].valor);
+		}
 }
 
 void imprimirMaster(void)

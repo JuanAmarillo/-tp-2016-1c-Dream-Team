@@ -15,6 +15,7 @@ void imprimirMaster(void);
 void imprimirListaProcesos(const t_list*);
 void imprimirListaProcesosBloq(const t_list *lista);
 void imprimirColasDispositivos(void);
+void mostrarCompartidas(void);
 
 int cantidadDispositivos(void);
 
