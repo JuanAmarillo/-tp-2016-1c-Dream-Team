@@ -539,6 +539,15 @@ void mostrarSemaforosPorLog(void)
 	}
 }
 
+char* agregarBang(const char *nombreSinBang)
+{
+	char *ret = malloc(strlen(nombreSinBang) + 2);
+	ret[0] = '!';
+	memcpy(ret+1, nombreSinBang, strlen(nombreSinBang));
+	ret[strlen(nombreSinBang) + 1] = '\0';
+	return ret;
+}
+
 void inicializarListas(void)
 {
 	FD_ZERO(&conjunto_procesos_listos);
@@ -851,30 +860,39 @@ void administrarConexiones(void)
 								escribirLog("Se recibio una solicitud de lectura de variable compartida\n");
 
 								int pid = mensajeCPU.parametros[0];
-								char *nombreVariable = strdup(mensajeCPU.mensaje_extra);
+								char *nombreSinBang = strdup(mensajeCPU.mensaje_extra);
+								char *nombreVariable = agregarBang(nombreSinBang);
 								escribirLog("Nombre de la variable: %s\n", nombreVariable);
+
+								t_mensajeHead head = {RETURN_OBTENER_COMPARTIDA, 2, 1};
+								t_mensaje mensaje;
+								mensaje.head = head;
+								mensaje.parametros = malloc(2 * sizeof(int));
 
 								int valor;
 								if(existeVariable(nombreVariable))
 								{
 									valor = obtenerValorCompartida(nombreVariable);
 									escribirLog("Valor obtenido: %d\n", valor);
+
+									mensaje.parametros[0] = 1;//OK
+									mensaje.parametros[1] = valor;
+
 								}
 
 								else
 								{
-									escribirLog("La variable compartida solicitada no existe, se abortara el proceso %d\n", pid);
+									escribirLog("La variable compartida solicitada no existe, se advertira a la cpu para abortar el proceso %d\n", pid);
+
+									mensaje.parametros[0] = 0;//FAIL
+									mensaje.parametros[1] = 0;
+
 									perror("Ver Log");
-									abortarProceso(pid);
 								}
 
-								t_mensajeHead head = {RETURN_OBTENER_COMPARTIDA, 1, 1};
-								t_mensaje mensaje;
-								mensaje.head = head;
-								mensaje.parametros = malloc(sizeof(int));
-								mensaje.parametros[0] = valor;
 								mensaje.mensaje_extra = malloc(1);
 								mensaje.mensaje_extra[0] = '\0';
+
 
 								if( enviarMensaje(fd_explorer, mensaje) == -1 )
 								{
@@ -888,32 +906,56 @@ void administrarConexiones(void)
 								free(mensaje.parametros);
 								free(mensaje.mensaje_extra);
 								free(nombreVariable);
+								free(nombreSinBang);
 								continue;
 							}
 
 							if(mensajeCPU.head.codigo == ASIGNAR_COMPARTIDA)
 							{
+								escribirLog("----------------------------------------------------------\n");
 								escribirLog("Se recibio una solicitud de escritura para una variable compartida\n");
-								char *nombre = strdup(mensajeCPU.mensaje_extra);
+								char *nombreSinBang = strdup(mensajeCPU.mensaje_extra);
+								char *nombre = agregarBang(nombreSinBang);
 								escribirLog("La variable es: %s\n", nombre);
 								int pid = mensajeCPU.parametros[0];
 								int nuevoValor = mensajeCPU.parametros[1];
 								escribirLog("Nuevo valor: %d\n", nuevoValor);
 
+								t_mensajeHead head = {RETURN_ASIGNAR_COMPARTIDA, 2, 1};
+								t_mensaje mensaje;
+								mensaje.head = head;
+								mensaje.parametros = malloc(2 * sizeof(int));
+
 								if(existeVariable(nombre))
 								{
 									asignarCompartida(nombre, nuevoValor);
+									mensaje.parametros[0] = 1;//OK
 								}
 
 								else
 								{
-									escribirLog("La variable compartida solicitada no existe, se abortara el proceso %d\n", pid);
+									escribirLog("La variable compartida solicitada no existe, se advertira a la cpu para abortar el proceso %d\n", pid);
+
+									mensaje.parametros[0] = 0;//FAIL
+
 									perror("Ver Log");
-									abortarProceso(pid);
 								}
+
+								mensaje.mensaje_extra = malloc(1);
+								mensaje.mensaje_extra[0] = '\0';
+
+								if( enviarMensaje(fd_explorer, mensaje) == -1 )
+								{
+									perror("Error al retornar valor de variable compartida a una cpu");
+									abort();
+								}
+
+								escribirLog("Se envio el valor a la cpu\n");
+								escribirLog("----------------------------------------------------------\n");
 
 								mostrarCompartidasPorLog();
 								free(nombre);
+								free(nombreSinBang);
 								continue;
 							}
 
@@ -957,9 +999,54 @@ void administrarConexiones(void)
 
 							if(mensajeCPU.head.codigo == WAIT)
 							{
+								//Sacarle los datos y luego volver a recibir mensaje
+								int pid = mensajeCPU.parametros[0];
+								char *nombre = strdup(mensajeCPU.mensaje_extra);
+
+								escribirLog("Se recibio para Wait: ");
+								escribirLog("pid: %d, ", pid);
+
+								nbytes = recibirMensaje(fd_explorer, &mensajeCPU);
+								if(nbytes <= 0)
+								{
+									perror("Error al recibir PCB que solicitó Wait()");
+									abort();
+								}
+
 								if(mensajeCPU.head.codigo == STRUCT_PCB_WAIT)
 								{
+									t_PCB *pcb_wait = malloc(sizeof(t_PCB));
+									*pcb_wait = mensaje_to_pcb(mensajeCPU);
+
+									if(pid != pcb_wait->pid)
+									{
+										escribirLog("El pid de la señal de wait y el del pcb recibido no coinciden: %d /= %d --> abortar sistema\n", pid, pcb_wait->pid);
+										perror("Abortado, ver Log");
+										abort();
+									}
+
+									if(existeSemaforo(nombre))
+									{
+										escribirLog("El proceso %d ejecuto wait(%s)\n");
+										semaforo_wait(pcb_wait, nombre_to_semaforo(nombre));
+									}
+
+									else
+									{
+										escribirLog("El proceso %d solicito wait a un semaforo que no existe: (%s), se abortara el proceso\n", pid, nombre);
+										abortarProceso(pid);
+									}
+
+									free(nombre);
+
 									continue;
+								}
+
+								else
+								{
+									escribirLog("Luego de una petición de wait, se recibió un mensaje que no contiene un pcb (revisar códigos de mensaje): abortar sistema\n");
+									perror("Abortado, ver Log");
+									abort();
 								}
 
 								continue;
@@ -967,6 +1054,21 @@ void administrarConexiones(void)
 
 							if(mensajeCPU.head.codigo == SIGNAL)
 							{
+								int pid = mensajeCPU.parametros[0];
+								char *nombre = strdup(mensajeCPU.mensaje_extra);
+								if(existeSemaforo(nombre))
+								{
+									escribirLog("El proceso %d ejecutó signal(%s)\n", pid, nombre);
+									semaforo_signal(nombre_to_semaforo(nombre));
+								}
+
+								else
+								{
+									escribirLog("El proceso %d solicito signal a un semaforo que no existe: (%s), se abortara el proceso\n", pid, nombre);
+									abortarProceso(pid);
+								}
+
+								free(nombre);
 								continue;
 							}
 

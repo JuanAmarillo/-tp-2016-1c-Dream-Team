@@ -14,6 +14,7 @@ C_SRCS += \
 ../pcb.c \
 ../planificador.c \
 ../protocolo_mensaje.c \
+../semaforos.c \
 ../variables_compartidas.c 
 
 OBJS += \
@@ -27,6 +28,7 @@ OBJS += \
 ./pcb.o \
 ./planificador.o \
 ./protocolo_mensaje.o \
+./semaforos.o \
 ./variables_compartidas.o 
 
 C_DEPS += \
@@ -40,6 +42,7 @@ C_DEPS += \
 ./pcb.d \
 ./planificador.d \
 ./protocolo_mensaje.d \
+./semaforos.d \
 ./variables_compartidas.d 
 
 

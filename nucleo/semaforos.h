@@ -8,6 +8,9 @@
 #ifndef SEMAFOROS_H_
 #define SEMAFOROS_H_
 
+#include "pcb.h"
+#include <commons/collections/queue.h>
+
 typedef struct
 {
 	char *id;
@@ -18,7 +21,9 @@ typedef struct
 t_semaforo *semaforos;
 unsigned int cantidadSemaforos;
 
-void sem_wait(t_PCB *proceso, t_semaforo *semaforo);
-void sem_signal(t_PCB *proceso, t_semaforo *semaforo);
+void semaforo_wait(t_PCB *proceso, t_semaforo *semaforo);
+void semaforo_signal(t_semaforo *semaforo);
+t_semaforo* nombre_to_semaforo(const char *nombre);
+int existeSemaforo(const char *nombre);
 
 #endif /* SEMAFOROS_H_ */
