@@ -106,23 +106,27 @@ int main(int argc, char** argv){
 
 		switch (estado_ejecucion) {
 		      case 0: // Finalizo el Quantum normalmente
-		    	  log_trace(logger, "Finalizo el Quantum Normalmente");
+		    	  log_trace(logger, "PID: %u, Finalizo el Quantum Normalmente", pcb_global.pid);
 		    	  enviarPCBnucleo(STRUCT_PCB);
 		        break;
 		      case 1: // Finalizo el programa
-		    	  log_trace(logger, "Finalizo el programa");
+		    	  log_trace(logger, "PID: %u, Finalizo el programa", pcb_global.pid);
 		    	  enviarPCBnucleo(STRUCT_PCB_FIN);
 		        break;
 		      case 2:
-		    	  log_trace(logger, "Ocurrio Segmentation Fault");
+		    	  log_trace(logger, "PID: %u, Ocurrio Segmentation Fault", pcb_global.pid);
 		    	  enviarPCBnucleo(STRUCT_PCB_FIN_ERROR);
 		    	break;
 		      case 3:
-		    	  log_trace(logger, "Ocurrio IO");
+		    	  log_trace(logger, "PID: %u, Ocurrio IO", pcb_global.pid);
 		    	  enviarPCBnucleo(STRUCT_PCB_IO);
 		    	break;
 		      case 4:
-		    	  log_trace(logger, "Finalizo por WAIT");
+		    	  log_trace(logger, "PID: %u, Finalizo por WAIT", pcb_global.pid);
+		    	  enviarPCBnucleo(STRUCT_PCB_WAIT);
+		    	break;
+		      case 5:
+		    	  log_trace(logger, "PID: %u, Error: Variable compartida no encontrada.", pcb_global.pid);
 		    	  enviarPCBnucleo(STRUCT_PCB_WAIT);
 		    	break;
 		      default: // Otro error
@@ -893,10 +897,12 @@ t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable){
 	if(estado_ejecucion) return 0;
 	// Variables
 	t_mensaje mensaje;
+	unsigned parametros[1];
+	parametros[0] = pcb_global.pid;
 	mensaje.head.codigo = OBTENER_COMPARTIDA;
-	mensaje.head.cantidad_parametros = 0;
+	mensaje.head.cantidad_parametros = 1;
 	mensaje.head.tam_extra = strlen(variable) + 1;
-	mensaje.parametros = NULL;
+	mensaje.parametros = parametros;
 	mensaje.mensaje_extra = variable;
 
 	// Envio al UMC la peticion
@@ -911,7 +917,11 @@ t_valor_variable parser_obtenerValorCompartida(t_nombre_compartida variable){
 		abort();
 	}
 
-	t_valor_variable valor = mensaje.parametros[0];
+	if(mensaje.parametros[0] == 0){
+		estado_ejecucion = 5;
+	}
+
+	t_valor_variable valor = mensaje.parametros[1];
 
 	// Libero memoria de mensaje
 	freeMensaje(&mensaje);
@@ -924,16 +934,34 @@ t_valor_variable parser_asignarValorCompartida(t_nombre_compartida variable, t_v
 	if(estado_ejecucion) return 0;
 	// Variables
 	t_mensaje mensaje;
-	unsigned parametros[1];
-	parametros[0] = valor;
+	unsigned parametros[2];
+	parametros[0] = pcb_global.pid;
+	parametros[1] = valor;
 	mensaje.head.codigo = ASIGNAR_COMPARTIDA;
-	mensaje.head.cantidad_parametros = 1;
+	mensaje.head.cantidad_parametros = 2;
 	mensaje.head.tam_extra = strlen(variable) + 1;
 	mensaje.parametros = parametros;
 	mensaje.mensaje_extra = variable;
 
 	// Envio al UMC la peticion
 	enviarMensajeNucleo(mensaje);
+
+	// Recibo mensaje
+	recibirMensajeNucleo(&mensaje);
+
+	//
+	if(mensaje.head.codigo != RETURN_ASIGNAR_COMPARTIDA){
+		log_error(logger, "Se recibio un mensaje diferente a 'RETURN_ASIGNAR_COMPARTIDA'");
+		abort();
+	}
+
+	if(mensaje.parametros[0] != 1){
+		estado_ejecucion = 5;
+	}
+
+	freeMensaje(&mensaje);
+
+	//
 
 	log_trace(logger, "----> return: %i", valor);
 	return valor;
