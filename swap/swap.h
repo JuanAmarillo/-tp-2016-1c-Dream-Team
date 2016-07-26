@@ -12,6 +12,7 @@
 #include <commons/collections/list.h>
 #include <commons/bitarray.h>
 #include <commons/log.h>
+#include <commons/config.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -46,6 +47,7 @@ t_list *INFO_PROG;
 char* bufferPagina;
 t_mensaje received;
 t_log *logger;
+t_config *config;
 
 
 //ACCIONES DEL SWAP
