@@ -151,6 +151,7 @@ unsigned enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,uns
 	if(respuesta.head.codigo == NOT_ENOUGH_SPACE)
 	{
 		log_trace(logger,"No hay suficiente espacio para almacenar el programa");
+		pthread_mutex_unlock(&mutexClientes);
 		enviarSuficienteEspacio(clienteUMC,ALMACENAR_FAILED);
 		return 0;
 	}
@@ -260,7 +261,7 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 	log_trace(logger,"Codigo:\n%s",codigoPrograma);
 
 	if(enviarCodigoAlSwap(paginasSolicitadas,codigoPrograma,pid,tamanioCodigo,clienteUMC) == 1)
-		crearTablaDePaginas(pid,paginasSolicitadas+1);
+		crearTablaDePaginas(pid,paginasSolicitadas);
 
  	free(codigoPrograma);
  	free(mensaje.mensaje_extra);
