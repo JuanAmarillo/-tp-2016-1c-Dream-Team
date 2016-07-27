@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
 		printf("Error de connect\n");
 		exit(1);
 		}
-	printf ("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
+	printf ("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes.\n");
 
 	mensaje = codigo_to_mensaje(codigo);
 
