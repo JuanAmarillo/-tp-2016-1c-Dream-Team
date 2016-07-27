@@ -34,12 +34,12 @@ int main(int argc, char** argv){
 
 	// Asigno una funcion a la señal SIGUSR1
 	signal(SIGUSR1, signal_sigusr1);
+	signal(SIGINT, signal_sigusr1);
 
 	// Me conecto a la UMC
 	socketUMC = conectarseUMC();
 
 	// Me conecto a el Nucleo
-	//socketNucleo = socketUMC;
 	socketNucleo = conectarseNucleo();
 
 	// Obtener tamaño de paginas UMC
@@ -1169,9 +1169,6 @@ void parser_signal(t_nombre_semaforo identificador_semaforo){
 
 	// Envio al UMC la peticion
 	enviarMensajeNucleo(mensaje);
-
-	// Libero memoria de mensaje
-	free(mensaje.mensaje_extra);
 }
 
 /*
