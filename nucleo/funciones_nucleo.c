@@ -225,7 +225,7 @@ void avisar_Consola_ProgramaNoAlmacenado(int fd)
 
 	enviarMensaje(fd, mensajeExit);
 
-	freeMensaje(&mensaje);
+	freeMensaje(&mensajeExit);
 }
 
 void asociarPidConsola(int pid, int consola)
@@ -730,16 +730,12 @@ void administrarConexiones(void)
 							}
 							else
 							{
-								free(pcb->indiceEtiquetas);
-								free(pcb->indiceCodigo);
-								free(pcb->indiceStack);
-								free(pcb);
+								//freePCB(pcb); Revisar, da violacion de segmento
 								escribirLog("La umc no pudo almacenar el proceso, se abortara el mismo\n");
 								avisar_Consola_ProgramaNoAlmacenado(fd_explorer);
 							}
-
+							freeMensaje(&mensajeConsola);
 						}
-						freeMensaje(&mensajeConsola);
 					}
 
 					if(FD_ISSET(fd_explorer, &conj_cpu))//Los datos vienen de una CPU
@@ -1128,9 +1124,10 @@ void administrarConexiones(void)
 								continue;
 							}
 
+							freeMensaje(&mensajeCPU);
+
 						}
 
-						freeMensaje(&mensajeCPU);
 					}
 
 				}
