@@ -24,6 +24,7 @@ int main(int argc, char** argv) {
 		printf ("Error. Hay más de dos argumentos.\n");
 		return -2;
 	}
+
 	if (argc==1) {
 		printf ("Error. Falta un parámetro.\n");
 		return -3;
@@ -31,7 +32,7 @@ int main(int argc, char** argv) {
 
 	// Abre el archivo en modo lectura
 	FILE * file;
-	puts("1");
+
 	file = fopen( argv[1] , "r");
 
 
