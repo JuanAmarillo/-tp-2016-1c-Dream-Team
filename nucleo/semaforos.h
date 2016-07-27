@@ -10,6 +10,7 @@
 
 #include "pcb.h"
 #include "archivoLog.h"
+#include "planificador.h"
 #include <commons/collections/queue.h>
 
 typedef struct
@@ -29,5 +30,6 @@ int existeSemaforo(const char *nombre);
 
 void bloquear(t_PCB *proceso, const char *dispositivo, unsigned int cantOp);
 void ponerListo(t_PCB *proceso);
+int eliminarProcesoSegunPID(t_list *lista, int pid);
 
 #endif /* SEMAFOROS_H_ */

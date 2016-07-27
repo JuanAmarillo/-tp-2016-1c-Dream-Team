@@ -20,9 +20,20 @@ int semaforo_wait(t_PCB *proceso, t_semaforo *s)
 	else return 1;
 }
 
-void semaforo_signal(t_semaforo *semaforo)
+void semaforo_signal(t_semaforo *s)
 {
+	s->cuenta++;
 
+	if(s->cuenta <= 0)
+	{
+		t_PCB *proceso;
+		proceso = queue_pop(s->cola);
+
+		//Eliminar de la cola de bloquados
+		eliminarProcesoSegunPID(cola_bloqueados->elements, proceso->pid);
+
+		ponerListo(proceso);
+	}
 }
 
 t_semaforo* nombre_to_semaforo(const char *nombre)
