@@ -74,8 +74,9 @@ void ejecutar(t_PCB proceso, unsigned short int quantum, unsigned int qSleep, in
 	t_mensaje mensaje_quantum = quantum_to_mensaje(quantum, qSleep);
 
 	enviarMensaje(cpu, mensaje_PCB);
+	freeMensaje(&mensaje_PCB);
 	enviarMensaje(cpu, mensaje_quantum);
-	free(mensaje_quantum.parametros);
+	freeMensaje(&mensaje_quantum);
 	actualizarMaster();
 	escribirLog("-----------------------------------------\n");
 	escribirLog("Se ejecutó el proceso %d en la cpu:fd[%d]\n", proceso.pid, cpu);

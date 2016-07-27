@@ -83,8 +83,7 @@ int solicitarTamPaginas(void)
 
 	int x = enviarMensaje(fd_umc, mensaje);
 
-	free(mensaje.parametros);
-	free(mensaje.mensaje_extra);
+	freeMensaje(&mensaje);
 	return x;
 }
 
@@ -129,6 +128,7 @@ void recibirTamPaginas(void)
 		abort();
 	}
 	freeMensaje(mensaje);
+	free(mensaje);
 }
 
 int enviarInfoUMC(unsigned int pid, unsigned int cantidadPaginas, const char *codigo)
@@ -151,8 +151,7 @@ int enviarInfoUMC(unsigned int pid, unsigned int cantidadPaginas, const char *co
 		abort();
 	}
 
-	free(parametros);
-	free(dupCodigo);
+	freeMensaje(&mensaje);
 
 	return ret;
 }
@@ -187,18 +186,21 @@ int seAlmacenoElProceso(void)
 	{
 		escribirLog("almacenar ok\n");
 		freeMensaje(mensaje);
+		free(mensaje);
 		return 1;
 	}
 	if(mensaje->head.codigo == ALMACENAR_FAILED)
 	{
 		escribirLog("almacenar failed\n");
 		freeMensaje(mensaje);
+		free(mensaje);
 		return 0;
 	}
 
 	perror("Mensaje desconocido");
 	escribirLog("La funcion de verificar si se almaceno el proceso recibio un mensaje desconocido\n");
 	freeMensaje(mensaje);
+	free(mensaje);
 	abort();
 	return -1;//Aborta antes de retornar, pero si no pongo esto me tira warning :P
 }
@@ -215,8 +217,7 @@ void avisar_Consola_ProgramaNoAlmacenado(int fd)
 
 	enviarMensaje(fd, mensaje);
 
-	free(mensaje.parametros);
-	free(mensaje.mensaje_extra);
+	freeMensaje(&mensaje);
 
 	//Avisar que aborte
 	t_mensajeHead headExit = {EXIT_PROGRAMA, 1, 1};
@@ -224,8 +225,7 @@ void avisar_Consola_ProgramaNoAlmacenado(int fd)
 
 	enviarMensaje(fd, mensajeExit);
 
-	free(mensajeExit.parametros);
-	free(mensajeExit.mensaje_extra);
+	freeMensaje(&mensaje);
 }
 
 void asociarPidConsola(int pid, int consola)
@@ -392,8 +392,7 @@ void imprimir(int imp, int consola)
 		abort();
 	}
 
-	free(mensaje.parametros);
-	free(mensaje.mensaje_extra);
+	freeMensaje(&mensaje);
 }
 
 void imprimirTexto(const char *imp, int consola)
@@ -412,8 +411,7 @@ void imprimirTexto(const char *imp, int consola)
 
 	escribirLog("Se recibio el texto %s para imprimir\n", imp);
 
-	free(mensaje.parametros);
-	free(mensaje.mensaje_extra);
+	freeMensaje(&mensaje);
 }
 
 void avisar_Consola_Fin_Programa(int consola)
@@ -430,8 +428,7 @@ void avisar_Consola_Fin_Programa(int consola)
 	}
 	escribirLog("Se informo a la consola(fd:[%d]) del fin del proceso %d\n", consola, Consola_to_Pid(consola));
 
-	free(mensaje.parametros);
-	free(mensaje.mensaje_extra);
+	freeMensaje(&mensaje);
 }
 
 void abrirPuertos(void)
@@ -903,8 +900,7 @@ void administrarConexiones(void)
 								escribirLog("Se envio el valor a la cpu\n");
 								escribirLog("----------------------------------------------------------\n");
 
-								free(mensaje.parametros);
-								free(mensaje.mensaje_extra);
+								freeMensaje(&mensaje);
 								free(nombreVariable);
 								free(nombreSinBang);
 								continue;
@@ -954,6 +950,7 @@ void administrarConexiones(void)
 								escribirLog("----------------------------------------------------------\n");
 
 								mostrarCompartidasPorLog();
+								freeMensaje(&mensaje);
 								free(nombre);
 								free(nombreSinBang);
 								continue;
@@ -1102,8 +1099,7 @@ void administrarConexiones(void)
 
 								free(nombre);
 
-								free(mensaje.parametros);
-								free(mensaje.mensaje_extra);
+								freeMensaje(&mensaje);
 
 								continue;
 							}
