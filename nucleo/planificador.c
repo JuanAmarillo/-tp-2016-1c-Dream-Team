@@ -139,6 +139,7 @@ void actualizarMaster(void)
 
 void ponerListo(t_PCB *proceso)
 {
+	FD_CLR(proceso->pid, &conjunto_procesos_bloqueados);
 	proceso->estado = 1;
 	queue_push(cola_listos, proceso);
 	FD_SET(proceso->pid, &conjunto_procesos_listos);

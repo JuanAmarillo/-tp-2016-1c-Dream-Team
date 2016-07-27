@@ -1114,6 +1114,7 @@ void administrarConexiones(void)
 								{
 									escribirLog("El proceso %d ejecutó signal(%s)\n", pid, nombre);
 									semaforo_signal(nombre_to_semaforo(nombre));
+									mostrarSemaforosPorLog();
 								}
 
 								else
