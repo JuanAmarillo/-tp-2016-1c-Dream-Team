@@ -23,7 +23,7 @@ t_queue *cola_bloqueados;
 
 t_dispositivo *vector_dispositivos;
 
-
+t_queue *cola_cpus_disponibles;
 
 typedef struct
 {
@@ -40,6 +40,7 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 
 void mostrarEstados(void);
 void esperaPorProcesos(t_queue*);
+void esperaPorCPUs(void);
 void ejecutar(t_PCB proceso, unsigned short int quantum, unsigned int quantumSleep, int cpu);
 void ponerListo(t_PCB *proceso);
 void terminar(t_PCB *proceso);
@@ -47,6 +48,9 @@ void bloquear(t_PCB *proceso, const char *dispositivo, unsigned int cantOp);
 int estaLibre(int cpu);
 void mostrarCola(const t_queue*);
 void actualizarMaster(void);
+
+void habilitarCPU(int);
+void deshabilitarCPU(int);
 
 int cantidadDispositivos(void);
 void abortarProceso(int pid);

@@ -5,8 +5,8 @@
  *      Author: utnso
  */
 
-#ifndef SEMAFOROS_H_
-#define SEMAFOROS_H_
+#ifndef NUCLEO_13_SEMAFOROS_H_
+#define NUCLEO_13_SEMAFOROS_H_
 
 #include "pcb.h"
 #include "archivoLog.h"
@@ -32,4 +32,4 @@ void bloquear(t_PCB *proceso, const char *dispositivo, unsigned int cantOp);
 void ponerListo(t_PCB *proceso);
 int eliminarProcesoSegunPID(t_list *lista, int pid);
 
-#endif /* SEMAFOROS_H_ */
+#endif /* NUCLEO_13_SEMAFOROS_H_ */
