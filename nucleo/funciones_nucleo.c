@@ -982,7 +982,7 @@ void administrarConexiones(void)
 								{
 									t_PCB *pcb = malloc(sizeof(t_PCB));
 									*pcb = mensaje_to_pcb(mensajeCPU);
-									FD_CLR(pcb->pid, &conjunto_procesos_ejecutando);
+
 									bloquear(pcb, nombreDispositivo, cantidadOperaciones);
 									actualizarMaster();
 									FD_SET(fd_explorer, &conjunto_cpus_libres);
