@@ -18,10 +18,12 @@
 
 int main(){
 	initialConf();
+	bufferPagina = malloc(TAMANIO_PAGINA);
 	socketConf();
 	while (funcionamientoSWAP()!=0);
 
 	accionesDeFinalizacion();
+	free(bufferPagina);
 	return 0;
 }
 
@@ -102,16 +104,21 @@ void saveProgram(){
 
 	espacio = buscarLongPrograma(received.parametros[0]);
 	pagInicial = buscarPagInicial(received.parametros[0]);
-	char *pag;
-	pag = strdup(received.mensaje_extra);
+
 	log_trace(logger,"El codigo de la pagina es:\n");
 	log_trace(logger,received.mensaje_extra);
-	while(cantidadGuardada<espacio){
-		bufferPagina = string_substring(pag, cantidadGuardada*TAMANIO_PAGINA,TAMANIO_PAGINA);
+	int tam_a_copiar;
+	while((received.head.tam_extra - cantidadGuardada*TAMANIO_PAGINA) > 0){
+		if((received.head.tam_extra - cantidadGuardada*TAMANIO_PAGINA) >= TAMANIO_PAGINA){
+			tam_a_copiar = TAMANIO_PAGINA;
+		} else {
+			tam_a_copiar = received.head.tam_extra - cantidadGuardada*TAMANIO_PAGINA;
+		}
+		memcpy(bufferPagina, received.mensaje_extra + cantidadGuardada*TAMANIO_PAGINA, tam_a_copiar);
+		if(tam_a_copiar != TAMANIO_PAGINA) memset(bufferPagina + tam_a_copiar, '\0', tam_a_copiar-TAMANIO_PAGINA);
 		savePage(pagInicial+cantidadGuardada);
 		cantidadGuardada++;
 	}
-	free(pag);
 	msj_Save_Program(received.parametros[0],pagInicial,espacio);
 }
 
@@ -124,9 +131,8 @@ void returnPage(){
 	aEnviar.mensaje_extra = malloc(TAMANIO_PAGINA);
 	aEnviar.parametros = NULL;
 	getPage(buscarPagInicial(received.parametros[0])+received.parametros[1]);
-	strcpy(aEnviar.mensaje_extra, bufferPagina);
+	memcpy(aEnviar.mensaje_extra, bufferPagina, TAMANIO_PAGINA);
 	enviarMensaje(socketCliente, aEnviar);
-	log_trace(logger,"----> '%s'", aEnviar.mensaje_extra);
 	free(aEnviar.mensaje_extra);
 }
 
@@ -145,7 +151,7 @@ void endProgram(){
 void saveNewPage(){
 	int nroPagDentroProg = received.parametros[1];
 	int pagInicial = buscarPagInicial(received.parametros[0]);
-	strcpy(bufferPagina,received.mensaje_extra);
+	memcpy(bufferPagina, received.mensaje_extra, TAMANIO_PAGINA);
 	savePage(pagInicial+nroPagDentroProg);
 }
 
