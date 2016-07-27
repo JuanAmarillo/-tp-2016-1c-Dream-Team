@@ -128,7 +128,7 @@ void enviarSuficienteEspacio(int clienteUMC, int codigo)
 	log_trace(logger,"Entro a la funcion enviarSuficienteEspacio");
 	t_mensaje noEspacio;
 	noEspacio.head.codigo = codigo;
-	noEspacio.head.cantidad_parametros = 1;
+	noEspacio.head.cantidad_parametros = 0;
 	noEspacio.head.tam_extra = 0;
 	empaquetarYEnviar(noEspacio,clienteUMC);
 	log_trace(logger,"Salio de la funcion enviarSuficienteEspacio");
