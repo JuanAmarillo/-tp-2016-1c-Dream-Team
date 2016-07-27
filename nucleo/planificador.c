@@ -227,7 +227,7 @@ pthread_t* comenzar_Planificador_EntradaSalida(void)
 {
 	int i, nDisp = cantidadDispositivos();
 
-	pthread_t *hilos_por_dispositivo = malloc(3 * sizeof(pthread_t));
+	pthread_t *hilos_por_dispositivo = malloc(nDisp * sizeof(pthread_t));
 
 	for(i = 0; i < nDisp; ++i)
 	{
