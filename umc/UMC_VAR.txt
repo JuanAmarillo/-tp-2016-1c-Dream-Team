@@ -1,0 +1,666 @@
+[TRACE] 22:51:38:219 UMC/(3213:3306): Trae a Memoria Pagina:1 Tamaño:50
+[TRACE] 22:51:38:220 UMC/(3213:3306): Var 0: int:540876897
+[TRACE] 22:51:38:220 UMC/(3213:3306): Var 1: int:539697250
+[TRACE] 22:51:38:220 UMC/(3213:3306): Var 2: int:1695167025
+[TRACE] 22:51:38:221 UMC/(3213:3306): Guardar Variable:Pagina 1 var:3
+[TRACE] 22:51:38:221 UMC/(3213:3306): Var en void*:
+[TRACE] 22:51:38:221 UMC/(3213:3306): Var en int  :3
+
+[TRACE] 22:51:38:280 UMC/(3213:3306): Guardar Variable:Pagina 1 var:4
+[TRACE] 22:51:38:280 UMC/(3213:3306): Var en void*:
+[TRACE] 22:51:38:280 UMC/(3213:3306): Var en int  :5
+
+[TRACE] 18:03:19:642 UMC/(3866:3955): Trae a Memoria Pagina:1 Tamaño:50
+[TRACE] 18:03:19:655 UMC/(3866:3955): Var 0: int:540876897
+[TRACE] 18:03:19:655 UMC/(3866:3955): Var 1: int:539697250
+[TRACE] 18:03:19:655 UMC/(3866:3955): Var 2: int:1695167025
+[TRACE] 18:03:19:673 UMC/(3866:3955): Guardar Variable:Pagina 1 var:3
+[TRACE] 18:03:19:673 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:19:674 UMC/(3866:3955): Var en int  :3
+
+[TRACE] 18:03:19:815 UMC/(3866:3955): Guardar Variable:Pagina 1 var:4
+[TRACE] 18:03:19:815 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:19:815 UMC/(3866:3955): Var en int  :5
+
+[TRACE] 18:03:22:552 UMC/(3866:3955): Envio Variable:Pagina 1 var:4
+[TRACE] 18:03:22:552 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:22:553 UMC/(3866:3955): Var en int  :5
+
+[TRACE] 18:03:22:623 UMC/(3866:3955): Guardar Variable:Pagina 1 var:3
+[TRACE] 18:03:22:624 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:22:624 UMC/(3866:3955): Var en int  :17
+
+[TRACE] 18:03:22:696 UMC/(3866:3955): Envio Variable:Pagina 1 var:2
+[TRACE] 18:03:22:696 UMC/(3866:3955): Var en void*:end
+[TRACE] 18:03:22:696 UMC/(3866:3955): Var en int  :6581861
+
+[TRACE] 18:03:38:526 UMC/(3866:3955): Trae a Memoria Pagina:1 Tamaño:50
+[TRACE] 18:03:38:526 UMC/(3866:3955): Var 0: int:1852793888
+[TRACE] 18:03:38:527 UMC/(3866:3955): Var 1: int:1663067492
+[TRACE] 18:03:38:527 UMC/(3866:3955): Var 2: int:1635020399
+[TRACE] 18:03:38:632 UMC/(3866:3955): Trae a Memoria Pagina:5 Tamaño:50
+[TRACE] 18:03:38:633 UMC/(3866:3955): Var 0: int:0
+[TRACE] 18:03:38:633 UMC/(3866:3955): Var 1: int:0
+[TRACE] 18:03:38:633 UMC/(3866:3955): Var 2: int:0
+[TRACE] 18:03:38:668 UMC/(3866:3955): Guardar Variable:Pagina 5 var:0
+[TRACE] 18:03:38:668 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:38:668 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:03:38:812 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:03:38:812 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:38:813 UMC/(3866:3955): Var en int  :0
+
+[TRACE] 18:03:41:585 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:03:41:585 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:41:586 UMC/(3866:3955): Var en int  :0
+
+[TRACE] 18:03:41:659 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:03:41:660 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:41:660 UMC/(3866:3955): Var en int  :1
+
+[TRACE] 18:03:41:910 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:03:41:911 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:41:915 UMC/(3866:3955): Var en int  :1
+
+[TRACE] 18:03:42:89 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:03:42:89 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:42:89 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:03:42:163 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:03:42:163 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:42:163 UMC/(3866:3955): Var en int  :1
+
+[TRACE] 18:03:42:246 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:03:42:247 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:42:247 UMC/(3866:3955): Var en int  :19
+
+[TRACE] 18:03:44:601 UMC/(3866:3955): Fallo Pagina: Pagina 5
+[TRACE] 18:03:44:601 UMC/(3866:3955): Var 0: int:20
+[TRACE] 18:03:44:602 UMC/(3866:3955): Var 1: int:1
+[TRACE] 18:03:44:602 UMC/(3866:3955): Var 2: int:19
+[TRACE] 18:03:44:739 UMC/(3866:3955): Trae a Memoria Pagina:5 Tamaño:50
+[TRACE] 18:03:44:739 UMC/(3866:3955): Var 0: int:20
+[TRACE] 18:03:44:739 UMC/(3866:3955): Var 1: int:1
+[TRACE] 18:03:44:740 UMC/(3866:3955): Var 2: int:19
+[TRACE] 18:03:44:759 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:03:44:759 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:44:760 UMC/(3866:3955): Var en int  :19
+
+[TRACE] 18:03:44:939 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:03:44:939 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:44:940 UMC/(3866:3955): Var en int  :1
+
+[TRACE] 18:03:45:34 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:03:45:35 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:45:35 UMC/(3866:3955): Var en int  :2
+
+[TRACE] 18:03:45:231 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:03:45:232 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:45:232 UMC/(3866:3955): Var en int  :2
+
+[TRACE] 18:03:47:725 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:03:47:725 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:47:725 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:03:47:811 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:03:47:811 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:47:811 UMC/(3866:3955): Var en int  :2
+
+[TRACE] 18:03:47:906 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:03:47:906 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:47:906 UMC/(3866:3955): Var en int  :18
+
+[TRACE] 18:03:48:90 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:03:48:90 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:48:91 UMC/(3866:3955): Var en int  :18
+
+[TRACE] 18:03:48:261 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:03:48:262 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:48:262 UMC/(3866:3955): Var en int  :2
+
+[TRACE] 18:03:48:331 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:03:48:331 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:48:331 UMC/(3866:3955): Var en int  :3
+
+[TRACE] 18:03:50:876 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:03:50:877 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:50:877 UMC/(3866:3955): Var en int  :3
+
+[TRACE] 18:03:51:31 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:03:51:31 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:51:31 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:03:51:112 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:03:51:112 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:51:113 UMC/(3866:3955): Var en int  :3
+
+[TRACE] 18:03:51:187 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:03:51:187 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:51:188 UMC/(3866:3955): Var en int  :17
+
+[TRACE] 18:03:51:377 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:03:51:377 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:51:377 UMC/(3866:3955): Var en int  :17
+
+[TRACE] 18:03:53:964 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:03:53:964 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:53:964 UMC/(3866:3955): Var en int  :3
+
+[TRACE] 18:03:54:44 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:03:54:45 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:54:45 UMC/(3866:3955): Var en int  :4
+
+[TRACE] 18:03:54:260 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:03:54:260 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:54:260 UMC/(3866:3955): Var en int  :4
+
+[TRACE] 18:03:54:453 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:03:54:453 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:54:454 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:03:54:535 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:03:54:536 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:54:536 UMC/(3866:3955): Var en int  :4
+
+[TRACE] 18:03:54:604 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:03:54:604 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:54:604 UMC/(3866:3955): Var en int  :16
+
+[TRACE] 18:03:57:137 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:03:57:137 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:57:137 UMC/(3866:3955): Var en int  :16
+
+[TRACE] 18:03:57:316 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:03:57:316 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:57:316 UMC/(3866:3955): Var en int  :4
+
+[TRACE] 18:03:57:383 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:03:57:384 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:57:384 UMC/(3866:3955): Var en int  :5
+
+[TRACE] 18:03:57:538 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:03:57:538 UMC/(3866:3955): Var en void*:
+[TRACE] 18:03:57:538 UMC/(3866:3955): Var en int  :5
+
+[TRACE] 18:04:00:199 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:04:00:199 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:00:199 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:04:00:280 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:00:280 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:00:280 UMC/(3866:3955): Var en int  :5
+
+[TRACE] 18:04:00:352 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:04:00:353 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:00:353 UMC/(3866:3955): Var en int  :15
+
+[TRACE] 18:04:00:532 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:04:00:532 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:00:532 UMC/(3866:3955): Var en int  :15
+
+[TRACE] 18:04:00:725 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:00:725 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:00:725 UMC/(3866:3955): Var en int  :5
+
+[TRACE] 18:04:00:817 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:04:00:817 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:00:817 UMC/(3866:3955): Var en int  :6
+
+[TRACE] 18:04:03:232 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:03:233 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:03:233 UMC/(3866:3955): Var en int  :6
+
+[TRACE] 18:04:03:389 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:04:03:389 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:03:389 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:04:03:459 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:03:459 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:03:459 UMC/(3866:3955): Var en int  :6
+
+[TRACE] 18:04:03:548 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:04:03:548 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:03:549 UMC/(3866:3955): Var en int  :14
+
+[TRACE] 18:04:03:741 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:04:03:741 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:03:741 UMC/(3866:3955): Var en int  :14
+
+[TRACE] 18:04:06:423 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:06:423 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:06:423 UMC/(3866:3955): Var en int  :6
+
+[TRACE] 18:04:06:508 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:04:06:508 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:06:508 UMC/(3866:3955): Var en int  :7
+
+[TRACE] 18:04:06:659 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:06:660 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:06:660 UMC/(3866:3955): Var en int  :7
+
+[TRACE] 18:04:06:833 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:04:06:833 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:06:833 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:04:06:933 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:06:933 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:06:934 UMC/(3866:3955): Var en int  :7
+
+[TRACE] 18:04:07:27 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:04:07:28 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:07:28 UMC/(3866:3955): Var en int  :13
+
+[TRACE] 18:04:09:567 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:04:09:567 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:09:568 UMC/(3866:3955): Var en int  :13
+
+[TRACE] 18:04:09:746 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:09:746 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:09:747 UMC/(3866:3955): Var en int  :7
+
+[TRACE] 18:04:09:819 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:04:09:820 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:09:820 UMC/(3866:3955): Var en int  :8
+
+[TRACE] 18:04:09:967 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:09:967 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:09:968 UMC/(3866:3955): Var en int  :8
+
+[TRACE] 18:04:12:625 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:04:12:626 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:12:626 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:04:12:707 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:12:708 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:12:708 UMC/(3866:3955): Var en int  :8
+
+[TRACE] 18:04:12:796 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:04:12:796 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:12:796 UMC/(3866:3955): Var en int  :12
+
+[TRACE] 18:04:12:995 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:04:12:995 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:12:995 UMC/(3866:3955): Var en int  :12
+
+[TRACE] 18:04:13:139 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:13:140 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:13:140 UMC/(3866:3955): Var en int  :8
+
+[TRACE] 18:04:13:212 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:04:13:212 UMC/(3866:3955): Var en void*:	
+[TRACE] 18:04:13:213 UMC/(3866:3955): Var en int  :9
+
+[TRACE] 18:04:15:710 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:15:710 UMC/(3866:3955): Var en void*:	
+[TRACE] 18:04:15:711 UMC/(3866:3955): Var en int  :9
+
+[TRACE] 18:04:15:912 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:04:15:913 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:15:913 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:04:15:986 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:15:986 UMC/(3866:3955): Var en void*:	
+[TRACE] 18:04:15:986 UMC/(3866:3955): Var en int  :9
+
+[TRACE] 18:04:16:63 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:04:16:63 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:16:63 UMC/(3866:3955): Var en int  :11
+
+[TRACE] 18:04:16:241 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:04:16:241 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:16:242 UMC/(3866:3955): Var en int  :11
+
+[TRACE] 18:04:18:862 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:18:862 UMC/(3866:3955): Var en void*:	
+[TRACE] 18:04:18:862 UMC/(3866:3955): Var en int  :9
+
+[TRACE] 18:04:18:931 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:04:18:931 UMC/(3866:3955): Var en void*:
+
+[TRACE] 18:04:18:931 UMC/(3866:3955): Var en int  :10
+
+[TRACE] 18:04:19:98 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:19:98 UMC/(3866:3955): Var en void*:
+
+[TRACE] 18:04:19:99 UMC/(3866:3955): Var en int  :10
+
+[TRACE] 18:04:19:291 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:04:19:291 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:19:291 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:04:19:375 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:19:375 UMC/(3866:3955): Var en void*:
+
+[TRACE] 18:04:19:375 UMC/(3866:3955): Var en int  :10
+
+[TRACE] 18:04:19:452 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:04:19:452 UMC/(3866:3955): Var en void*:
+
+[TRACE] 18:04:19:452 UMC/(3866:3955): Var en int  :10
+
+[TRACE] 18:04:22:24 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:04:22:24 UMC/(3866:3955): Var en void*:
+
+[TRACE] 18:04:22:24 UMC/(3866:3955): Var en int  :10
+
+[TRACE] 18:04:22:176 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:22:176 UMC/(3866:3955): Var en void*:
+
+[TRACE] 18:04:22:176 UMC/(3866:3955): Var en int  :10
+
+[TRACE] 18:04:22:255 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:04:22:255 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:22:255 UMC/(3866:3955): Var en int  :11
+
+[TRACE] 18:04:22:468 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:22:468 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:22:469 UMC/(3866:3955): Var en int  :11
+
+[TRACE] 18:04:25:187 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:04:25:187 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:25:188 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:04:25:271 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:25:272 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:25:272 UMC/(3866:3955): Var en int  :11
+
+[TRACE] 18:04:25:352 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:04:25:352 UMC/(3866:3955): Var en void*:	
+[TRACE] 18:04:25:352 UMC/(3866:3955): Var en int  :9
+
+[TRACE] 18:04:25:555 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:04:25:555 UMC/(3866:3955): Var en void*:	
+[TRACE] 18:04:25:555 UMC/(3866:3955): Var en int  :9
+
+[TRACE] 18:04:25:709 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:25:709 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:25:709 UMC/(3866:3955): Var en int  :11
+
+[TRACE] 18:04:25:785 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:04:25:785 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:25:785 UMC/(3866:3955): Var en int  :12
+
+[TRACE] 18:04:28:324 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:28:324 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:28:325 UMC/(3866:3955): Var en int  :12
+
+[TRACE] 18:04:28:495 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:04:28:495 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:28:495 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:04:28:576 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:28:576 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:28:576 UMC/(3866:3955): Var en int  :12
+
+[TRACE] 18:04:28:663 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:04:28:664 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:28:664 UMC/(3866:3955): Var en int  :8
+
+[TRACE] 18:04:28:845 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:04:28:845 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:28:845 UMC/(3866:3955): Var en int  :8
+
+[TRACE] 18:04:31:376 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:31:376 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:31:376 UMC/(3866:3955): Var en int  :12
+
+[TRACE] 18:04:31:448 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:04:31:449 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:31:449 UMC/(3866:3955): Var en int  :13
+
+[TRACE] 18:04:31:608 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:31:608 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:31:608 UMC/(3866:3955): Var en int  :13
+
+[TRACE] 18:04:31:799 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:04:31:799 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:31:799 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:04:31:879 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:31:880 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:31:880 UMC/(3866:3955): Var en int  :13
+
+[TRACE] 18:04:31:955 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:04:31:955 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:31:955 UMC/(3866:3955): Var en int  :7
+
+[TRACE] 18:04:34:516 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:04:34:516 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:34:517 UMC/(3866:3955): Var en int  :7
+
+[TRACE] 18:04:34:669 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:34:669 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:34:669 UMC/(3866:3955): Var en int  :13
+
+[TRACE] 18:04:34:752 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:04:34:752 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:34:753 UMC/(3866:3955): Var en int  :14
+
+[TRACE] 18:04:34:927 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:34:927 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:34:927 UMC/(3866:3955): Var en int  :14
+
+[TRACE] 18:04:37:565 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:04:37:565 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:37:565 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:04:37:644 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:37:644 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:37:644 UMC/(3866:3955): Var en int  :14
+
+[TRACE] 18:04:37:722 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:04:37:722 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:37:722 UMC/(3866:3955): Var en int  :6
+
+[TRACE] 18:04:37:884 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:04:37:884 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:37:884 UMC/(3866:3955): Var en int  :6
+
+[TRACE] 18:04:38:51 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:38:52 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:38:52 UMC/(3866:3955): Var en int  :14
+
+[TRACE] 18:04:38:124 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:04:38:124 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:38:124 UMC/(3866:3955): Var en int  :15
+
+[TRACE] 18:04:40:713 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:40:714 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:40:714 UMC/(3866:3955): Var en int  :15
+
+[TRACE] 18:04:40:883 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:04:40:884 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:40:884 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:04:40:954 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:40:954 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:40:955 UMC/(3866:3955): Var en int  :15
+
+[TRACE] 18:04:41:43 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:04:41:43 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:41:44 UMC/(3866:3955): Var en int  :5
+
+[TRACE] 18:04:41:243 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:04:41:244 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:41:244 UMC/(3866:3955): Var en int  :5
+
+[TRACE] 18:04:43:795 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:43:795 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:43:795 UMC/(3866:3955): Var en int  :15
+
+[TRACE] 18:04:43:871 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:04:43:871 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:43:871 UMC/(3866:3955): Var en int  :16
+
+[TRACE] 18:04:44:90 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:44:90 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:44:91 UMC/(3866:3955): Var en int  :16
+
+[TRACE] 18:04:44:241 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:04:44:241 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:44:242 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:04:44:325 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:44:325 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:44:325 UMC/(3866:3955): Var en int  :16
+
+[TRACE] 18:04:44:400 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:04:44:400 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:44:401 UMC/(3866:3955): Var en int  :4
+
+[TRACE] 18:04:47:104 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:04:47:104 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:47:104 UMC/(3866:3955): Var en int  :4
+
+[TRACE] 18:04:47:264 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:47:264 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:47:264 UMC/(3866:3955): Var en int  :16
+
+[TRACE] 18:04:47:363 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:04:47:363 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:47:363 UMC/(3866:3955): Var en int  :17
+
+[TRACE] 18:04:47:552 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:47:552 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:47:552 UMC/(3866:3955): Var en int  :17
+
+[TRACE] 18:04:50:260 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:04:50:261 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:50:261 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:04:50:333 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:50:333 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:50:333 UMC/(3866:3955): Var en int  :17
+
+[TRACE] 18:04:50:420 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:04:50:420 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:50:421 UMC/(3866:3955): Var en int  :3
+
+[TRACE] 18:04:50:603 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:04:50:604 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:50:604 UMC/(3866:3955): Var en int  :3
+
+[TRACE] 18:04:50:800 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:50:800 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:50:800 UMC/(3866:3955): Var en int  :17
+
+[TRACE] 18:04:50:868 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:04:50:868 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:50:869 UMC/(3866:3955): Var en int  :18
+
+[TRACE] 18:04:53:335 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:53:335 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:53:335 UMC/(3866:3955): Var en int  :18
+
+[TRACE] 18:04:53:489 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:04:53:489 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:53:489 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:04:53:572 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:53:572 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:53:573 UMC/(3866:3955): Var en int  :18
+
+[TRACE] 18:04:53:659 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:04:53:660 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:53:660 UMC/(3866:3955): Var en int  :2
+
+[TRACE] 18:04:53:830 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:04:53:830 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:53:831 UMC/(3866:3955): Var en int  :2
+
+[TRACE] 18:04:56:459 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:56:459 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:56:459 UMC/(3866:3955): Var en int  :18
+
+[TRACE] 18:04:56:535 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:04:56:535 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:56:535 UMC/(3866:3955): Var en int  :19
+
+[TRACE] 18:04:56:678 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:56:678 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:56:678 UMC/(3866:3955): Var en int  :19
+
+[TRACE] 18:04:56:876 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:04:56:877 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:56:877 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:04:56:948 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:56:948 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:56:948 UMC/(3866:3955): Var en int  :19
+
+[TRACE] 18:04:57:31 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:04:57:32 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:57:35 UMC/(3866:3955): Var en int  :1
+
+[TRACE] 18:04:59:499 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:04:59:499 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:59:500 UMC/(3866:3955): Var en int  :1
+
+[TRACE] 18:04:59:665 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:59:665 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:59:665 UMC/(3866:3955): Var en int  :19
+
+[TRACE] 18:04:59:739 UMC/(3866:3955): Guardar Variable:Pagina 5 var:1
+[TRACE] 18:04:59:739 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:59:739 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:04:59:923 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:04:59:923 UMC/(3866:3955): Var en void*:
+[TRACE] 18:04:59:923 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:05:02:563 UMC/(3866:3955): Envio Variable:Pagina 5 var:0
+[TRACE] 18:05:02:563 UMC/(3866:3955): Var en void*:
+[TRACE] 18:05:02:564 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:05:02:647 UMC/(3866:3955): Envio Variable:Pagina 5 var:1
+[TRACE] 18:05:02:647 UMC/(3866:3955): Var en void*:
+[TRACE] 18:05:02:647 UMC/(3866:3955): Var en int  :20
+
+[TRACE] 18:05:02:727 UMC/(3866:3955): Guardar Variable:Pagina 5 var:2
+[TRACE] 18:05:02:728 UMC/(3866:3955): Var en void*:
+[TRACE] 18:05:02:728 UMC/(3866:3955): Var en int  :0
+
+[TRACE] 18:05:02:884 UMC/(3866:3955): Envio Variable:Pagina 5 var:2
+[TRACE] 18:05:02:884 UMC/(3866:3955): Var en void*:
+[TRACE] 18:05:02:885 UMC/(3866:3955): Var en int  :0
+
+[TRACE] 18:05:02:962 UMC/(3866:3955): Envio Variable:Pagina 4 var:11
+[TRACE] 18:05:02:962 UMC/(3866:3955): Var en void*:end
+[TRACE] 18:05:02:963 UMC/(3866:3955): Var en int  :6581861
+
+[TRACE] 18:05:43:846 UMC/(3866:3955): Trae a Memoria Pagina:9 Tamaño:50
+[TRACE] 18:05:43:846 UMC/(3866:3955): Var 0: int:1702129253
+[TRACE] 18:05:43:846 UMC/(3866:3955): Var 1: int:1879640585
+[TRACE] 18:05:43:846 UMC/(3866:3955): Var 2: int:1953393010
+[TRACE] 18:05:43:875 UMC/(3866:3955): Guardar Variable:Pagina 9 var:8
+[TRACE] 18:05:43:875 UMC/(3866:3955): Var en void*:
+[TRACE] 18:05:43:875 UMC/(3866:3955): Var en int  :0
+
+[TRACE] 18:05:44:90 UMC/(3866:3955): Envio Variable:Pagina 9 var:8
+[TRACE] 18:05:44:90 UMC/(3866:3955): Var en void*:
+[TRACE] 18:05:44:90 UMC/(3866:3955): Var en int  :0
+
+[TRACE] 18:23:52:771 UMC/(5943:5971): Trae a Memoria Pagina:1 Tamaño:50
+[TRACE] 18:23:52:771 UMC/(5943:5971): Var 0: int:540876897
+[TRACE] 18:23:52:771 UMC/(5943:5971): Var 1: int:539697250
+[TRACE] 18:23:52:771 UMC/(5943:5971): Var 2: int:1695167025
+[TRACE] 18:23:52:783 UMC/(5943:5971): Guardar Variable:Pagina 1 var:3
+[TRACE] 18:23:52:783 UMC/(5943:5971): Var en void*:
+[TRACE] 18:23:52:783 UMC/(5943:5971): Var en int  :3
+
+[TRACE] 18:23:52:835 UMC/(5943:5971): Guardar Variable:Pagina 1 var:4
+[TRACE] 18:23:52:835 UMC/(5943:5971): Var en void*:
+[TRACE] 18:23:52:835 UMC/(5943:5971): Var en int  :5
+
+[TRACE] 18:23:55:782 UMC/(5943:5971): Envio Variable:Pagina 1 var:4
+[TRACE] 18:23:55:782 UMC/(5943:5971): Var en void*:
+[TRACE] 18:23:55:782 UMC/(5943:5971): Var en int  :5
+
+[TRACE] 18:23:55:817 UMC/(5943:5971): Guardar Variable:Pagina 1 var:3
+[TRACE] 18:23:55:817 UMC/(5943:5971): Var en void*:
+[TRACE] 18:23:55:817 UMC/(5943:5971): Var en int  :17
+
+[TRACE] 18:23:55:829 UMC/(5943:5971): Envio Variable:Pagina 1 var:2
+[TRACE] 18:23:55:829 UMC/(5943:5971): Var en void*:end
+[TRACE] 18:23:55:829 UMC/(5943:5971): Var en int  :6581861
+

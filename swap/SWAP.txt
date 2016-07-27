@@ -1,0 +1,298 @@
+[TRACE] 22:47:15:955 SWAP/(3205:3205): Se leyo el archivo de configuracion
+[TRACE] 22:47:16:23 SWAP/(3205:3205): Se creo el archivo SWAP
+[TRACE] 22:47:26:654 SWAP/(3205:3205): Se ha conectado al UMC
+[TRACE] 22:51:38:64 SWAP/(3205:3205): La cabecera recibida es 900
+[TRACE] 22:51:38:64 SWAP/(3205:3205): Se solicita la reserva de espacio del proceso 1 de longitud 2
+[TRACE] 22:51:38:64 SWAP/(3205:3205): Se le permite el almacenamiento
+[TRACE] 22:51:38:64 SWAP/(3205:3205): Se agrego el proceso 1 al INFOPROG
+[TRACE] 22:51:38:64 SWAP/(3205:3205): Se ocupo la pagina 0
+[TRACE] 22:51:38:64 SWAP/(3205:3205): Se ocupo la pagina 1
+[TRACE] 22:51:38:69 SWAP/(3205:3205): La cabecera recibida es 905
+[TRACE] 22:51:38:69 SWAP/(3205:3205): El codigo de la pagina es:
+
+[TRACE] 22:51:38:69 SWAP/(3205:3205): #!../consola
+begin
+	variables a, b
+	a = 3
+	b = 5
+	a = b + 12
+end
+[TRACE] 22:51:38:69 SWAP/(3205:3205): Se guardo la pagina 0
+[TRACE] 22:51:38:70 SWAP/(3205:3205): Se guardo la pagina 1
+[TRACE] 22:51:38:70 SWAP/(3205:3205): Se guardo el programa 1 desde la pagina 0, hasta la pagina 1
+[TRACE] 22:51:38:167 SWAP/(3205:3205): La cabecera recibida es 920
+[TRACE] 22:51:38:167 SWAP/(3205:3205): --> returnPage(); 
+[TRACE] 22:51:38:168 SWAP/(3205:3205): Se leyo la pagina 0
+[TRACE] 22:51:38:168 SWAP/(3205:3205): ----> '#!../consola
+begin
+	variables a, b
+	a = 3
+	b = 5
+	'
+[TRACE] 22:51:38:214 SWAP/(3205:3205): La cabecera recibida es 920
+[TRACE] 22:51:38:214 SWAP/(3205:3205): --> returnPage(); 
+[TRACE] 22:51:38:215 SWAP/(3205:3205): Se leyo la pagina 1
+[TRACE] 22:51:38:215 SWAP/(3205:3205): ----> 'a = b + 12
+end'
+[TRACE] 23:41:42:464 SWAP/(4724:4724): Se leyo el archivo de configuracion
+[TRACE] 23:41:42:528 SWAP/(4724:4724): Se creo el archivo SWAP
+[TRACE] 23:42:12:1 SWAP/(4724:4724): Se ha conectado al UMC
+[TRACE] 23:42:18:61 SWAP/(4724:4724): La cabecera recibida es 0
+[TRACE] 23:42:18:61 SWAP/(4724:4724): Se ha desconectado de la UMC
+[TRACE] 23:42:22:533 SWAP/(4767:4767): Se leyo el archivo de configuracion
+[TRACE] 23:42:22:608 SWAP/(4767:4767): Se creo el archivo SWAP
+[TRACE] 23:44:13:44 SWAP/(4767:4767): Se ha conectado al UMC
+[TRACE] 23:44:43:417 SWAP/(4767:4767): La cabecera recibida es 0
+[TRACE] 23:44:43:417 SWAP/(4767:4767): Se ha desconectado de la UMC
+[TRACE] 23:44:47:60 SWAP/(4835:4835): Se leyo el archivo de configuracion
+[TRACE] 23:44:47:148 SWAP/(4835:4835): Se creo el archivo SWAP
+[TRACE] 23:45:12:683 SWAP/(4835:4835): Se ha conectado al UMC
+[TRACE] 23:46:17:572 SWAP/(4835:4835): La cabecera recibida es 0
+[TRACE] 23:46:17:572 SWAP/(4835:4835): Se ha desconectado de la UMC
+[TRACE] 00:22:32:121 SWAP/(5594:5594): Se leyo el archivo de configuracion
+[TRACE] 00:22:32:135 SWAP/(5594:5594): Se creo el archivo SWAP
+[TRACE] 00:22:39:623 SWAP/(5594:5594): Se ha conectado al UMC
+[TRACE] 17:56:05:566 SWAP/(3632:3632): Se leyo el archivo de configuracion
+[TRACE] 17:56:05:629 SWAP/(3632:3632): Se creo el archivo SWAP
+[TRACE] 17:56:21:837 SWAP/(3637:3637): Se leyo el archivo de configuracion
+[TRACE] 17:56:21:954 SWAP/(3637:3637): Se creo el archivo SWAP
+[TRACE] 17:56:58:665 SWAP/(3642:3642): Se leyo el archivo de configuracion
+[TRACE] 17:56:58:787 SWAP/(3642:3642): Se creo el archivo SWAP
+[TRACE] 17:57:46:182 SWAP/(3649:3649): Se leyo el archivo de configuracion
+[TRACE] 17:57:46:286 SWAP/(3649:3649): Se creo el archivo SWAP
+[TRACE] 17:58:42:381 SWAP/(3649:3649): Se ha conectado al UMC
+[TRACE] 18:00:33:766 SWAP/(3649:3649): La cabecera recibida es 0
+[TRACE] 18:00:33:768 SWAP/(3649:3649): Se ha desconectado de la UMC
+[TRACE] 18:00:59:88 SWAP/(3861:3861): Se leyo el archivo de configuracion
+[TRACE] 18:00:59:225 SWAP/(3861:3861): Se creo el archivo SWAP
+[TRACE] 18:01:03:140 SWAP/(3861:3861): Se ha conectado al UMC
+[TRACE] 18:03:19:112 SWAP/(3861:3861): La cabecera recibida es 900
+[TRACE] 18:03:19:118 SWAP/(3861:3861): Se solicita la reserva de espacio del proceso 1 de longitud 2
+[TRACE] 18:03:19:137 SWAP/(3861:3861): Se le permite el almacenamiento
+[TRACE] 18:03:19:140 SWAP/(3861:3861): Se agrego el proceso 1 al INFOPROG
+[TRACE] 18:03:19:149 SWAP/(3861:3861): Se ocupo la pagina 0
+[TRACE] 18:03:19:155 SWAP/(3861:3861): Se ocupo la pagina 1
+[TRACE] 18:03:19:275 SWAP/(3861:3861): La cabecera recibida es 905
+[TRACE] 18:03:19:278 SWAP/(3861:3861): El codigo de la pagina es:
+
+[TRACE] 18:03:19:283 SWAP/(3861:3861): #!../consola
+begin
+	variables a, b
+	a = 3
+	b = 5
+	a = b + 12
+end
+[TRACE] 18:03:19:301 SWAP/(3861:3861): Se guardo la pagina 0
+[TRACE] 18:03:19:312 SWAP/(3861:3861): Se guardo la pagina 1
+[TRACE] 18:03:19:313 SWAP/(3861:3861): Se guardo el programa 1 desde la pagina 0, hasta la pagina 1
+[TRACE] 18:03:19:405 SWAP/(3861:3861): La cabecera recibida es 920
+[TRACE] 18:03:19:406 SWAP/(3861:3861): --> returnPage(); 
+[TRACE] 18:03:19:408 SWAP/(3861:3861): Se leyo la pagina 0
+[TRACE] 18:03:19:632 SWAP/(3861:3861): La cabecera recibida es 920
+[TRACE] 18:03:19:632 SWAP/(3861:3861): --> returnPage(); 
+[TRACE] 18:03:19:634 SWAP/(3861:3861): Se leyo la pagina 1
+[TRACE] 18:03:22:847 SWAP/(3861:3861): La cabecera recibida es 305
+[TRACE] 18:03:22:848 SWAP/(3861:3861): Se desocupo la pagina 0
+[TRACE] 18:03:22:848 SWAP/(3861:3861): Se desocupo la pagina 1
+[TRACE] 18:03:22:851 SWAP/(3861:3861): Se elimino el proceso 1 del INFOPROG
+[TRACE] 18:03:22:856 SWAP/(3861:3861): El programa 1 ha concluido
+[TRACE] 18:03:38:204 SWAP/(3861:3861): La cabecera recibida es 900
+[TRACE] 18:03:38:204 SWAP/(3861:3861): Se solicita la reserva de espacio del proceso 2 de longitud 6
+[TRACE] 18:03:38:204 SWAP/(3861:3861): Se le permite el almacenamiento
+[TRACE] 18:03:38:205 SWAP/(3861:3861): Se agrego el proceso 2 al INFOPROG
+[TRACE] 18:03:38:205 SWAP/(3861:3861): Se ocupo la pagina 0
+[TRACE] 18:03:38:205 SWAP/(3861:3861): Se ocupo la pagina 1
+[TRACE] 18:03:38:205 SWAP/(3861:3861): Se ocupo la pagina 2
+[TRACE] 18:03:38:206 SWAP/(3861:3861): Se ocupo la pagina 3
+[TRACE] 18:03:38:206 SWAP/(3861:3861): Se ocupo la pagina 4
+[TRACE] 18:03:38:206 SWAP/(3861:3861): Se ocupo la pagina 5
+[TRACE] 18:03:38:305 SWAP/(3861:3861): La cabecera recibida es 905
+[TRACE] 18:03:38:311 SWAP/(3861:3861): El codigo de la pagina es:
+
+[TRACE] 18:03:38:312 SWAP/(3861:3861): #!../consola
+begin
+variables f, i, t
+
+	#`f`: Hasta donde contar
+	f=20
+	#`i`: Iterador
+	i=0
+	
+	:inicio
+
+	#Iterar
+	i=i+1
+	
+	#Imprimir el contador
+	print i
+
+	#`t`: Comparador entre `i` y `f`
+	t=f-i
+	#De no ser iguales, salta a inicio
+	jnz t inicio
+
+end
+[TRACE] 18:03:38:323 SWAP/(3861:3861): Se guardo la pagina 0
+[TRACE] 18:03:38:325 SWAP/(3861:3861): Se guardo la pagina 1
+[TRACE] 18:03:38:327 SWAP/(3861:3861): Se guardo la pagina 2
+[TRACE] 18:03:38:331 SWAP/(3861:3861): Se guardo la pagina 3
+[TRACE] 18:03:38:332 SWAP/(3861:3861): Se guardo la pagina 4
+[TRACE] 18:03:38:339 SWAP/(3861:3861): Se guardo la pagina 5
+[TRACE] 18:03:38:340 SWAP/(3861:3861): Se guardo el programa 2 desde la pagina 0, hasta la pagina 5
+[TRACE] 18:03:38:408 SWAP/(3861:3861): La cabecera recibida es 920
+[TRACE] 18:03:38:408 SWAP/(3861:3861): --> returnPage(); 
+[TRACE] 18:03:38:409 SWAP/(3861:3861): Se leyo la pagina 0
+[TRACE] 18:03:38:511 SWAP/(3861:3861): La cabecera recibida es 920
+[TRACE] 18:03:38:511 SWAP/(3861:3861): --> returnPage(); 
+[TRACE] 18:03:38:512 SWAP/(3861:3861): Se leyo la pagina 1
+[TRACE] 18:03:38:625 SWAP/(3861:3861): La cabecera recibida es 920
+[TRACE] 18:03:38:625 SWAP/(3861:3861): --> returnPage(); 
+[TRACE] 18:03:38:626 SWAP/(3861:3861): Se leyo la pagina 5
+[TRACE] 18:03:41:482 SWAP/(3861:3861): La cabecera recibida es 920
+[TRACE] 18:03:41:482 SWAP/(3861:3861): --> returnPage(); 
+[TRACE] 18:03:41:483 SWAP/(3861:3861): Se leyo la pagina 2
+[TRACE] 18:03:41:774 SWAP/(3861:3861): La cabecera recibida es 920
+[TRACE] 18:03:41:775 SWAP/(3861:3861): --> returnPage(); 
+[TRACE] 18:03:41:775 SWAP/(3861:3861): Se leyo la pagina 3
+[TRACE] 18:03:44:559 SWAP/(3861:3861): La cabecera recibida es 920
+[TRACE] 18:03:44:560 SWAP/(3861:3861): --> returnPage(); 
+[TRACE] 18:03:44:560 SWAP/(3861:3861): Se leyo la pagina 4
+[TRACE] 18:03:44:581 SWAP/(3861:3861): La cabecera recibida es 910
+[TRACE] 18:03:44:583 SWAP/(3861:3861): Se guardo la pagina 0
+[TRACE] 18:03:44:619 SWAP/(3861:3861): La cabecera recibida es 910
+[TRACE] 18:03:44:620 SWAP/(3861:3861): Se guardo la pagina 1
+[TRACE] 18:03:44:621 SWAP/(3861:3861): La cabecera recibida es 910
+[TRACE] 18:03:44:623 SWAP/(3861:3861): Se guardo la pagina 5
+[TRACE] 18:03:44:624 SWAP/(3861:3861): La cabecera recibida es 910
+[TRACE] 18:03:44:627 SWAP/(3861:3861): Se guardo la pagina 2
+[TRACE] 18:03:44:633 SWAP/(3861:3861): La cabecera recibida es 910
+[TRACE] 18:03:44:635 SWAP/(3861:3861): Se guardo la pagina 3
+[TRACE] 18:03:44:732 SWAP/(3861:3861): La cabecera recibida es 920
+[TRACE] 18:03:44:733 SWAP/(3861:3861): --> returnPage(); 
+[TRACE] 18:03:44:733 SWAP/(3861:3861): Se leyo la pagina 5
+[TRACE] 18:03:44:837 SWAP/(3861:3861): La cabecera recibida es 920
+[TRACE] 18:03:44:838 SWAP/(3861:3861): --> returnPage(); 
+[TRACE] 18:03:44:838 SWAP/(3861:3861): Se leyo la pagina 2
+[TRACE] 18:03:45:120 SWAP/(3861:3861): La cabecera recibida es 920
+[TRACE] 18:03:45:121 SWAP/(3861:3861): --> returnPage(); 
+[TRACE] 18:03:45:122 SWAP/(3861:3861): Se leyo la pagina 3
+[TRACE] 18:05:03:29 SWAP/(3861:3861): La cabecera recibida es 305
+[TRACE] 18:05:03:29 SWAP/(3861:3861): Se desocupo la pagina 0
+[TRACE] 18:05:03:30 SWAP/(3861:3861): Se desocupo la pagina 1
+[TRACE] 18:05:03:30 SWAP/(3861:3861): Se desocupo la pagina 2
+[TRACE] 18:05:03:30 SWAP/(3861:3861): Se desocupo la pagina 3
+[TRACE] 18:05:03:31 SWAP/(3861:3861): Se desocupo la pagina 4
+[TRACE] 18:05:03:32 SWAP/(3861:3861): Se desocupo la pagina 5
+[TRACE] 18:05:03:38 SWAP/(3861:3861): Se elimino el proceso 2 del INFOPROG
+[TRACE] 18:05:03:39 SWAP/(3861:3861): El programa 2 ha concluido
+[TRACE] 18:05:43:346 SWAP/(3861:3861): La cabecera recibida es 900
+[TRACE] 18:05:43:347 SWAP/(3861:3861): Se solicita la reserva de espacio del proceso 3 de longitud 10
+[TRACE] 18:05:43:347 SWAP/(3861:3861): Se le permite el almacenamiento
+[TRACE] 18:05:43:348 SWAP/(3861:3861): Se agrego el proceso 3 al INFOPROG
+[TRACE] 18:05:43:348 SWAP/(3861:3861): Se ocupo la pagina 0
+[TRACE] 18:05:43:348 SWAP/(3861:3861): Se ocupo la pagina 1
+[TRACE] 18:05:43:349 SWAP/(3861:3861): Se ocupo la pagina 2
+[TRACE] 18:05:43:349 SWAP/(3861:3861): Se ocupo la pagina 3
+[TRACE] 18:05:43:349 SWAP/(3861:3861): Se ocupo la pagina 4
+[TRACE] 18:05:43:350 SWAP/(3861:3861): Se ocupo la pagina 5
+[TRACE] 18:05:43:350 SWAP/(3861:3861): Se ocupo la pagina 6
+[TRACE] 18:05:43:350 SWAP/(3861:3861): Se ocupo la pagina 7
+[TRACE] 18:05:43:350 SWAP/(3861:3861): Se ocupo la pagina 8
+[TRACE] 18:05:43:368 SWAP/(3861:3861): Se ocupo la pagina 9
+[TRACE] 18:05:43:476 SWAP/(3861:3861): La cabecera recibida es 905
+[TRACE] 18:05:43:479 SWAP/(3861:3861): El codigo de la pagina es:
+
+[TRACE] 18:05:43:483 SWAP/(3861:3861): #!../consola
+
+#Respuesta esperada: 1; 1; Hola Mundo!; 3; Bye
+
+begin
+variables f,  A,  g
+    A = 	0
+    !compartida = 1+A
+    print !compartida
+    jnz !compartida Siguiente 
+:Proximo
+	
+    f = 8	  
+    g <- doble !compartida	
+    io LPT1 20
+
+    textPrint    Hola Mundo!
+    
+    g = 1 + g
+    print 		g    
+    
+    textPrint Bye
+    
+end
+
+
+#Devolver el doble del
+#primer parametro
+function doble
+variables f
+    f = $0 + $0
+    return f
+end
+
+:Siguiente	
+	print A+1
+goto Proximo
+[TRACE] 18:05:43:494 SWAP/(3861:3861): Se guardo la pagina 0
+[TRACE] 18:05:43:495 SWAP/(3861:3861): Se guardo la pagina 1
+[TRACE] 18:05:43:496 SWAP/(3861:3861): Se guardo la pagina 2
+[TRACE] 18:05:43:499 SWAP/(3861:3861): Se guardo la pagina 3
+[TRACE] 18:05:43:503 SWAP/(3861:3861): Se guardo la pagina 4
+[TRACE] 18:05:43:507 SWAP/(3861:3861): Se guardo la pagina 5
+[TRACE] 18:05:43:508 SWAP/(3861:3861): Se guardo la pagina 6
+[TRACE] 18:05:43:509 SWAP/(3861:3861): Se guardo la pagina 7
+[TRACE] 18:05:43:511 SWAP/(3861:3861): Se guardo la pagina 8
+[TRACE] 18:05:43:514 SWAP/(3861:3861): Se guardo la pagina 9
+[TRACE] 18:05:43:515 SWAP/(3861:3861): Se guardo el programa 3 desde la pagina 0, hasta la pagina 9
+[TRACE] 18:05:43:611 SWAP/(3861:3861): La cabecera recibida es 920
+[TRACE] 18:05:43:612 SWAP/(3861:3861): --> returnPage(); 
+[TRACE] 18:05:43:613 SWAP/(3861:3861): Se leyo la pagina 1
+[TRACE] 18:05:43:835 SWAP/(3861:3861): La cabecera recibida es 920
+[TRACE] 18:05:43:836 SWAP/(3861:3861): --> returnPage(); 
+[TRACE] 18:05:43:836 SWAP/(3861:3861): Se leyo la pagina 9
+[TRACE] 18:05:43:977 SWAP/(3861:3861): La cabecera recibida es 920
+[TRACE] 18:05:43:977 SWAP/(3861:3861): --> returnPage(); 
+[TRACE] 18:05:43:978 SWAP/(3861:3861): Se leyo la pagina 2
+[TRACE] 18:09:08:586 SWAP/(3861:3861): La cabecera recibida es 0
+[TRACE] 18:09:08:587 SWAP/(3861:3861): Se ha desconectado de la UMC
+[TRACE] 18:23:23:850 SWAP/(5936:5936): Se leyo el archivo de configuracion
+[TRACE] 18:23:23:899 SWAP/(5936:5936): Se creo el archivo SWAP
+[TRACE] 18:23:29:618 SWAP/(5936:5936): Se ha conectado al UMC
+[TRACE] 18:23:52:595 SWAP/(5936:5936): La cabecera recibida es 900
+[TRACE] 18:23:52:595 SWAP/(5936:5936): Se solicita la reserva de espacio del proceso 1 de longitud 2
+[TRACE] 18:23:52:595 SWAP/(5936:5936): Se le permite el almacenamiento
+[TRACE] 18:23:52:596 SWAP/(5936:5936): Se agrego el proceso 1 al INFOPROG
+[TRACE] 18:23:52:596 SWAP/(5936:5936): Se ocupo la pagina 0
+[TRACE] 18:23:52:596 SWAP/(5936:5936): Se ocupo la pagina 1
+[TRACE] 18:23:52:627 SWAP/(5936:5936): La cabecera recibida es 905
+[TRACE] 18:23:52:627 SWAP/(5936:5936): El codigo de la pagina es:
+
+[TRACE] 18:23:52:627 SWAP/(5936:5936): #!../consola
+begin
+	variables a, b
+	a = 3
+	b = 5
+	a = b + 12
+end
+[TRACE] 18:23:52:630 SWAP/(5936:5936): Se guardo la pagina 0
+[TRACE] 18:23:52:631 SWAP/(5936:5936): Se guardo la pagina 1
+[TRACE] 18:23:52:631 SWAP/(5936:5936): Se guardo el programa 1 desde la pagina 0, hasta la pagina 1
+[TRACE] 18:23:52:700 SWAP/(5936:5936): La cabecera recibida es 920
+[TRACE] 18:23:52:700 SWAP/(5936:5936): --> returnPage(); 
+[TRACE] 18:23:52:701 SWAP/(5936:5936): Se leyo la pagina 0
+[TRACE] 18:23:52:769 SWAP/(5936:5936): La cabecera recibida es 920
+[TRACE] 18:23:52:769 SWAP/(5936:5936): --> returnPage(); 
+[TRACE] 18:23:52:769 SWAP/(5936:5936): Se leyo la pagina 1
+[TRACE] 18:23:55:841 SWAP/(5936:5936): La cabecera recibida es 305
+[TRACE] 18:23:55:842 SWAP/(5936:5936): Se desocupo la pagina 0
+[TRACE] 18:23:55:842 SWAP/(5936:5936): Se desocupo la pagina 1
+[TRACE] 18:23:55:842 SWAP/(5936:5936): Se elimino el proceso 1 del INFOPROG
+[TRACE] 18:23:55:842 SWAP/(5936:5936): El programa 1 ha concluido
+[TRACE] 18:24:21:158 SWAP/(5936:5936): La cabecera recibida es 0
+[TRACE] 18:24:21:158 SWAP/(5936:5936): Se ha desconectado de la UMC

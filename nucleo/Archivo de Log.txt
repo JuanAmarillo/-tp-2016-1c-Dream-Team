@@ -1,0 +1,77 @@
+Se recibio el tamaño de paginas: 50
+Variables compartidas: [!Global = 0, !UnaVar = 0, !tiempo3 = 0]
+Semaforos: [SEM1 = 0, SEM2 = 0, SEM3 = 5]
+---------------------------
+Ha iniciado el planificador
+---------------------------
+La cola de Listos está vacía...
+Se comienza a administrar el dispositivo: Scanner
+Se comienza a administrar el dispositivo: Impresora
+Se comienza a administrar el dispositivo: Disco
+Se acaba de aceptar una conexion de una nueva CPU (fd[6])
+Se acaba de aceptar una conexion de una nueva Consola (fd[7])
+Se ha recibido un programa de una Consola (fd[7])
+-------------------
+Tamaño recibido: 68
+-------------------
+--------------------------------
+Se creo el PCB de pid:1
+Cantidad de paginas que ocupa:2
+--------------------------------
+Se intentara asociar el pid 1 con al consola fd:7
+Asociar ok
+----------------------
+Lista de pares actual:
+Pid: 1, Consola: 7
+----------------------
+almacenar ok
+Se almaceno correctamente el proceso 1
+----------------------
+Cola de Listos actual:
+1
+----------------------
+--------------------------------
+Se analiza fd[3] -->Nada
+--------------------------------
+--------------------------------
+Se analiza fd[4] -->Nada
+--------------------------------
+--------------------------------
+Se analiza fd[5] -->Nada
+--------------------------------
+--------------------------------
+Se analiza fd[6] -->CPU Libre
+--------------------------------
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+vuelta: 1
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+--------------------------------
+Se analiza fd[3] -->Nada
+--------------------------------
+--------------------------------
+Se analiza fd[4] -->Nada
+--------------------------------
+--------------------------------
+Se analiza fd[5] -->Nada
+--------------------------------
+--------------------------------
+Se analiza fd[6] -->CPU Libre
+--------------------------------
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+vuelta: 2
+Termino el proceso 1
+Se informo a la consola(fd:[7]) del fin del proceso 1

@@ -1,0 +1,29 @@
+==4647== Memcheck, a memory error detector
+==4647== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==4647== Using Valgrind-3.10.0.SVN and LibVEX; rerun with -h for copyright info
+==4647== Command: ./consola completo.ansisop
+==4647== Parent PID: 3497
+==4647== 
+==4647== 
+==4647== HEAP SUMMARY:
+==4647==     in use at exit: 153 bytes in 8 blocks
+==4647==   total heap usage: 35 allocs, 27 frees, 2,932 bytes allocated
+==4647== 
+==4647== 138 (16 direct, 122 indirect) bytes in 1 blocks are definitely lost in loss record 5 of 5
+==4647==    at 0x402A17C: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==4647==    by 0x404DF28: dictionary_create (in /usr/lib/libcommons.so)
+==4647==    by 0x404FB66: config_create (in /usr/lib/libcommons.so)
+==4647==    by 0x8048C85: leerArchivoConfig (in /home/utnso/tp-2016-1c-Dream-Team/consola/consola)
+==4647==    by 0x8048AEE: main (in /home/utnso/tp-2016-1c-Dream-Team/consola/consola)
+==4647== 
+==4647== LEAK SUMMARY:
+==4647==    definitely lost: 16 bytes in 1 blocks
+==4647==    indirectly lost: 122 bytes in 5 blocks
+==4647==      possibly lost: 0 bytes in 0 blocks
+==4647==    still reachable: 15 bytes in 2 blocks
+==4647==         suppressed: 0 bytes in 0 blocks
+==4647== Reachable blocks (those to which a pointer was found) are not shown.
+==4647== To see them, rerun with: --leak-check=full --show-leak-kinds=all
+==4647== 
+==4647== For counts of detected and suppressed errors, rerun with: -v
+==4647== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)

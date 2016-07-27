@@ -1,0 +1,50 @@
+==3861== Memcheck, a memory error detector
+==3861== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==3861== Using Valgrind-3.10.0.SVN and LibVEX; rerun with -h for copyright info
+==3861== Command: ./swap
+==3861== Parent PID: 3599
+==3861== 
+==3861== Invalid free() / delete / delete[] / realloc()
+==3861==    at 0x402B3D8: free (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3861==    by 0x8049F53: main (in /home/utnso/tp-2016-1c-Dream-Team/swap/swap)
+==3861==  Address 0x4207520 is 0 bytes inside a block of size 50 free'd
+==3861==    at 0x402B3D8: free (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3861==    by 0x8049686: accionesDeFinalizacion (in /home/utnso/tp-2016-1c-Dream-Team/swap/swap)
+==3861==    by 0x8049F46: main (in /home/utnso/tp-2016-1c-Dream-Team/swap/swap)
+==3861== 
+==3861== 
+==3861== HEAP SUMMARY:
+==3861==     in use at exit: 841 bytes in 10 blocks
+==3861==   total heap usage: 4,543 allocs, 4,534 frees, 104,980 bytes allocated
+==3861== 
+==3861== 13 bytes in 1 blocks are definitely lost in loss record 3 of 9
+==3861==    at 0x402A17C: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3861==    by 0x80494B2: crearEstructurasDeManejo (in /home/utnso/tp-2016-1c-Dream-Team/swap/swap)
+==3861==    by 0x8049F86: initialConf (in /home/utnso/tp-2016-1c-Dream-Team/swap/swap)
+==3861==    by 0x8049F20: main (in /home/utnso/tp-2016-1c-Dream-Team/swap/swap)
+==3861== 
+==3861== 24 bytes in 2 blocks are definitely lost in loss record 6 of 9
+==3861==    at 0x402A17C: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3861==    by 0x804A505: new_Or_Replace_t_infoProg (in /home/utnso/tp-2016-1c-Dream-Team/swap/swap)
+==3861==    by 0x804A567: asignarEspacio (in /home/utnso/tp-2016-1c-Dream-Team/swap/swap)
+==3861==    by 0x804A698: reservarEspacio (in /home/utnso/tp-2016-1c-Dream-Team/swap/swap)
+==3861==    by 0x804A03A: funcionamientoSWAP (in /home/utnso/tp-2016-1c-Dream-Team/swap/swap)
+==3861==    by 0x8049F3D: main (in /home/utnso/tp-2016-1c-Dream-Team/swap/swap)
+==3861== 
+==3861== 50 bytes in 1 blocks are definitely lost in loss record 7 of 9
+==3861==    at 0x402A17C: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3861==    by 0x8049502: crearEstructurasDeManejo (in /home/utnso/tp-2016-1c-Dream-Team/swap/swap)
+==3861==    by 0x8049F86: initialConf (in /home/utnso/tp-2016-1c-Dream-Team/swap/swap)
+==3861==    by 0x8049F20: main (in /home/utnso/tp-2016-1c-Dream-Team/swap/swap)
+==3861== 
+==3861== LEAK SUMMARY:
+==3861==    definitely lost: 87 bytes in 4 blocks
+==3861==    indirectly lost: 0 bytes in 0 blocks
+==3861==      possibly lost: 0 bytes in 0 blocks
+==3861==    still reachable: 754 bytes in 6 blocks
+==3861==         suppressed: 0 bytes in 0 blocks
+==3861== Reachable blocks (those to which a pointer was found) are not shown.
+==3861== To see them, rerun with: --leak-check=full --show-leak-kinds=all
+==3861== 
+==3861== For counts of detected and suppressed errors, rerun with: -v
+==3861== ERROR SUMMARY: 4 errors from 4 contexts (suppressed: 0 from 0)

@@ -1,0 +1,1073 @@
+[TRACE] 22:49:08:767 CPU/(3305:3305): UMC Conectada
+[TRACE] 22:49:08:771 CPU/(3305:3305): Nucleo Conectado
+[TRACE] 22:49:08:772 CPU/(3305:3305): Tamanio de pagina: 50
+[TRACE] 22:49:08:773 CPU/(3305:3305): ================================
+[TRACE] 22:49:08:773 CPU/(3305:3305): Esperando PCB
+[TRACE] 22:49:08:774 CPU/(3305:3305): ================================
+[TRACE] 22:51:38:126 CPU/(3305:3305): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 22:51:38:126 CPU/(3305:3305): obtenerSiguienteInstruccion();
+[TRACE] 22:51:38:170 CPU/(3305:3305): PID: 1; PC: 0; Quantum 1 de 3 -> 'variables a, b'
+[TRACE] 22:51:38:170 CPU/(3305:3305): --> parser_definirVariable(a);
+[TRACE] 22:51:38:170 CPU/(3305:3305): ----> Return: a: (1,15,4)
+[TRACE] 22:51:38:170 CPU/(3305:3305): --> parser_definirVariable(b);
+[TRACE] 22:51:38:170 CPU/(3305:3305): ----> Return: b: (1,19,4)
+[TRACE] 22:51:38:171 CPU/(3305:3305): obtenerSiguienteInstruccion();
+[TRACE] 22:51:38:191 CPU/(3305:3305): PID: 1; PC: 1; Quantum 2 de 3 -> 'a = 3'
+[TRACE] 22:51:38:191 CPU/(3305:3305): --> parser_obtenerPosicionVariable(a);
+[TRACE] 22:51:38:191 CPU/(3305:3305): ----> Return: a: (1,15,4)
+[TRACE] 22:51:38:191 CPU/(3305:3305): --> parser_asignar((1,15,4),3);
+[TRACE] 22:51:38:222 CPU/(3305:3305): obtenerSiguienteInstruccion();
+[TRACE] 22:51:38:253 CPU/(3305:3305): PID: 1; PC: 2; Quantum 3 de 3 -> 'b = 5'
+[TRACE] 22:51:38:253 CPU/(3305:3305): --> parser_obtenerPosicionVariable(b);
+[TRACE] 22:51:38:253 CPU/(3305:3305): ----> Return: b: (1,19,4)
+[TRACE] 22:51:38:253 CPU/(3305:3305): --> parser_asignar((1,19,4),5);
+[TRACE] 22:51:38:281 CPU/(3305:3305): PID: 1, Finalizo el Quantum Normalmente
+[TRACE] 22:51:38:282 CPU/(3305:3305): ================================
+[TRACE] 22:51:38:282 CPU/(3305:3305): Esperando PCB
+[TRACE] 22:51:38:282 CPU/(3305:3305): ================================
+[ERROR] 22:51:40:223 CPU/(3305:3305): Se desconecto el Nucleo.
+[ERROR] 23:37:27:828 CPU/(4500:4500): No se pudo conectarse con la UMC
+[TRACE] 23:44:34:657 CPU/(4811:4811): UMC Conectada
+[TRACE] 23:44:34:658 CPU/(4811:4811): Nucleo Conectado
+[TRACE] 23:44:34:675 CPU/(4811:4811): Tamanio de pagina: 50
+[TRACE] 23:44:34:675 CPU/(4811:4811): ================================
+[TRACE] 23:44:34:675 CPU/(4811:4811): Esperando PCB
+[TRACE] 23:44:34:675 CPU/(4811:4811): ================================
+[ERROR] 23:44:49:619 CPU/(4811:4811): Se desconecto el Nucleo.
+[TRACE] 23:45:18:946 CPU/(4863:4863): UMC Conectada
+[TRACE] 23:45:18:954 CPU/(4863:4863): Nucleo Conectado
+[TRACE] 23:45:18:983 CPU/(4863:4863): Tamanio de pagina: 50
+[TRACE] 23:45:18:983 CPU/(4863:4863): ================================
+[TRACE] 23:45:18:983 CPU/(4863:4863): Esperando PCB
+[TRACE] 23:45:18:983 CPU/(4863:4863): ================================
+[ERROR] 23:46:16:620 CPU/(4863:4863): Se desconecto el Nucleo.
+[TRACE] 00:23:01:959 CPU/(5635:5635): UMC Conectada
+[TRACE] 00:23:01:963 CPU/(5635:5635): Nucleo Conectado
+[TRACE] 00:23:01:986 CPU/(5635:5635): Tamanio de pagina: 50
+[TRACE] 00:23:01:986 CPU/(5635:5635): ================================
+[TRACE] 00:23:01:987 CPU/(5635:5635): Esperando PCB
+[TRACE] 00:23:01:987 CPU/(5635:5635): ================================
+[TRACE] 18:00:11:84 CPU/(3744:3744): UMC Conectada
+[TRACE] 18:00:12:153 CPU/(3744:3744): Nucleo Conectado
+[TRACE] 18:00:12:182 CPU/(3744:3744): Tamanio de pagina: 50
+[TRACE] 18:00:12:190 CPU/(3744:3744): ================================
+[TRACE] 18:00:12:193 CPU/(3744:3744): Esperando PCB
+[TRACE] 18:00:12:194 CPU/(3744:3744): ================================
+[TRACE] 18:01:31:564 CPU/(3952:3952): UMC Conectada
+[TRACE] 18:01:31:624 CPU/(3952:3952): Nucleo Conectado
+[TRACE] 18:01:31:667 CPU/(3952:3952): Tamanio de pagina: 50
+[TRACE] 18:01:31:679 CPU/(3952:3952): ================================
+[TRACE] 18:01:31:680 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:01:31:681 CPU/(3952:3952): ================================
+[TRACE] 18:03:19:319 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:03:19:347 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:19:480 CPU/(3952:3952): PID: 1; PC: 0; Quantum 1 de 3 -> 'variables a, b'
+[TRACE] 18:03:19:512 CPU/(3952:3952): --> parser_definirVariable(a);
+[TRACE] 18:03:19:515 CPU/(3952:3952): ----> Return: a: (1,15,4)
+[TRACE] 18:03:19:524 CPU/(3952:3952): --> parser_definirVariable(b);
+[TRACE] 18:03:19:528 CPU/(3952:3952): ----> Return: b: (1,19,4)
+[TRACE] 18:03:19:533 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:19:572 CPU/(3952:3952): PID: 1; PC: 1; Quantum 2 de 3 -> 'a = 3'
+[TRACE] 18:03:19:588 CPU/(3952:3952): --> parser_obtenerPosicionVariable(a);
+[TRACE] 18:03:19:597 CPU/(3952:3952): ----> Return: a: (1,15,4)
+[TRACE] 18:03:19:601 CPU/(3952:3952): --> parser_asignar((1,15,4),3);
+[TRACE] 18:03:19:676 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:19:738 CPU/(3952:3952): PID: 1; PC: 2; Quantum 3 de 3 -> 'b = 5'
+[TRACE] 18:03:19:739 CPU/(3952:3952): --> parser_obtenerPosicionVariable(b);
+[TRACE] 18:03:19:739 CPU/(3952:3952): ----> Return: b: (1,19,4)
+[TRACE] 18:03:19:739 CPU/(3952:3952): --> parser_asignar((1,19,4),5);
+[TRACE] 18:03:19:817 CPU/(3952:3952): PID: 1, Finalizo el Quantum Normalmente
+[TRACE] 18:03:19:850 CPU/(3952:3952): ================================
+[TRACE] 18:03:19:850 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:03:19:859 CPU/(3952:3952): ================================
+[TRACE] 18:03:22:374 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:03:22:379 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:22:477 CPU/(3952:3952): PID: 1; PC: 3; Quantum 1 de 3 -> 'a = b + 12'
+[TRACE] 18:03:22:478 CPU/(3952:3952): --> parser_obtenerPosicionVariable(b);
+[TRACE] 18:03:22:478 CPU/(3952:3952): ----> Return: b: (1,19,4)
+[TRACE] 18:03:22:479 CPU/(3952:3952): --> parser_dereferenciar((1,19,4));
+[TRACE] 18:03:22:556 CPU/(3952:3952): ----> Return: 5
+[TRACE] 18:03:22:557 CPU/(3952:3952): --> parser_obtenerPosicionVariable(a);
+[TRACE] 18:03:22:557 CPU/(3952:3952): ----> Return: a: (1,15,4)
+[TRACE] 18:03:22:557 CPU/(3952:3952): --> parser_asignar((1,15,4),17);
+[TRACE] 18:03:22:625 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:22:701 CPU/(3952:3952): PID: 1; PC: 4; Quantum 2 de 3 -> 'end'
+[TRACE] 18:03:22:701 CPU/(3952:3952): --> parser_finalizar();
+[TRACE] 18:03:22:702 CPU/(3952:3952): ----> SP: 0
+[TRACE] 18:03:22:703 CPU/(3952:3952): PID: 1, Finalizo el programa
+[TRACE] 18:03:22:706 CPU/(3952:3952): ================================
+[TRACE] 18:03:22:721 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:03:22:727 CPU/(3952:3952): ================================
+[TRACE] 18:03:38:349 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:03:38:351 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:38:444 CPU/(3952:3952): PID: 2; PC: 0; Quantum 1 de 3 -> 'variables f, i, t'
+[TRACE] 18:03:38:444 CPU/(3952:3952): --> parser_definirVariable(f);
+[TRACE] 18:03:38:445 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:03:38:445 CPU/(3952:3952): --> parser_definirVariable(i);
+[TRACE] 18:03:38:445 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:38:445 CPU/(3952:3952): --> parser_definirVariable(t);
+[TRACE] 18:03:38:446 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:03:38:447 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:38:554 CPU/(3952:3952): PID: 2; PC: 1; Quantum 2 de 3 -> 'f=20'
+[TRACE] 18:03:38:554 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:03:38:554 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:03:38:555 CPU/(3952:3952): --> parser_asignar((5,0,4),20);
+[TRACE] 18:03:38:670 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:38:739 CPU/(3952:3952): PID: 2; PC: 2; Quantum 3 de 3 -> 'i=0'
+[TRACE] 18:03:38:740 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:38:740 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:38:740 CPU/(3952:3952): --> parser_asignar((5,4,4),0);
+[TRACE] 18:03:38:814 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:03:38:815 CPU/(3952:3952): ================================
+[TRACE] 18:03:38:815 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:03:38:816 CPU/(3952:3952): ================================
+[TRACE] 18:03:41:390 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:03:41:391 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:41:523 CPU/(3952:3952): PID: 2; PC: 3; Quantum 1 de 3 -> 'i=i+1'
+[TRACE] 18:03:41:524 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:41:524 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:41:524 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:03:41:590 CPU/(3952:3952): ----> Return: 0
+[TRACE] 18:03:41:590 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:41:591 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:41:591 CPU/(3952:3952): --> parser_asignar((5,4,4),1);
+[TRACE] 18:03:41:661 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:41:815 CPU/(3952:3952): PID: 2; PC: 4; Quantum 2 de 3 -> 'print i'
+[TRACE] 18:03:41:816 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:41:816 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:41:816 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:03:41:916 CPU/(3952:3952): ----> Return: 1
+[TRACE] 18:03:41:917 CPU/(3952:3952): --> parser_imprimir(1);
+[TRACE] 18:03:41:919 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:42:11 CPU/(3952:3952): PID: 2; PC: 5; Quantum 3 de 3 -> 't=f-i'
+[TRACE] 18:03:42:12 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:03:42:12 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:03:42:13 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:03:42:95 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:03:42:96 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:42:96 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:42:96 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:03:42:172 CPU/(3952:3952): ----> Return: 1
+[TRACE] 18:03:42:173 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:03:42:173 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:03:42:174 CPU/(3952:3952): --> parser_asignar((5,8,4),19);
+[TRACE] 18:03:42:248 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:03:42:249 CPU/(3952:3952): ================================
+[TRACE] 18:03:42:249 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:03:42:250 CPU/(3952:3952): ================================
+[TRACE] 18:03:44:470 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:03:44:471 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:44:656 CPU/(3952:3952): PID: 2; PC: 6; Quantum 1 de 3 -> 'jnz t inicio'
+[TRACE] 18:03:44:659 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:03:44:661 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:03:44:664 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:03:44:764 CPU/(3952:3952): ----> Return: 19
+[TRACE] 18:03:44:765 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:03:44:768 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:03:44:775 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:44:872 CPU/(3952:3952): PID: 2; PC: 3; Quantum 2 de 3 -> 'i=i+1'
+[TRACE] 18:03:44:872 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:44:873 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:44:873 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:03:44:944 CPU/(3952:3952): ----> Return: 1
+[TRACE] 18:03:44:944 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:44:944 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:44:945 CPU/(3952:3952): --> parser_asignar((5,4,4),2);
+[TRACE] 18:03:45:37 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:45:152 CPU/(3952:3952): PID: 2; PC: 4; Quantum 3 de 3 -> 'print i'
+[TRACE] 18:03:45:152 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:45:153 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:45:153 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:03:45:233 CPU/(3952:3952): ----> Return: 2
+[TRACE] 18:03:45:234 CPU/(3952:3952): --> parser_imprimir(2);
+[TRACE] 18:03:45:235 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:03:45:236 CPU/(3952:3952): ================================
+[TRACE] 18:03:45:237 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:03:45:238 CPU/(3952:3952): ================================
+[TRACE] 18:03:47:559 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:03:47:560 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:47:647 CPU/(3952:3952): PID: 2; PC: 5; Quantum 1 de 3 -> 't=f-i'
+[TRACE] 18:03:47:648 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:03:47:648 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:03:47:648 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:03:47:731 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:03:47:732 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:47:732 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:47:732 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:03:47:816 CPU/(3952:3952): ----> Return: 2
+[TRACE] 18:03:47:816 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:03:47:816 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:03:47:817 CPU/(3952:3952): --> parser_asignar((5,8,4),18);
+[TRACE] 18:03:47:908 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:48:14 CPU/(3952:3952): PID: 2; PC: 6; Quantum 2 de 3 -> 'jnz t inicio'
+[TRACE] 18:03:48:14 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:03:48:14 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:03:48:15 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:03:48:94 CPU/(3952:3952): ----> Return: 18
+[TRACE] 18:03:48:94 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:03:48:95 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:03:48:96 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:48:186 CPU/(3952:3952): PID: 2; PC: 3; Quantum 3 de 3 -> 'i=i+1'
+[TRACE] 18:03:48:186 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:48:187 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:48:187 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:03:48:268 CPU/(3952:3952): ----> Return: 2
+[TRACE] 18:03:48:269 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:48:269 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:48:270 CPU/(3952:3952): --> parser_asignar((5,4,4),3);
+[TRACE] 18:03:48:333 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:03:48:333 CPU/(3952:3952): ================================
+[TRACE] 18:03:48:334 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:03:48:334 CPU/(3952:3952): ================================
+[TRACE] 18:03:50:672 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:03:50:673 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:50:779 CPU/(3952:3952): PID: 2; PC: 4; Quantum 1 de 3 -> 'print i'
+[TRACE] 18:03:50:780 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:50:780 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:50:780 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:03:50:887 CPU/(3952:3952): ----> Return: 3
+[TRACE] 18:03:50:888 CPU/(3952:3952): --> parser_imprimir(3);
+[TRACE] 18:03:50:889 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:50:971 CPU/(3952:3952): PID: 2; PC: 5; Quantum 2 de 3 -> 't=f-i'
+[TRACE] 18:03:50:971 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:03:50:972 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:03:50:972 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:03:51:36 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:03:51:36 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:51:37 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:51:37 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:03:51:123 CPU/(3952:3952): ----> Return: 3
+[TRACE] 18:03:51:124 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:03:51:124 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:03:51:124 CPU/(3952:3952): --> parser_asignar((5,8,4),17);
+[TRACE] 18:03:51:189 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:51:288 CPU/(3952:3952): PID: 2; PC: 6; Quantum 3 de 3 -> 'jnz t inicio'
+[TRACE] 18:03:51:289 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:03:51:290 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:03:51:290 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:03:51:385 CPU/(3952:3952): ----> Return: 17
+[TRACE] 18:03:51:385 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:03:51:386 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:03:51:387 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:03:51:387 CPU/(3952:3952): ================================
+[TRACE] 18:03:51:388 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:03:51:388 CPU/(3952:3952): ================================
+[TRACE] 18:03:53:801 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:03:53:802 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:53:890 CPU/(3952:3952): PID: 2; PC: 3; Quantum 1 de 3 -> 'i=i+1'
+[TRACE] 18:03:53:890 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:53:890 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:53:890 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:03:53:968 CPU/(3952:3952): ----> Return: 3
+[TRACE] 18:03:53:968 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:53:968 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:53:969 CPU/(3952:3952): --> parser_asignar((5,4,4),4);
+[TRACE] 18:03:54:47 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:54:158 CPU/(3952:3952): PID: 2; PC: 4; Quantum 2 de 3 -> 'print i'
+[TRACE] 18:03:54:159 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:54:159 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:54:160 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:03:54:265 CPU/(3952:3952): ----> Return: 4
+[TRACE] 18:03:54:266 CPU/(3952:3952): --> parser_imprimir(4);
+[TRACE] 18:03:54:267 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:54:380 CPU/(3952:3952): PID: 2; PC: 5; Quantum 3 de 3 -> 't=f-i'
+[TRACE] 18:03:54:380 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:03:54:381 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:03:54:381 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:03:54:463 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:03:54:464 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:54:464 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:54:464 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:03:54:537 CPU/(3952:3952): ----> Return: 4
+[TRACE] 18:03:54:538 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:03:54:538 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:03:54:538 CPU/(3952:3952): --> parser_asignar((5,8,4),16);
+[TRACE] 18:03:54:606 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:03:54:606 CPU/(3952:3952): ================================
+[TRACE] 18:03:54:607 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:03:54:608 CPU/(3952:3952): ================================
+[TRACE] 18:03:56:952 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:03:56:953 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:57:44 CPU/(3952:3952): PID: 2; PC: 6; Quantum 1 de 3 -> 'jnz t inicio'
+[TRACE] 18:03:57:45 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:03:57:45 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:03:57:46 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:03:57:142 CPU/(3952:3952): ----> Return: 16
+[TRACE] 18:03:57:142 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:03:57:143 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:03:57:144 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:57:243 CPU/(3952:3952): PID: 2; PC: 3; Quantum 2 de 3 -> 'i=i+1'
+[TRACE] 18:03:57:243 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:57:244 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:57:244 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:03:57:318 CPU/(3952:3952): ----> Return: 4
+[TRACE] 18:03:57:318 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:57:319 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:57:320 CPU/(3952:3952): --> parser_asignar((5,4,4),5);
+[TRACE] 18:03:57:385 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:03:57:471 CPU/(3952:3952): PID: 2; PC: 4; Quantum 3 de 3 -> 'print i'
+[TRACE] 18:03:57:472 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:03:57:472 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:03:57:472 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:03:57:551 CPU/(3952:3952): ----> Return: 5
+[TRACE] 18:03:57:552 CPU/(3952:3952): --> parser_imprimir(5);
+[TRACE] 18:03:57:553 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:03:57:554 CPU/(3952:3952): ================================
+[TRACE] 18:03:57:555 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:03:57:556 CPU/(3952:3952): ================================
+[TRACE] 18:03:59:7 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:00:11 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:00:108 CPU/(3952:3952): PID: 2; PC: 5; Quantum 1 de 3 -> 't=f-i'
+[TRACE] 18:04:00:108 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:04:00:109 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:04:00:109 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:04:00:201 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:04:00:201 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:00:202 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:00:202 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:00:282 CPU/(3952:3952): ----> Return: 5
+[TRACE] 18:04:00:282 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:00:282 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:00:283 CPU/(3952:3952): --> parser_asignar((5,8,4),15);
+[TRACE] 18:04:00:360 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:00:433 CPU/(3952:3952): PID: 2; PC: 6; Quantum 2 de 3 -> 'jnz t inicio'
+[TRACE] 18:04:00:433 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:00:434 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:00:434 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:04:00:541 CPU/(3952:3952): ----> Return: 15
+[TRACE] 18:04:00:541 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:04:00:542 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:04:00:543 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:00:649 CPU/(3952:3952): PID: 2; PC: 3; Quantum 3 de 3 -> 'i=i+1'
+[TRACE] 18:04:00:649 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:00:650 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:00:650 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:00:727 CPU/(3952:3952): ----> Return: 5
+[TRACE] 18:04:00:727 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:00:727 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:00:728 CPU/(3952:3952): --> parser_asignar((5,4,4),6);
+[TRACE] 18:04:00:819 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:00:820 CPU/(3952:3952): ================================
+[TRACE] 18:04:00:820 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:00:820 CPU/(3952:3952): ================================
+[TRACE] 18:04:03:48 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:03:51 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:03:159 CPU/(3952:3952): PID: 2; PC: 4; Quantum 1 de 3 -> 'print i'
+[TRACE] 18:04:03:160 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:03:160 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:03:161 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:03:240 CPU/(3952:3952): ----> Return: 6
+[TRACE] 18:04:03:240 CPU/(3952:3952): --> parser_imprimir(6);
+[TRACE] 18:04:03:241 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:03:317 CPU/(3952:3952): PID: 2; PC: 5; Quantum 2 de 3 -> 't=f-i'
+[TRACE] 18:04:03:318 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:04:03:318 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:04:03:318 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:04:03:396 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:04:03:396 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:03:397 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:03:397 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:03:464 CPU/(3952:3952): ----> Return: 6
+[TRACE] 18:04:03:464 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:03:464 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:03:465 CPU/(3952:3952): --> parser_asignar((5,8,4),14);
+[TRACE] 18:04:03:550 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:03:652 CPU/(3952:3952): PID: 2; PC: 6; Quantum 3 de 3 -> 'jnz t inicio'
+[TRACE] 18:04:03:652 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:03:653 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:03:653 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:04:03:756 CPU/(3952:3952): ----> Return: 14
+[TRACE] 18:04:03:756 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:04:03:757 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:04:03:758 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:03:759 CPU/(3952:3952): ================================
+[TRACE] 18:04:03:760 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:03:761 CPU/(3952:3952): ================================
+[TRACE] 18:04:06:202 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:06:202 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:06:317 CPU/(3952:3952): PID: 2; PC: 3; Quantum 1 de 3 -> 'i=i+1'
+[TRACE] 18:04:06:317 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:06:318 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:06:318 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:06:427 CPU/(3952:3952): ----> Return: 6
+[TRACE] 18:04:06:428 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:06:428 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:06:428 CPU/(3952:3952): --> parser_asignar((5,4,4),7);
+[TRACE] 18:04:06:510 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:06:592 CPU/(3952:3952): PID: 2; PC: 4; Quantum 2 de 3 -> 'print i'
+[TRACE] 18:04:06:592 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:06:592 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:06:593 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:06:663 CPU/(3952:3952): ----> Return: 7
+[TRACE] 18:04:06:664 CPU/(3952:3952): --> parser_imprimir(7);
+[TRACE] 18:04:06:665 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:06:744 CPU/(3952:3952): PID: 2; PC: 5; Quantum 3 de 3 -> 't=f-i'
+[TRACE] 18:04:06:744 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:04:06:744 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:04:06:745 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:04:06:838 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:04:06:839 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:06:839 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:06:839 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:06:944 CPU/(3952:3952): ----> Return: 7
+[TRACE] 18:04:06:944 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:06:945 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:06:945 CPU/(3952:3952): --> parser_asignar((5,8,4),13);
+[TRACE] 18:04:07:29 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:07:30 CPU/(3952:3952): ================================
+[TRACE] 18:04:07:30 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:07:32 CPU/(3952:3952): ================================
+[TRACE] 18:04:09:384 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:09:387 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:09:486 CPU/(3952:3952): PID: 2; PC: 6; Quantum 1 de 3 -> 'jnz t inicio'
+[TRACE] 18:04:09:486 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:09:486 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:09:487 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:04:09:575 CPU/(3952:3952): ----> Return: 13
+[TRACE] 18:04:09:575 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:04:09:576 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:04:09:577 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:09:661 CPU/(3952:3952): PID: 2; PC: 3; Quantum 2 de 3 -> 'i=i+1'
+[TRACE] 18:04:09:662 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:09:662 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:09:662 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:09:752 CPU/(3952:3952): ----> Return: 7
+[TRACE] 18:04:09:752 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:09:752 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:09:753 CPU/(3952:3952): --> parser_asignar((5,4,4),8);
+[TRACE] 18:04:09:821 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:09:895 CPU/(3952:3952): PID: 2; PC: 4; Quantum 3 de 3 -> 'print i'
+[TRACE] 18:04:09:896 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:09:896 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:09:897 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:09:972 CPU/(3952:3952): ----> Return: 8
+[TRACE] 18:04:09:972 CPU/(3952:3952): --> parser_imprimir(8);
+[TRACE] 18:04:09:974 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:09:975 CPU/(3952:3952): ================================
+[TRACE] 18:04:09:976 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:09:977 CPU/(3952:3952): ================================
+[TRACE] 18:04:12:417 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:12:418 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:12:514 CPU/(3952:3952): PID: 2; PC: 5; Quantum 1 de 3 -> 't=f-i'
+[TRACE] 18:04:12:515 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:04:12:515 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:04:12:515 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:04:12:631 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:04:12:632 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:12:632 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:12:632 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:12:709 CPU/(3952:3952): ----> Return: 8
+[TRACE] 18:04:12:710 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:12:710 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:12:710 CPU/(3952:3952): --> parser_asignar((5,8,4),12);
+[TRACE] 18:04:12:798 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:12:889 CPU/(3952:3952): PID: 2; PC: 6; Quantum 2 de 3 -> 'jnz t inicio'
+[TRACE] 18:04:12:890 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:12:890 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:12:890 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:04:12:997 CPU/(3952:3952): ----> Return: 12
+[TRACE] 18:04:12:998 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:04:12:998 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:04:12:999 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:13:76 CPU/(3952:3952): PID: 2; PC: 3; Quantum 3 de 3 -> 'i=i+1'
+[TRACE] 18:04:13:77 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:13:77 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:13:77 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:13:144 CPU/(3952:3952): ----> Return: 8
+[TRACE] 18:04:13:144 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:13:145 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:13:145 CPU/(3952:3952): --> parser_asignar((5,4,4),9);
+[TRACE] 18:04:13:214 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:13:215 CPU/(3952:3952): ================================
+[TRACE] 18:04:13:215 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:13:216 CPU/(3952:3952): ================================
+[TRACE] 18:04:15:509 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:15:510 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:15:607 CPU/(3952:3952): PID: 2; PC: 4; Quantum 1 de 3 -> 'print i'
+[TRACE] 18:04:15:608 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:15:608 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:15:608 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:15:716 CPU/(3952:3952): ----> Return: 9
+[TRACE] 18:04:15:717 CPU/(3952:3952): --> parser_imprimir(9);
+[TRACE] 18:04:15:718 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:15:820 CPU/(3952:3952): PID: 2; PC: 5; Quantum 2 de 3 -> 't=f-i'
+[TRACE] 18:04:15:820 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:04:15:821 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:04:15:821 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:04:15:918 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:04:15:919 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:15:919 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:15:919 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:15:991 CPU/(3952:3952): ----> Return: 9
+[TRACE] 18:04:15:991 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:15:992 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:15:992 CPU/(3952:3952): --> parser_asignar((5,8,4),11);
+[TRACE] 18:04:16:65 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:16:136 CPU/(3952:3952): PID: 2; PC: 6; Quantum 3 de 3 -> 'jnz t inicio'
+[TRACE] 18:04:16:136 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:16:136 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:16:137 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:04:16:249 CPU/(3952:3952): ----> Return: 11
+[TRACE] 18:04:16:249 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:04:16:249 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:04:16:250 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:16:251 CPU/(3952:3952): ================================
+[TRACE] 18:04:16:252 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:16:253 CPU/(3952:3952): ================================
+[TRACE] 18:04:18:697 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:18:698 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:18:795 CPU/(3952:3952): PID: 2; PC: 3; Quantum 1 de 3 -> 'i=i+1'
+[TRACE] 18:04:18:795 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:18:795 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:18:796 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:18:869 CPU/(3952:3952): ----> Return: 9
+[TRACE] 18:04:18:869 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:18:870 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:18:870 CPU/(3952:3952): --> parser_asignar((5,4,4),10);
+[TRACE] 18:04:18:933 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:19:28 CPU/(3952:3952): PID: 2; PC: 4; Quantum 2 de 3 -> 'print i'
+[TRACE] 18:04:19:29 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:19:29 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:19:29 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:19:101 CPU/(3952:3952): ----> Return: 10
+[TRACE] 18:04:19:101 CPU/(3952:3952): --> parser_imprimir(10);
+[TRACE] 18:04:19:103 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:19:194 CPU/(3952:3952): PID: 2; PC: 5; Quantum 3 de 3 -> 't=f-i'
+[TRACE] 18:04:19:194 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:04:19:194 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:04:19:195 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:04:19:300 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:04:19:300 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:19:301 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:19:301 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:19:377 CPU/(3952:3952): ----> Return: 10
+[TRACE] 18:04:19:377 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:19:378 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:19:378 CPU/(3952:3952): --> parser_asignar((5,8,4),10);
+[TRACE] 18:04:19:454 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:19:454 CPU/(3952:3952): ================================
+[TRACE] 18:04:19:454 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:19:456 CPU/(3952:3952): ================================
+[TRACE] 18:04:21:854 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:21:854 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:21:955 CPU/(3952:3952): PID: 2; PC: 6; Quantum 1 de 3 -> 'jnz t inicio'
+[TRACE] 18:04:21:955 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:21:956 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:21:956 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:04:22:26 CPU/(3952:3952): ----> Return: 10
+[TRACE] 18:04:22:26 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:04:22:27 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:04:22:30 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:22:103 CPU/(3952:3952): PID: 2; PC: 3; Quantum 2 de 3 -> 'i=i+1'
+[TRACE] 18:04:22:103 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:22:103 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:22:104 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:22:178 CPU/(3952:3952): ----> Return: 10
+[TRACE] 18:04:22:178 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:22:179 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:22:179 CPU/(3952:3952): --> parser_asignar((5,4,4),11);
+[TRACE] 18:04:22:259 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:22:380 CPU/(3952:3952): PID: 2; PC: 4; Quantum 3 de 3 -> 'print i'
+[TRACE] 18:04:22:380 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:22:381 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:22:381 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:22:472 CPU/(3952:3952): ----> Return: 11
+[TRACE] 18:04:22:472 CPU/(3952:3952): --> parser_imprimir(11);
+[TRACE] 18:04:22:473 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:22:475 CPU/(3952:3952): ================================
+[TRACE] 18:04:22:475 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:22:476 CPU/(3952:3952): ================================
+[TRACE] 18:04:24:974 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:24:975 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:25:116 CPU/(3952:3952): PID: 2; PC: 5; Quantum 1 de 3 -> 't=f-i'
+[TRACE] 18:04:25:117 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:04:25:117 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:04:25:117 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:04:25:196 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:04:25:196 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:25:196 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:25:197 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:25:276 CPU/(3952:3952): ----> Return: 11
+[TRACE] 18:04:25:276 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:25:276 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:25:277 CPU/(3952:3952): --> parser_asignar((5,8,4),9);
+[TRACE] 18:04:25:354 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:25:459 CPU/(3952:3952): PID: 2; PC: 6; Quantum 2 de 3 -> 'jnz t inicio'
+[TRACE] 18:04:25:460 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:25:460 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:25:460 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:04:25:557 CPU/(3952:3952): ----> Return: 9
+[TRACE] 18:04:25:557 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:04:25:557 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:04:25:558 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:25:640 CPU/(3952:3952): PID: 2; PC: 3; Quantum 3 de 3 -> 'i=i+1'
+[TRACE] 18:04:25:640 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:25:640 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:25:641 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:25:712 CPU/(3952:3952): ----> Return: 11
+[TRACE] 18:04:25:712 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:25:712 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:25:712 CPU/(3952:3952): --> parser_asignar((5,4,4),12);
+[TRACE] 18:04:25:787 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:25:787 CPU/(3952:3952): ================================
+[TRACE] 18:04:25:787 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:25:788 CPU/(3952:3952): ================================
+[TRACE] 18:04:28:119 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:28:119 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:28:220 CPU/(3952:3952): PID: 2; PC: 4; Quantum 1 de 3 -> 'print i'
+[TRACE] 18:04:28:220 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:28:220 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:28:221 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:28:332 CPU/(3952:3952): ----> Return: 12
+[TRACE] 18:04:28:332 CPU/(3952:3952): --> parser_imprimir(12);
+[TRACE] 18:04:28:333 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:28:410 CPU/(3952:3952): PID: 2; PC: 5; Quantum 2 de 3 -> 't=f-i'
+[TRACE] 18:04:28:410 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:04:28:410 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:04:28:411 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:04:28:498 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:04:28:498 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:28:499 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:28:499 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:28:586 CPU/(3952:3952): ----> Return: 12
+[TRACE] 18:04:28:586 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:28:586 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:28:586 CPU/(3952:3952): --> parser_asignar((5,8,4),8);
+[TRACE] 18:04:28:666 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:28:752 CPU/(3952:3952): PID: 2; PC: 6; Quantum 3 de 3 -> 'jnz t inicio'
+[TRACE] 18:04:28:753 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:28:753 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:28:753 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:04:28:853 CPU/(3952:3952): ----> Return: 8
+[TRACE] 18:04:28:854 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:04:28:854 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:04:28:855 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:28:856 CPU/(3952:3952): ================================
+[TRACE] 18:04:28:857 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:28:858 CPU/(3952:3952): ================================
+[TRACE] 18:04:31:191 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:31:195 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:31:298 CPU/(3952:3952): PID: 2; PC: 3; Quantum 1 de 3 -> 'i=i+1'
+[TRACE] 18:04:31:299 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:31:299 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:31:299 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:31:380 CPU/(3952:3952): ----> Return: 12
+[TRACE] 18:04:31:380 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:31:380 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:31:381 CPU/(3952:3952): --> parser_asignar((5,4,4),13);
+[TRACE] 18:04:31:450 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:31:538 CPU/(3952:3952): PID: 2; PC: 4; Quantum 2 de 3 -> 'print i'
+[TRACE] 18:04:31:538 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:31:538 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:31:539 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:31:612 CPU/(3952:3952): ----> Return: 13
+[TRACE] 18:04:31:612 CPU/(3952:3952): --> parser_imprimir(13);
+[TRACE] 18:04:31:613 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:31:703 CPU/(3952:3952): PID: 2; PC: 5; Quantum 3 de 3 -> 't=f-i'
+[TRACE] 18:04:31:704 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:04:31:704 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:04:31:704 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:04:31:806 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:04:31:806 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:31:806 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:31:807 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:31:887 CPU/(3952:3952): ----> Return: 13
+[TRACE] 18:04:31:888 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:31:888 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:31:888 CPU/(3952:3952): --> parser_asignar((5,8,4),7);
+[TRACE] 18:04:31:960 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:31:961 CPU/(3952:3952): ================================
+[TRACE] 18:04:31:961 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:31:961 CPU/(3952:3952): ================================
+[TRACE] 18:04:34:345 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:34:346 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:34:445 CPU/(3952:3952): PID: 2; PC: 6; Quantum 1 de 3 -> 'jnz t inicio'
+[TRACE] 18:04:34:445 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:34:445 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:34:446 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:04:34:518 CPU/(3952:3952): ----> Return: 7
+[TRACE] 18:04:34:518 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:04:34:519 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:04:34:520 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:34:599 CPU/(3952:3952): PID: 2; PC: 3; Quantum 2 de 3 -> 'i=i+1'
+[TRACE] 18:04:34:599 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:34:599 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:34:599 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:34:671 CPU/(3952:3952): ----> Return: 13
+[TRACE] 18:04:34:671 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:34:672 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:34:672 CPU/(3952:3952): --> parser_asignar((5,4,4),14);
+[TRACE] 18:04:34:755 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:34:852 CPU/(3952:3952): PID: 2; PC: 4; Quantum 3 de 3 -> 'print i'
+[TRACE] 18:04:34:852 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:34:853 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:34:853 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:34:930 CPU/(3952:3952): ----> Return: 14
+[TRACE] 18:04:34:931 CPU/(3952:3952): --> parser_imprimir(14);
+[TRACE] 18:04:34:932 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:34:933 CPU/(3952:3952): ================================
+[TRACE] 18:04:34:934 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:34:935 CPU/(3952:3952): ================================
+[TRACE] 18:04:37:385 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:37:385 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:37:491 CPU/(3952:3952): PID: 2; PC: 5; Quantum 1 de 3 -> 't=f-i'
+[TRACE] 18:04:37:492 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:04:37:492 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:04:37:492 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:04:37:572 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:04:37:573 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:37:573 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:37:573 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:37:646 CPU/(3952:3952): ----> Return: 14
+[TRACE] 18:04:37:646 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:37:647 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:37:647 CPU/(3952:3952): --> parser_asignar((5,8,4),6);
+[TRACE] 18:04:37:724 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:37:806 CPU/(3952:3952): PID: 2; PC: 6; Quantum 2 de 3 -> 'jnz t inicio'
+[TRACE] 18:04:37:807 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:37:807 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:37:807 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:04:37:891 CPU/(3952:3952): ----> Return: 6
+[TRACE] 18:04:37:891 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:04:37:891 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:04:37:892 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:37:977 CPU/(3952:3952): PID: 2; PC: 3; Quantum 3 de 3 -> 'i=i+1'
+[TRACE] 18:04:37:977 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:37:977 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:37:977 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:38:53 CPU/(3952:3952): ----> Return: 14
+[TRACE] 18:04:38:54 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:38:54 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:38:55 CPU/(3952:3952): --> parser_asignar((5,4,4),15);
+[TRACE] 18:04:38:126 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:38:127 CPU/(3952:3952): ================================
+[TRACE] 18:04:38:127 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:38:127 CPU/(3952:3952): ================================
+[TRACE] 18:04:40:509 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:40:512 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:40:613 CPU/(3952:3952): PID: 2; PC: 4; Quantum 1 de 3 -> 'print i'
+[TRACE] 18:04:40:613 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:40:613 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:40:614 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:40:725 CPU/(3952:3952): ----> Return: 15
+[TRACE] 18:04:40:726 CPU/(3952:3952): --> parser_imprimir(15);
+[TRACE] 18:04:40:728 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:40:798 CPU/(3952:3952): PID: 2; PC: 5; Quantum 2 de 3 -> 't=f-i'
+[TRACE] 18:04:40:799 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:04:40:799 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:04:40:799 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:04:40:885 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:04:40:886 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:40:886 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:40:886 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:40:963 CPU/(3952:3952): ----> Return: 15
+[TRACE] 18:04:40:963 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:40:963 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:40:964 CPU/(3952:3952): --> parser_asignar((5,8,4),5);
+[TRACE] 18:04:41:45 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:41:147 CPU/(3952:3952): PID: 2; PC: 6; Quantum 3 de 3 -> 'jnz t inicio'
+[TRACE] 18:04:41:147 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:41:148 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:41:148 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:04:41:251 CPU/(3952:3952): ----> Return: 5
+[TRACE] 18:04:41:251 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:04:41:251 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:04:41:253 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:41:254 CPU/(3952:3952): ================================
+[TRACE] 18:04:41:255 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:41:256 CPU/(3952:3952): ================================
+[TRACE] 18:04:43:599 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:43:600 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:43:721 CPU/(3952:3952): PID: 2; PC: 3; Quantum 1 de 3 -> 'i=i+1'
+[TRACE] 18:04:43:722 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:43:722 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:43:722 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:43:799 CPU/(3952:3952): ----> Return: 15
+[TRACE] 18:04:43:800 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:43:801 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:43:801 CPU/(3952:3952): --> parser_asignar((5,4,4),16);
+[TRACE] 18:04:43:873 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:43:994 CPU/(3952:3952): PID: 2; PC: 4; Quantum 2 de 3 -> 'print i'
+[TRACE] 18:04:43:995 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:43:995 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:43:995 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:44:100 CPU/(3952:3952): ----> Return: 16
+[TRACE] 18:04:44:100 CPU/(3952:3952): --> parser_imprimir(16);
+[TRACE] 18:04:44:102 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:44:169 CPU/(3952:3952): PID: 2; PC: 5; Quantum 3 de 3 -> 't=f-i'
+[TRACE] 18:04:44:169 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:04:44:169 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:04:44:170 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:04:44:251 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:04:44:252 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:44:252 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:44:252 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:44:331 CPU/(3952:3952): ----> Return: 16
+[TRACE] 18:04:44:331 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:44:332 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:44:332 CPU/(3952:3952): --> parser_asignar((5,8,4),4);
+[TRACE] 18:04:44:402 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:44:403 CPU/(3952:3952): ================================
+[TRACE] 18:04:44:403 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:44:404 CPU/(3952:3952): ================================
+[TRACE] 18:04:46:936 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:46:937 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:47:32 CPU/(3952:3952): PID: 2; PC: 6; Quantum 1 de 3 -> 'jnz t inicio'
+[TRACE] 18:04:47:33 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:47:33 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:47:33 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:04:47:107 CPU/(3952:3952): ----> Return: 4
+[TRACE] 18:04:47:107 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:04:47:108 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:04:47:109 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:47:188 CPU/(3952:3952): PID: 2; PC: 3; Quantum 2 de 3 -> 'i=i+1'
+[TRACE] 18:04:47:188 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:47:188 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:47:188 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:47:271 CPU/(3952:3952): ----> Return: 16
+[TRACE] 18:04:47:271 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:47:271 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:47:272 CPU/(3952:3952): --> parser_asignar((5,4,4),17);
+[TRACE] 18:04:47:365 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:47:478 CPU/(3952:3952): PID: 2; PC: 4; Quantum 3 de 3 -> 'print i'
+[TRACE] 18:04:47:478 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:47:479 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:47:479 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:47:554 CPU/(3952:3952): ----> Return: 17
+[TRACE] 18:04:47:554 CPU/(3952:3952): --> parser_imprimir(17);
+[TRACE] 18:04:47:556 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:47:557 CPU/(3952:3952): ================================
+[TRACE] 18:04:47:558 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:47:558 CPU/(3952:3952): ================================
+[TRACE] 18:04:50:51 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:50:52 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:50:168 CPU/(3952:3952): PID: 2; PC: 5; Quantum 1 de 3 -> 't=f-i'
+[TRACE] 18:04:50:168 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:04:50:169 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:04:50:169 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:04:50:264 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:04:50:264 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:50:264 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:50:265 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:50:340 CPU/(3952:3952): ----> Return: 17
+[TRACE] 18:04:50:341 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:50:341 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:50:342 CPU/(3952:3952): --> parser_asignar((5,8,4),3);
+[TRACE] 18:04:50:422 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:50:502 CPU/(3952:3952): PID: 2; PC: 6; Quantum 2 de 3 -> 'jnz t inicio'
+[TRACE] 18:04:50:503 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:50:503 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:50:503 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:04:50:608 CPU/(3952:3952): ----> Return: 3
+[TRACE] 18:04:50:609 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:04:50:609 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:04:50:611 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:50:707 CPU/(3952:3952): PID: 2; PC: 3; Quantum 3 de 3 -> 'i=i+1'
+[TRACE] 18:04:50:707 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:50:707 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:50:708 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:50:804 CPU/(3952:3952): ----> Return: 17
+[TRACE] 18:04:50:804 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:50:804 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:50:805 CPU/(3952:3952): --> parser_asignar((5,4,4),18);
+[TRACE] 18:04:50:870 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:50:871 CPU/(3952:3952): ================================
+[TRACE] 18:04:50:871 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:50:871 CPU/(3952:3952): ================================
+[TRACE] 18:04:53:143 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:53:144 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:53:254 CPU/(3952:3952): PID: 2; PC: 4; Quantum 1 de 3 -> 'print i'
+[TRACE] 18:04:53:254 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:53:254 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:53:255 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:53:340 CPU/(3952:3952): ----> Return: 18
+[TRACE] 18:04:53:340 CPU/(3952:3952): --> parser_imprimir(18);
+[TRACE] 18:04:53:342 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:53:417 CPU/(3952:3952): PID: 2; PC: 5; Quantum 2 de 3 -> 't=f-i'
+[TRACE] 18:04:53:418 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:04:53:418 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:04:53:418 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:04:53:495 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:04:53:495 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:53:496 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:53:497 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:53:576 CPU/(3952:3952): ----> Return: 18
+[TRACE] 18:04:53:576 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:53:577 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:53:577 CPU/(3952:3952): --> parser_asignar((5,8,4),2);
+[TRACE] 18:04:53:661 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:53:762 CPU/(3952:3952): PID: 2; PC: 6; Quantum 3 de 3 -> 'jnz t inicio'
+[TRACE] 18:04:53:762 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:53:762 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:53:763 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:04:53:836 CPU/(3952:3952): ----> Return: 2
+[TRACE] 18:04:53:836 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:04:53:836 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:04:53:837 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:53:839 CPU/(3952:3952): ================================
+[TRACE] 18:04:53:840 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:53:841 CPU/(3952:3952): ================================
+[TRACE] 18:04:56:253 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:56:254 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:56:358 CPU/(3952:3952): PID: 2; PC: 3; Quantum 1 de 3 -> 'i=i+1'
+[TRACE] 18:04:56:359 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:56:359 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:56:359 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:56:461 CPU/(3952:3952): ----> Return: 18
+[TRACE] 18:04:56:461 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:56:462 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:56:462 CPU/(3952:3952): --> parser_asignar((5,4,4),19);
+[TRACE] 18:04:56:537 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:56:612 CPU/(3952:3952): PID: 2; PC: 4; Quantum 2 de 3 -> 'print i'
+[TRACE] 18:04:56:613 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:56:613 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:56:613 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:56:689 CPU/(3952:3952): ----> Return: 19
+[TRACE] 18:04:56:689 CPU/(3952:3952): --> parser_imprimir(19);
+[TRACE] 18:04:56:691 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:56:796 CPU/(3952:3952): PID: 2; PC: 5; Quantum 3 de 3 -> 't=f-i'
+[TRACE] 18:04:56:796 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:04:56:796 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:04:56:797 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:04:56:880 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:04:56:880 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:56:881 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:56:881 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:56:960 CPU/(3952:3952): ----> Return: 19
+[TRACE] 18:04:56:960 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:56:960 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:56:961 CPU/(3952:3952): --> parser_asignar((5,8,4),1);
+[TRACE] 18:04:57:37 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:57:38 CPU/(3952:3952): ================================
+[TRACE] 18:04:57:40 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:57:40 CPU/(3952:3952): ================================
+[TRACE] 18:04:59:297 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:04:59:297 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:59:395 CPU/(3952:3952): PID: 2; PC: 6; Quantum 1 de 3 -> 'jnz t inicio'
+[TRACE] 18:04:59:395 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:04:59:396 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:04:59:396 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:04:59:508 CPU/(3952:3952): ----> Return: 1
+[TRACE] 18:04:59:508 CPU/(3952:3952): --> parser_irAlLabel(inicio);
+[TRACE] 18:04:59:508 CPU/(3952:3952): ----> PC: 3
+[TRACE] 18:04:59:509 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:59:586 CPU/(3952:3952): PID: 2; PC: 3; Quantum 2 de 3 -> 'i=i+1'
+[TRACE] 18:04:59:587 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:59:587 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:59:588 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:59:671 CPU/(3952:3952): ----> Return: 19
+[TRACE] 18:04:59:672 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:59:672 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:59:672 CPU/(3952:3952): --> parser_asignar((5,4,4),20);
+[TRACE] 18:04:59:740 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:04:59:823 CPU/(3952:3952): PID: 2; PC: 4; Quantum 3 de 3 -> 'print i'
+[TRACE] 18:04:59:823 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:04:59:824 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:04:59:824 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:04:59:937 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:04:59:937 CPU/(3952:3952): --> parser_imprimir(20);
+[TRACE] 18:04:59:939 CPU/(3952:3952): PID: 2, Finalizo el Quantum Normalmente
+[TRACE] 18:04:59:939 CPU/(3952:3952): ================================
+[TRACE] 18:04:59:940 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:04:59:940 CPU/(3952:3952): ================================
+[TRACE] 18:05:02:371 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:05:02:375 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:05:02:484 CPU/(3952:3952): PID: 2; PC: 5; Quantum 1 de 3 -> 't=f-i'
+[TRACE] 18:05:02:485 CPU/(3952:3952): --> parser_obtenerPosicionVariable(f);
+[TRACE] 18:05:02:485 CPU/(3952:3952): ----> Return: f: (5,0,4)
+[TRACE] 18:05:02:486 CPU/(3952:3952): --> parser_dereferenciar((5,0,4));
+[TRACE] 18:05:02:568 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:05:02:568 CPU/(3952:3952): --> parser_obtenerPosicionVariable(i);
+[TRACE] 18:05:02:568 CPU/(3952:3952): ----> Return: i: (5,4,4)
+[TRACE] 18:05:02:569 CPU/(3952:3952): --> parser_dereferenciar((5,4,4));
+[TRACE] 18:05:02:651 CPU/(3952:3952): ----> Return: 20
+[TRACE] 18:05:02:652 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:05:02:652 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:05:02:652 CPU/(3952:3952): --> parser_asignar((5,8,4),0);
+[TRACE] 18:05:02:730 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:05:02:811 CPU/(3952:3952): PID: 2; PC: 6; Quantum 2 de 3 -> 'jnz t inicio'
+[TRACE] 18:05:02:811 CPU/(3952:3952): --> parser_obtenerPosicionVariable(t);
+[TRACE] 18:05:02:811 CPU/(3952:3952): ----> Return: t: (5,8,4)
+[TRACE] 18:05:02:812 CPU/(3952:3952): --> parser_dereferenciar((5,8,4));
+[TRACE] 18:05:02:886 CPU/(3952:3952): ----> Return: 0
+[TRACE] 18:05:02:887 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:05:02:968 CPU/(3952:3952): PID: 2; PC: 7; Quantum 3 de 3 -> 'end'
+[TRACE] 18:05:02:968 CPU/(3952:3952): --> parser_finalizar();
+[TRACE] 18:05:02:969 CPU/(3952:3952): ----> SP: 0
+[TRACE] 18:05:02:970 CPU/(3952:3952): PID: 2, Finalizo el programa
+[TRACE] 18:05:02:971 CPU/(3952:3952): ================================
+[TRACE] 18:05:02:972 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:05:02:973 CPU/(3952:3952): ================================
+[TRACE] 18:05:43:545 CPU/(3952:3952): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:05:43:551 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:05:43:644 CPU/(3952:3952): PID: 3; PC: 0; Quantum 1 de 3 -> 'variables f,  A,  g'
+[TRACE] 18:05:43:644 CPU/(3952:3952): --> parser_definirVariable(f);
+[TRACE] 18:05:43:645 CPU/(3952:3952): ----> Return: f: (9,30,4)
+[TRACE] 18:05:43:645 CPU/(3952:3952): --> parser_definirVariable(A);
+[TRACE] 18:05:43:645 CPU/(3952:3952): ----> Return: A: (9,34,4)
+[TRACE] 18:05:43:646 CPU/(3952:3952): --> parser_definirVariable(g);
+[TRACE] 18:05:43:646 CPU/(3952:3952): ----> Return: g: (9,38,4)
+[TRACE] 18:05:43:647 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:05:43:735 CPU/(3952:3952): PID: 3; PC: 1; Quantum 2 de 3 -> 'A = 	0'
+[TRACE] 18:05:43:735 CPU/(3952:3952): --> parser_obtenerPosicionVariable(A);
+[TRACE] 18:05:43:735 CPU/(3952:3952): ----> Return: A: (9,34,4)
+[TRACE] 18:05:43:735 CPU/(3952:3952): --> parser_asignar((9,34,4),0);
+[TRACE] 18:05:43:877 CPU/(3952:3952): obtenerSiguienteInstruccion();
+[TRACE] 18:05:44:11 CPU/(3952:3952): PID: 3; PC: 2; Quantum 3 de 3 -> '!compartida = 1+A'
+[TRACE] 18:05:44:12 CPU/(3952:3952): --> parser_obtenerPosicionVariable(A);
+[TRACE] 18:05:44:12 CPU/(3952:3952): ----> Return: A: (9,34,4)
+[TRACE] 18:05:44:12 CPU/(3952:3952): --> parser_dereferenciar((9,34,4));
+[TRACE] 18:05:44:99 CPU/(3952:3952): ----> Return: 0
+[TRACE] 18:05:44:100 CPU/(3952:3952): --> parser_asignarValorCompartida(compartida, 1);
+[TRACE] 18:05:44:367 CPU/(3952:3952): ----> return: 1
+[TRACE] 18:05:44:369 CPU/(3952:3952): PID: 3, Error: Variable compartida no encontrada.
+[TRACE] 18:05:44:370 CPU/(3952:3952): ================================
+[TRACE] 18:05:44:371 CPU/(3952:3952): Esperando PCB
+[TRACE] 18:05:44:372 CPU/(3952:3952): ================================
+[ERROR] 18:09:08:96 CPU/(3952:3952): Se desconecto el Nucleo.
+[TRACE] 18:23:48:264 CPU/(5970:5970): UMC Conectada
+[TRACE] 18:23:48:267 CPU/(5970:5970): Nucleo Conectado
+[TRACE] 18:23:48:269 CPU/(5970:5970): Tamanio de pagina: 50
+[TRACE] 18:23:48:270 CPU/(5970:5970): ================================
+[TRACE] 18:23:48:273 CPU/(5970:5970): Esperando PCB
+[TRACE] 18:23:48:275 CPU/(5970:5970): ================================
+[TRACE] 18:23:52:659 CPU/(5970:5970): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:23:52:659 CPU/(5970:5970): obtenerSiguienteInstruccion();
+[TRACE] 18:23:52:703 CPU/(5970:5970): PID: 1; PC: 0; Quantum 1 de 3 -> 'variables a, b'
+[TRACE] 18:23:52:703 CPU/(5970:5970): --> parser_definirVariable(a);
+[TRACE] 18:23:52:703 CPU/(5970:5970): ----> Return: a: (1,15,4)
+[TRACE] 18:23:52:703 CPU/(5970:5970): --> parser_definirVariable(b);
+[TRACE] 18:23:52:703 CPU/(5970:5970): ----> Return: b: (1,19,4)
+[TRACE] 18:23:52:704 CPU/(5970:5970): obtenerSiguienteInstruccion();
+[TRACE] 18:23:52:742 CPU/(5970:5970): PID: 1; PC: 1; Quantum 2 de 3 -> 'a = 3'
+[TRACE] 18:23:52:742 CPU/(5970:5970): --> parser_obtenerPosicionVariable(a);
+[TRACE] 18:23:52:742 CPU/(5970:5970): ----> Return: a: (1,15,4)
+[TRACE] 18:23:52:743 CPU/(5970:5970): --> parser_asignar((1,15,4),3);
+[TRACE] 18:23:52:784 CPU/(5970:5970): obtenerSiguienteInstruccion();
+[TRACE] 18:23:52:812 CPU/(5970:5970): PID: 1; PC: 2; Quantum 3 de 3 -> 'b = 5'
+[TRACE] 18:23:52:812 CPU/(5970:5970): --> parser_obtenerPosicionVariable(b);
+[TRACE] 18:23:52:812 CPU/(5970:5970): ----> Return: b: (1,19,4)
+[TRACE] 18:23:52:812 CPU/(5970:5970): --> parser_asignar((1,19,4),5);
+[TRACE] 18:23:52:836 CPU/(5970:5970): PID: 1, Finalizo el Quantum Normalmente
+[TRACE] 18:23:52:837 CPU/(5970:5970): ================================
+[TRACE] 18:23:52:837 CPU/(5970:5970): Esperando PCB
+[TRACE] 18:23:52:837 CPU/(5970:5970): ================================
+[TRACE] 18:23:55:697 CPU/(5970:5970): Se recibio quantum: 3 ; quantum_sleep: 500
+[TRACE] 18:23:55:697 CPU/(5970:5970): obtenerSiguienteInstruccion();
+[TRACE] 18:23:55:748 CPU/(5970:5970): PID: 1; PC: 3; Quantum 1 de 3 -> 'a = b + 12'
+[TRACE] 18:23:55:748 CPU/(5970:5970): --> parser_obtenerPosicionVariable(b);
+[TRACE] 18:23:55:748 CPU/(5970:5970): ----> Return: b: (1,19,4)
+[TRACE] 18:23:55:748 CPU/(5970:5970): --> parser_dereferenciar((1,19,4));
+[TRACE] 18:23:55:783 CPU/(5970:5970): ----> Return: 5
+[TRACE] 18:23:55:783 CPU/(5970:5970): --> parser_obtenerPosicionVariable(a);
+[TRACE] 18:23:55:783 CPU/(5970:5970): ----> Return: a: (1,15,4)
+[TRACE] 18:23:55:783 CPU/(5970:5970): --> parser_asignar((1,15,4),17);
+[TRACE] 18:23:55:818 CPU/(5970:5970): obtenerSiguienteInstruccion();
+[TRACE] 18:23:55:830 CPU/(5970:5970): PID: 1; PC: 4; Quantum 2 de 3 -> 'end'
+[TRACE] 18:23:55:830 CPU/(5970:5970): --> parser_finalizar();
+[TRACE] 18:23:55:830 CPU/(5970:5970): ----> SP: 0
+[TRACE] 18:23:55:831 CPU/(5970:5970): PID: 1, Finalizo el programa
+[TRACE] 18:23:55:831 CPU/(5970:5970): ================================
+[TRACE] 18:23:55:831 CPU/(5970:5970): Esperando PCB
+[TRACE] 18:23:55:831 CPU/(5970:5970): ================================
+[ERROR] 18:23:56:350 CPU/(5970:5970): Se desconecto el Nucleo.
