@@ -194,6 +194,13 @@ void asignarEspacio(unsigned pid, int lugar, unsigned tamanio){
 	}
 }
 
+void mostrarDisponibilidad(){
+	int i = 0;
+	for(i=0;i<CANTIDAD_PAGINAS;i++){
+		log_trace(logger1,"Pag: %i, Estado: %i",i,bitarray_test_bit(DISP_PAGINAS,i));
+	}
+}
+
 void reservarEspacio(){
 	msj_Reservar_Espacio(received.parametros[0], received.parametros[1]);
 	int lugar = searchSpace(received.parametros[1]);
@@ -209,6 +216,7 @@ void reservarEspacio(){
 		lugar = searchSpace(received.parametros[1]);
 	}
 	asignarEspacio(received.parametros[0],lugar,received.parametros[1]);
+	mostrarDisponibilidad();
 }
 
 void moveProgram(int inicioProg, int inicioEspacioBlanco){

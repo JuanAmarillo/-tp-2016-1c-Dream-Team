@@ -23,6 +23,7 @@
 void readConfigFile(){
 	system("clear");
 	logger = log_create("SWAP.txt", "SWAP", 1, LOG_LEVEL_TRACE);
+	logger1 = log_create("Estado.txt","SWAP",0,LOG_LEVEL_TRACE);
 	config = config_create("config.conf");
 		if (config == NULL) {
 			free(config);
@@ -51,11 +52,19 @@ void crearArchivoSWAP(){
 	free(comandoCreacion);
 }
 
+void limpiar_bitarray(){
+	int i = 0;
+	for(i=0;i<CANTIDAD_PAGINAS;i++){
+		bitarray_clean_bit(DISP_PAGINAS,i);
+	}
+}
+
 void crearEstructurasDeManejo(){
 	int tamanio = (CANTIDAD_PAGINAS/8)+1;
 	char *data = malloc(tamanio);
-	strcpy(data,"\0");
+	memcpy(data,"\0",tamanio);
 	DISP_PAGINAS = bitarray_create(data,tamanio);
+	limpiar_bitarray();
 	INFO_PROG = list_create();
 	bufferPagina = malloc(TAMANIO_PAGINA);
 }
