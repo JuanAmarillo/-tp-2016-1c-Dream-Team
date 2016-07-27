@@ -171,7 +171,22 @@ void bloquear(t_PCB *proceso, const char *dispositivo, unsigned int cantOp)
 	FD_CLR(proceso->pid, &conjunto_procesos_ejecutando);
 	FD_SET(proceso->pid, &conjunto_procesos_bloqueados);
 	proceso->estado = 3;
-//	queue_push(cola_bloqueados, proceso);
+
+
+	//Se bloquea por wait()
+
+	if(dispositivo == NULL)
+	{
+		escribirLog("El proceso %d se bloqueara por razones de sincronizacion\n", proceso->pid);
+		queue_push(cola_bloqueados, proceso);
+		actualizarMaster();
+
+		return;
+	}
+
+	//Se bloquea por E/S
+
+	escribirLog("El proceso %s se bloquara por razones de E/S\n", proceso->pid);
 
 	t_dispositivo *disp = nombre_to_dispositivo(dispositivo);
 

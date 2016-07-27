@@ -1003,32 +1003,90 @@ void administrarConexiones(void)
 								int pid = mensajeCPU.parametros[0];
 								char *nombre = strdup(mensajeCPU.mensaje_extra);
 
-								escribirLog("Se recibio para Wait: ");
-								escribirLog("pid: %d, ", pid);
+								escribirLog("Se recibio solicitud de Wait: ");
+								escribirLog("pid: %d, semáforo: %s\n", pid, nombre);
 
-								nbytes = recibirMensaje(fd_explorer, &mensajeCPU);
-								if(nbytes <= 0)
+								t_semaforo *s = nombre_to_semaforo(nombre);
+
+								t_mensajeHead head = {CPU_WAIT, 1, 1};
+								t_mensaje mensaje;
+								mensaje.head = head;
+								mensaje.parametros = malloc(sizeof(int));
+
+								mensaje.mensaje_extra = malloc(1);
+								mensaje.mensaje_extra[0] = '\0';
+
+								if(s->cuenta <= 0)//Prediccion de que wait va a bloquear el proceso
 								{
-									perror("Error al recibir PCB que solicitó Wait()");
-									abort();
+									mensaje.parametros[0] = 1;//Bloqueado
+
+									if( enviarMensaje(fd_explorer, mensaje) == -1 )
+									{
+										perror("Wait: Error al enviar mensaje de bloqueo por sincronizacion a cpu");
+										abort();
+									}
+
+									nbytes = recibirMensaje(fd_explorer, &mensajeCPU);
+									if(nbytes <= 0)
+									{
+										perror("Error al recibir PCB que solicitó Wait()");
+										abort();
+									}
+
+									if(mensajeCPU.head.codigo == STRUCT_PCB_WAIT)
+									{
+										t_PCB *pcb_wait = malloc(sizeof(t_PCB));
+										*pcb_wait = mensaje_to_pcb(mensajeCPU);
+
+
+										if(pid != pcb_wait->pid)
+										{
+											escribirLog("El pid de la señal de wait y el del pcb recibido no coinciden: %d /= %d --> abortar sistema\n", pid, pcb_wait->pid);
+											perror("Abortado, ver Log");
+											abort();
+										}
+
+										if(existeSemaforo(nombre))
+										{
+											escribirLog("El proceso %d ejecuto wait(%s)\n", pcb_wait->pid, nombre);
+											semaforo_wait(pcb_wait, nombre_to_semaforo(nombre));
+											mostrarSemaforosPorLog();
+										}
+
+										else
+										{
+											escribirLog("El proceso %d solicito wait a un semaforo que no existe: (%s), se abortara el proceso\n", pid, nombre);
+											abortarProceso(pid);
+										}
+
+									}
+
+									else
+									{
+										escribirLog("Luego de una peticion de pcb por prediccion de bloqueo de wait(), se recibió un mensaje que no contiene un pcb (revisar códigos de mensaje): abortar sistema\n");
+										perror("Abortado, ver Log");
+										free(nombre);
+										abort();
+									}
+
+
 								}
 
-								if(mensajeCPU.head.codigo == STRUCT_PCB_WAIT)
+								else//Prediccion de que wait NO va a bloquear el proceso
 								{
-									t_PCB *pcb_wait = malloc(sizeof(t_PCB));
-									*pcb_wait = mensaje_to_pcb(mensajeCPU);
+									mensaje.parametros[0] = 0;//Continuar
 
-									if(pid != pcb_wait->pid)
+									if( enviarMensaje(fd_explorer, mensaje) == -1 )
 									{
-										escribirLog("El pid de la señal de wait y el del pcb recibido no coinciden: %d /= %d --> abortar sistema\n", pid, pcb_wait->pid);
-										perror("Abortado, ver Log");
+										perror("Wait: Error al enviar mensaje de no-bloqueo por sincronizacion a cpu");
 										abort();
 									}
 
 									if(existeSemaforo(nombre))
 									{
-										escribirLog("El proceso %d ejecuto wait(%s)\n");
-										semaforo_wait(pcb_wait, nombre_to_semaforo(nombre));
+										escribirLog("El proceso %d ejecuto wait(%s)\n", pid, nombre);
+										semaforo_wait(NULL, nombre_to_semaforo(nombre));
+										mostrarSemaforosPorLog();
 									}
 
 									else
@@ -1037,17 +1095,13 @@ void administrarConexiones(void)
 										abortarProceso(pid);
 									}
 
-									free(nombre);
-
-									continue;
 								}
 
-								else
-								{
-									escribirLog("Luego de una petición de wait, se recibió un mensaje que no contiene un pcb (revisar códigos de mensaje): abortar sistema\n");
-									perror("Abortado, ver Log");
-									abort();
-								}
+
+								free(nombre);
+
+								free(mensaje.parametros);
+								free(mensaje.mensaje_extra);
 
 								continue;
 							}

@@ -9,6 +9,7 @@
 #define SEMAFOROS_H_
 
 #include "pcb.h"
+#include "archivoLog.h"
 #include <commons/collections/queue.h>
 
 typedef struct
@@ -21,9 +22,12 @@ typedef struct
 t_semaforo *semaforos;
 unsigned int cantidadSemaforos;
 
-void semaforo_wait(t_PCB *proceso, t_semaforo *semaforo);
+int semaforo_wait(t_PCB *proceso, t_semaforo *semaforo);
 void semaforo_signal(t_semaforo *semaforo);
 t_semaforo* nombre_to_semaforo(const char *nombre);
 int existeSemaforo(const char *nombre);
+
+void bloquear(t_PCB *proceso, const char *dispositivo, unsigned int cantOp);
+void ponerListo(t_PCB *proceso);
 
 #endif /* SEMAFOROS_H_ */
