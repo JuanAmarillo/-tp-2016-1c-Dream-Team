@@ -781,6 +781,7 @@ void administrarConexiones(void)
 								actualizarMaster();
 								//Poner a la cpu como libre
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
+								freeMensaje(&mensajeCPU);
 								continue;
 							}
 							if(mensajeCPU.head.codigo == STRUCT_PCB_FIN)//Termino el programa
@@ -798,7 +799,7 @@ void administrarConexiones(void)
 								avisar_Consola_Fin_Programa(laConsola);
 
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
-
+								freeMensaje(&mensajeCPU);
 								continue;
 							}
 
@@ -820,6 +821,8 @@ void administrarConexiones(void)
 
 								FD_SET(fd_explorer, &conjunto_cpus_libres);
 
+								freeMensaje(&mensajeCPU);
+
 								continue;
 							}
 
@@ -831,6 +834,7 @@ void administrarConexiones(void)
 								int laConsola = Pid_to_Consola(pid);
 								escribirLog("Se recibio el numero %d para imprimir\n", imp);
 								imprimir(imp, laConsola);
+								freeMensaje(&mensajeCPU);
 								continue;
 							}
 							if(mensajeCPU.head.codigo == IMPRIMIR_TEXTO)//Quiere imprimir texto
@@ -839,6 +843,7 @@ void administrarConexiones(void)
 								char* imp = strdup(mensajeCPU.mensaje_extra);
 								imprimirTexto(imp, Pid_to_Consola(pid));
 								free(imp);
+								freeMensaje(&mensajeCPU);
 								continue;
 							}
 
@@ -900,6 +905,7 @@ void administrarConexiones(void)
 								freeMensaje(&mensaje);
 								free(nombreVariable);
 								free(nombreSinBang);
+								freeMensaje(&mensajeCPU);
 								continue;
 							}
 
@@ -950,6 +956,7 @@ void administrarConexiones(void)
 								freeMensaje(&mensaje);
 								free(nombre);
 								free(nombreSinBang);
+								freeMensaje(&mensajeCPU);
 								continue;
 							}
 
@@ -981,6 +988,7 @@ void administrarConexiones(void)
 									bloquear(pcb, nombreDispositivo, cantidadOperaciones);
 									actualizarMaster();
 									FD_SET(fd_explorer, &conjunto_cpus_libres);
+									freeMensaje(&mensajeCPU);
 									continue;
 								}
 								else
@@ -989,6 +997,7 @@ void administrarConexiones(void)
 									abort();
 								}
 								free(nombreDispositivo);
+								freeMensaje(&mensajeCPU);
 								continue;
 							}
 
@@ -1097,9 +1106,8 @@ void administrarConexiones(void)
 
 
 								free(nombre);
-
+								freeMensaje(&mensajeCPU);
 								freeMensaje(&mensaje);
-
 								continue;
 							}
 
@@ -1121,6 +1129,7 @@ void administrarConexiones(void)
 								}
 
 								free(nombre);
+								freeMensaje(&mensajeCPU);
 								continue;
 							}
 
