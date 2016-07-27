@@ -188,7 +188,7 @@ void bloquear(t_PCB *proceso, const char *dispositivo, unsigned int cantOp)
 
 	//Se bloquea por E/S
 
-	escribirLog("El proceso %s se bloquara por razones de E/S\n", proceso->pid);
+	escribirLog("El proceso %d se bloquara por razones de E/S\n", proceso->pid);
 
 	t_dispositivo *disp = nombre_to_dispositivo(dispositivo);
 
