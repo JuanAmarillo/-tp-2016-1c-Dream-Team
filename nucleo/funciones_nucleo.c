@@ -962,9 +962,9 @@ void administrarConexiones(void)
 							if(mensajeCPU.head.codigo == ENTRADA_SALIDA)//Pidio I/O: Bloquear y poner en la cola de espera que corresponda
 							{
 								//Sacarle los datos y luego volver a recibir mensaje
-								int pid = mensajeCPU.parametros[0];(void) pid;
-								int cantidadOperaciones = mensajeCPU.parametros[1];(void)cantidadOperaciones;
-								char* nombreDispositivo = strdup(mensajeCPU.mensaje_extra);(void)nombreDispositivo;
+								int pid = mensajeCPU.parametros[0];
+								int cantidadOperaciones = mensajeCPU.parametros[1];
+								char* nombreDispositivo = strdup(mensajeCPU.mensaje_extra);
 
 								escribirLog("Se recibio para I/O: ");
 								escribirLog("pid: %d, ", pid);
@@ -1058,6 +1058,8 @@ void administrarConexiones(void)
 											escribirLog("El proceso %d solicito wait a un semaforo que no existe: (%s), se abortara el proceso\n", pid, nombre);
 											abortarProceso(pid);
 										}
+
+										FD_SET(fd_explorer, &conjunto_cpus_libres);
 
 									}
 
