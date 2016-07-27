@@ -204,12 +204,29 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 	return;
 
 }
+void mostrarTLB()
+{
+	pthread_mutex_lock(&mutexTLB);
+	unsigned index ;
+	t_entradaTLB *entradaTLB;
+	log_trace(loggerTLB,"=======================");
+	log_trace(loggerTLB,"Entradas en TLB:");
+	for(index = 0; index < list_size(TLB) ; index++)
+	{
+		entradaTLB = list_get(TLB,index);
+		log_trace(loggerTLB,"pid:%d \n pagina:%d \n estaEnMemoria:%d \n fueModificado:%d \n marco:%d",entradaTLB->pid,entradaTLB->pagina,entradaTLB->estaEnMemoria,entradaTLB->fueModificado,entradaTLB->marco);
+	}
+	log_trace(loggerTLB,"=======================");
+	pthread_mutex_unlock(&mutexTLB);
+	return;
+}
 
 void borrarEntradasTLBSegun(unsigned pidActivo)
 {
 	pthread_mutex_lock(&mutexTLB);
 	unsigned entrada = 0;
 	t_entradaTLB *entradaTLB;
+	log_trace(loggerTLB,"Se borran las entradas del pid:%d",pidActivo);
 	while(list_size(TLB) != 0)
 	{
 		entradaTLB = list_get(TLB,entrada);
@@ -219,7 +236,7 @@ void borrarEntradasTLBSegun(unsigned pidActivo)
 			entrada++;
 	}
 	pthread_mutex_unlock(&mutexTLB);
-
+	mostrarTLB();
 	return;
 }
 t_tablaDePaginas* buscarTablaSegun(unsigned pidActivo,unsigned *indice)
@@ -659,17 +676,30 @@ void traerPaginaAMemoria(unsigned pagina,t_tablaDePaginas* procesoActivo,int cli
 
 	return;
 }
+void algoritmoLRU(t_entradaTLB *entradaTLB)
+{
+	log_trace(loggerTLB,"Se agrega entrada:\n pid:%d \n pagina:%d \n estaEnMemoria:%d \n fueModificado:%d \n marco:%d",entradaTLB->pid,entradaTLB->pagina,entradaTLB->estaEnMemoria,entradaTLB->fueModificado,entradaTLB->marco);
+	pthread_mutex_lock(&mutexTLB);
+	int tamanioMaximoTLB = infoMemoria.entradasTLB;
+	int tamanioTLB = list_size(TLB);
+	if(tamanioTLB == tamanioMaximoTLB)
+	{
+		list_add_in_index(TLB,0,entradaTLB);
+		list_remove(TLB,tamanioMaximoTLB);
+	}
+	else
+		list_add_in_index(TLB,0,entradaTLB);
+
+	pthread_mutex_unlock(&mutexTLB);
+
+	return;
+}
 
 void actualizarTLB(t_entradaTablaPaginas entradaDePaginas,unsigned pagina,unsigned pidActual)
 {
 	if(infoMemoria.entradasTLB == 0)
 		return;
-
-	pthread_mutex_lock(&mutexTLB);
 	log_trace(logger,"actualizarTLB();");
-
-	int tamanioMaximoTLB = infoMemoria.entradasTLB;
-	int tamanioTLB = list_size(TLB);
 
 	t_entradaTLB *entradaTLB = malloc(sizeof(t_entradaTLB));
 	entradaTLB->pid = pidActual;
@@ -678,19 +708,16 @@ void actualizarTLB(t_entradaTablaPaginas entradaDePaginas,unsigned pagina,unsign
 	entradaTLB->fueModificado = entradaDePaginas.fueModificado;
 	entradaTLB->marco         = entradaDePaginas.marco;
 
-	//LRU
-	if(tamanioTLB == tamanioMaximoTLB)
-		list_replace(TLB,tamanioTLB-1,entradaTLB);
-	else
-		list_add_in_index(TLB,tamanioTLB,entradaTLB);
+	algoritmoLRU(entradaTLB);
+	mostrarTLB();
 
 	log_trace(logger,"Fin ActualizarTLB();");
-	pthread_mutex_unlock(&mutexTLB);
 	return;
 }
 
 int buscarEnTLB(unsigned paginaBuscada,unsigned pidActual)
 {
+	pthread_mutex_lock(&mutexTLB);
 	int indice;
 	int marco;
 	t_entradaTLB *entradaTLB;
@@ -700,13 +727,16 @@ int buscarEnTLB(unsigned paginaBuscada,unsigned pidActual)
 		if(entradaTLB[indice].pid == pidActual && entradaTLB[indice].pagina == paginaBuscada)
 		  {
 			marco = entradaTLB[indice].marco;
-
+			log_trace(loggerTLB,"Se accedio a al indice: %d",indice);
 			//Sacar la entrada y ponerla inicio de la lista
 			list_remove(TLB,indice);
 			list_add_in_index(TLB,0,entradaTLB);
+			pthread_mutex_unlock(&mutexTLB);
+			mostrarTLB();
 			return marco;
 		  }
 	}
+	pthread_mutex_unlock(&mutexTLB);
 	return -1;
 }
 
