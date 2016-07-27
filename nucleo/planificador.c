@@ -154,6 +154,7 @@ void terminar(t_PCB *proceso)
 	proceso->estado = 4;
 	actualizarMaster();
 	escribirLog("Termino el proceso %d\n", proceso->pid);
+	freePCB(proceso);
 	free(proceso);
 }
 

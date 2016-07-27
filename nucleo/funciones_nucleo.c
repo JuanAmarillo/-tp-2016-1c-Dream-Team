@@ -714,7 +714,7 @@ void administrarConexiones(void)
 							char *code = strdup(mensajeConsola.mensaje_extra);
 							string_trim(&code);
 							enviarInfoUMC(pcb->pid, pcb->cantidadPaginas, code);
-
+							free(code);
 							//Verificar que se pudo guardar el programa
 							if(seAlmacenoElProceso())
 							{
@@ -739,6 +739,7 @@ void administrarConexiones(void)
 							}
 
 						}
+						freeMensaje(&mensajeConsola);
 					}
 
 					if(FD_ISSET(fd_explorer, &conj_cpu))//Los datos vienen de una CPU
@@ -968,6 +969,7 @@ void administrarConexiones(void)
 								escribirLog("cantidad de operaciones a realizar: %d, ", cantidadOperaciones);
 								escribirLog("nombre dispositivo: %s\n", nombreDispositivo);
 
+								freeMensaje(&mensajeCPU);
 								nbytes = recibirMensaje(fd_explorer, &mensajeCPU);
 								if(nbytes <= 0)
 								{
@@ -1023,6 +1025,7 @@ void administrarConexiones(void)
 										abort();
 									}
 
+									freeMensaje(&mensajeCPU);
 									nbytes = recibirMensaje(fd_explorer, &mensajeCPU);
 									if(nbytes <= 0)
 									{
@@ -1126,6 +1129,8 @@ void administrarConexiones(void)
 							}
 
 						}
+
+						freeMensaje(&mensajeCPU);
 					}
 
 				}
