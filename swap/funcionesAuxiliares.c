@@ -71,8 +71,13 @@ int searchSpace(unsigned programSize){
 }
 
 void negarEjecucion(){
-	unsigned a = NOT_ENOUGH_SPACE;
-	send(socketCliente,(void*) &a,4,0);
+	t_mensaje mensaje;
+	mensaje.head.codigo =NOT_ENOUGH_SPACE;
+	mensaje.head.tam_extra = 0;
+	mensaje.head.cantidad_parametros = 0;
+	mensaje.parametros = NULL;
+	mensaje.mensaje_extra = NULL;
+	enviarMensaje(socketCliente,mensaje);
 }
 void permitirEjecucion(){
 	t_mensaje mensaje;
