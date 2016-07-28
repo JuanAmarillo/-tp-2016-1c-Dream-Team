@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <signal.h>
 #include "consola.h"
 #include "protocolo_mensaje.h"
 #include "../messageCode/messageCode.h"
@@ -72,7 +73,7 @@ int main(int argc, char** argv) {
 	printf("Codigo AnsiSOP:\n'%s'\n\n", codigo);
 
 	//Me conecto con el nucleo
-	int socketNucleo = crearConexion(infoConfig.ip, infoConfig.puerto);
+	socketNucleo = crearConexion(infoConfig.ip, infoConfig.puerto);
 	if (socketNucleo <= 0) {
 		printf("Error de connect\n");
 		return 0;
@@ -84,6 +85,10 @@ int main(int argc, char** argv) {
 		perror("Error al enviar Programa\n");
 		exit(1);
 	}
+
+	// Asigno una funcion a la señal SIGUSR1
+	signal(SIGUSR1, signal_funcion);
+	signal(SIGINT, signal_funcion);
 
 	free(codigo);
 	free(mensaje.mensaje_extra);
@@ -110,6 +115,10 @@ int main(int argc, char** argv) {
 			case ERROR_PROGRAMA:
 				perror(mensaje_recibido.mensaje_extra);
 				exit(1);
+				break;
+			case RETURN_ABORTAR_CONSOLA:
+				printf("Consola abortada de forma segura. \n");
+				return 0;
 				break;
 			default:
 				printf("Codigo invalido \n");
@@ -166,4 +175,13 @@ t_mensaje codigo_to_mensaje(char* codigo){
 	memcpy(mensaje.mensaje_extra, codigo, tamCod);
 	memset(mensaje.mensaje_extra + tamCod - 1, '\0', 1);
 	return mensaje;
+}
+
+void signal_funcion(int signal){
+  printf("Abortando programa. \n");
+  t_mensaje mensaje;
+  mensaje.head.codigo = ABORTAR_CONSOLA;
+  mensaje.head.cantidad_parametros = 0;
+  mensaje.head.tam_extra = 0;
+  enviarMensaje(socketNucleo, mensaje);
 }

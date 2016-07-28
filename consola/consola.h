@@ -15,6 +15,7 @@ typedef struct{
  * Variables Globales
  */
 t_infoConfig infoConfig;
+int socketNucleo;
 
 
 /*
@@ -24,5 +25,6 @@ t_infoConfig infoConfig;
 int crearConexion(const char *ip, const char *puerto);
 t_mensaje codigo_to_mensaje(char* codigo);
 void leerArchivoConfig();
+void signal_funcion();
 
 #endif
