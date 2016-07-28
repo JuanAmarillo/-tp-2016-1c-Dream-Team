@@ -57,6 +57,15 @@ void finalizarUMC()
 	abort();
 	return;
 }
+void inicializarMarcos()
+{
+	unsigned marco;
+	for(marco=0;marco < infoMemoria.marcos;marco++)
+	{
+		marcoDisponible[marco] = 0;
+	}
+	return;
+}
 void inicializarEstructuras()
 {
 	logger = log_create("UMC_TEST.txt", "UMC", 1, LOG_LEVEL_TRACE);
@@ -70,6 +79,7 @@ void inicializarEstructuras()
 	tablasDePaginas  = list_create();
 
 	marcoDisponible = malloc(infoMemoria.marcos*sizeof(int));
+	inicializarMarcos();
 	paginaVariablesTest = 99999;
 	return;
 }
@@ -819,25 +829,25 @@ void procesosEnTabla()
 		pthread_mutex_unlock(&mutexTablaPaginas);
 		return;
 	}
-	log_trace(logger,"============================");
-	log_trace(logger,"Procesos en Tablas:");
+	log_trace(logger1,"============================");
+	log_trace(logger1,"Procesos en Tablas:");
 	for(proceso= 0; proceso < list_size(tablasDePaginas);proceso++)
 	{
 		tabla = list_get(tablasDePaginas,proceso);
-		log_trace(logger,"--------------------------------");
-		log_trace(logger,"Proceso pid: %d \n paginas:%d \n punteroClock:%d",tabla->pid,tabla->cantidadEntradasTablaPagina,tabla->punteroClock);
-		log_trace(logger,"Paginas:");
+		log_trace(logger1,"--------------------------------");
+		log_trace(logger1,"Proceso PID: %d \n Paginas:%d \n PunteroClock:%d",tabla->pid,tabla->cantidadEntradasTablaPagina,tabla->punteroClock);
+		log_trace(logger1,"Paginas:");
 
 		for(pagina = 0;pagina < tabla->cantidadEntradasTablaPagina;pagina++)
 		{
 			if(tabla->entradaTablaPaginas[pagina].estaEnMemoria == 1)
-				log_trace(logger,"-Pagina:%d -> Marco:%d",pagina,tabla->entradaTablaPaginas[pagina].marco);
+				log_trace(logger1,"-Pagina:%d -> Marco:%d",pagina,tabla->entradaTablaPaginas[pagina].marco);
 			else
-				log_trace(logger,"-Pagina:%d -> Marco:NULL",pagina);
+				log_trace(logger1,"-Pagina:%d -> Marco:NULL",pagina);
 		}
-		log_trace(logger,"--------------------------------");
+		log_trace(logger1,"--------------------------------");
 	}
-	log_trace(logger,"============================");
+	log_trace(logger1,"============================");
 	pthread_mutex_unlock(&mutexTablaPaginas);
 	return;
 }
