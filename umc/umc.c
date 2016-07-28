@@ -147,7 +147,7 @@ void enviarSuficienteEspacio(int clienteUMC, int codigo)
 unsigned enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigned pid,unsigned tamanioCodigo,int clienteUMC)
 {
 	log_trace(logger,"Entro a la funcion enviarCodigoAlSwap");
-	t_mensaje respuesta;
+	t_mensaje respuesta,respuestaSaveProgram;
 
 	pthread_mutex_lock(&mutexClientes);
 	//Reservar espacio en el SWAP
@@ -169,6 +169,7 @@ unsigned enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,uns
 	//Enviar programa al SWAP
 	log_trace(logger,"Hay suficiente espacio, se envia el programa al SWAP");
 	enviarProgramaAlSWAP(pid, paginasSolicitadas, tamanioCodigo, codigoPrograma);
+	recibirMensaje(clienteSWAP,&respuestaSaveProgram);
 	pthread_mutex_unlock(&mutexClientes);
 	enviarSuficienteEspacio(clienteUMC,ALMACENAR_OK);
 	log_trace(logger,"Salio de la funcion enviarCodigoAlSwap");
