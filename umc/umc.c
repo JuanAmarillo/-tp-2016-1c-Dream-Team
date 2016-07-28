@@ -260,6 +260,7 @@ void borrarEntradasTLBSegun(unsigned pidActivo)
 }
 t_tablaDePaginas* buscarTablaSegun(unsigned pidActivo,unsigned *indice)
 {
+	pthread_mutex_lock(&mutexTablaPaginas);
 	t_tablaDePaginas *tablaBuscada = NULL;
 	for(*indice = 0; *indice < list_size(tablasDePaginas); *indice = *indice+1)
 	{
@@ -269,6 +270,9 @@ t_tablaDePaginas* buscarTablaSegun(unsigned pidActivo,unsigned *indice)
 			return tablaBuscada;
 		}
 	}
+	pthread_mutex_unlock(&mutexTablaPaginas);
+	log_trace(logger,"Se aborto un proceso, borrar hilo");
+	pthread_exit(NULL);
 	return tablaBuscada;
 
 }
@@ -557,9 +561,9 @@ int buscarMarcoDisponible()
 
 void actualizarTablaDePaginas(t_tablaDePaginas*procesoActivo)
 {
-	pthread_mutex_lock(&mutexTablaPaginas);
 	unsigned indice;
 	buscarTablaSegun(procesoActivo->pid,&indice);
+	pthread_mutex_lock(&mutexTablaPaginas);
 	list_replace(tablasDePaginas,indice,procesoActivo);
 	pthread_mutex_unlock(&mutexTablaPaginas);
 	return;
@@ -1221,31 +1225,19 @@ int main(){
 
 	return 0;
 }
-
 /*
+
+
    //Pruebas commons
 	t_list *hola = list_create();
+
 	t_tablaDePaginas *tabla = malloc(sizeof(t_tablaDePaginas));
-	t_tablaDePaginas *tabla2 = malloc(sizeof(t_tablaDePaginas));
-	t_tablaDePaginas *tabla3 = malloc(sizeof(t_tablaDePaginas));
 	t_tablaDePaginas *aux;
-	tabla3->entradaTablaPaginas = calloc(2,sizeof(tabla->entradaTablaPaginas));
-	tabla3->pid = 4;
-	tabla2->pid = 3;
 	tabla->pid = 2;
 	list_add(hola,tabla);
-	list_add(hola,tabla2);
-	list_add(hola,tabla3);
-	list_remove(hola,1);
-	//printf("%d",list_size(hola));
-	aux = list_get(hola,0);
-	printf("%d",aux->pid);
-	aux = list_get(hola,1);
-	printf("%d",aux->pid);
-	unsigned cantidad = list_size(hola);
-	printf("%d",aux->pid);
-
-
+	aux = list_remove(hola,0);
+	free(aux);
+	printf("hola");
 
 	return 0;
 
