@@ -83,7 +83,7 @@ t_log* loggerVariables;
 t_log* loggerClock;
 t_memoria infoMemoria;
 t_infoConfig infoConfig;
-int servidorUMC,clienteSWAP;
+int servidorUMC,clienteSWAP,clienteNucleo;
 int paginaVariablesTest;
 struct sockaddr_in direccionServidorUMC;
 struct sockaddr_in direccionServidorSWAP;

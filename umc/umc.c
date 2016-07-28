@@ -50,10 +50,12 @@ struct sockaddr_in setDireccionSWAP()
 }
 void finalizarUMC()
 {
-	log_trace(logger,"Se finaliza el UMC ");
+	log_trace(logger,"Nucleo desconectado se finaliza la UMC ");
 	free(memoriaPrincipal);
 	list_destroy(TLB);
 	list_destroy(tablasDePaginas);
+	abort();
+	return;
 }
 void inicializarEstructuras()
 {
@@ -62,6 +64,7 @@ void inicializarEstructuras()
 	logger1 = log_create("UMC_CONSOLA.txt","UMC",1,LOG_LEVEL_TRACE);
 	loggerTLB  = log_create("UMC_TLB.txt","UMC",0,LOG_LEVEL_TRACE);
 	loggerClock = log_create("UMC_CLOCK.txt","UMC",0,LOG_LEVEL_TRACE);
+	clienteNucleo = 10;
 	memoriaPrincipal = malloc(infoMemoria.marcos * infoMemoria.tamanioDeMarcos);
 	TLB = list_create();
 	tablasDePaginas  = list_create();
@@ -73,11 +76,14 @@ void inicializarEstructuras()
 
 void clienteDesconectado(int clienteUMC)
 {
-
 	pthread_mutex_lock(&mutexClientes);
 	FD_CLR(clienteUMC, &master);
 	pthread_mutex_unlock(&mutexClientes);
 
+	if(clienteUMC == clienteNucleo){
+		close(clienteUMC);
+		finalizarUMC();
+	}
 	close(clienteUMC);
 	pthread_exit(NULL);
 	//pthreadexit fijate!
