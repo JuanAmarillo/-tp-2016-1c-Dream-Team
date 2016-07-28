@@ -726,8 +726,11 @@ void administrarConexiones(void)
 								//Agregar el PCB a Lista Master
 								list_add(lista_master_procesos, pcb);
 
+								t_PCB *new_pcb = malloc(sizeof(t_PCB));
+								*new_pcb = mensaje_to_pcb(pcb_to_mensaje(*pcb, 0));
+
 								//Agregar el PCB a Cola de Listos
-								ponerListo(pcb);
+								ponerListo(new_pcb);
 
 								mostrarListosPorLog();
 							}
