@@ -86,7 +86,9 @@ int main(int argc, char** argv){
 		// LOOP QUANTUM
 		for(i_quantum = 1; i_quantum <= quantum; i_quantum++){
 
-			// Hay mensaje del nucleo ?
+			// Preguntar al nucleo sobre el estado de consola
+			if(consultarSiAborto()) break;
+
 
 			// Obtener siguiente instruccion
 			char *instruccion = obtenerSiguienteIntruccion();
@@ -494,6 +496,34 @@ void notificarCambioProceso(){
 	enviarMensajeUMC(mensaje);
 }
 
+int consultarSiAborto(){
+	log_trace(logger, "consultarSiAborto();");
+	t_mensaje mensaje;
+	unsigned parametros[1];
+	parametros[0] = pcb_global.pid;
+	mensaje.head.codigo = GET_ESTADO;
+	mensaje.head.cantidad_parametros = 1;
+	mensaje.head.tam_extra = 0;
+	mensaje.parametros = parametros;
+	mensaje.mensaje_extra = NULL;
+
+	// Envio al UMC la peticion
+	enviarMensajeUMC(mensaje);
+
+	// Recibo mensaje
+	recibirMensajeNucleo(&mensaje);
+
+	if(mensaje.head.codigo != RETURN_GET_ESTADO){
+		log_error(logger, "Se recibio un mensaje diferente a 'RETURN_GET_ESTADO'");
+		abort();
+	}
+
+	if(mensaje.parametros[0] == 1){
+		estado_ejecucion = 6;
+	}
+
+	return estado_ejecucion;
+}
 
 /*
  * FIN CPU.c

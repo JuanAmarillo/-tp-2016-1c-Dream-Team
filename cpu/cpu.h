@@ -19,7 +19,7 @@ int notificacion_signal_sigusr1 = 0; // Bandera de señal SIGUSR1
 int enEjecucion;
 t_infoConfig infoConfig;
 t_PCB pcb_global;
-int estado_ejecucion; // 0- Todo OK; 1- Fin del Programa ;
+int estado_ejecucion; //
 t_log* logger;
 unsigned tamano_pagina_umc;
 t_config* config;
@@ -43,6 +43,7 @@ unsigned obtenerTamanoPaginasUMC();
 void enviarPCBnucleo(unsigned);
 void recibirQuantum(int *, int *);
 void notificarCambioProceso();
+int consultarSiAborto();
 
 
 #endif /* CPU_H_ */
