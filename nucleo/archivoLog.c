@@ -8,6 +8,8 @@ void crearLog(void)
 
 int escribirLog(const char* format, ...)
 {
+	pthread_mutex_lock(&mutex_log);
+
 	archivoLog = fopen("Archivo de Log.txt", "at");
 
 	va_list arg;
@@ -18,6 +20,8 @@ int escribirLog(const char* format, ...)
 	va_end (arg);
 
 	fclose(archivoLog);
+
+	pthread_mutex_unlock(&mutex_log);
 
 	return done;
 }

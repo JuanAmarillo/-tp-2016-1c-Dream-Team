@@ -11,8 +11,11 @@
 #include <stdarg.h>
 #include <commons/collections/queue.h>
 #include "pcb.h"
+#include <pthread.h>
 
 FILE *archivoLog;
+
+pthread_mutex_t mutex_log;
 
 void crearLog(void);//Sirve para crear el archivo y en caso de que ya exista vaciarlo para eliminar el log anterior
 int escribirLog(const char*, ...);//Es como printf pero escribe sobre el archivo de log en lugar de stdout
