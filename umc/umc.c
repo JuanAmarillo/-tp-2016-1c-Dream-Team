@@ -4,7 +4,7 @@
 
 void leerArchivoConfig()
 {
-
+	system("clear");
 	t_config *config = config_create("config.conf");
 
 	if (config == NULL) {
@@ -50,10 +50,12 @@ struct sockaddr_in setDireccionSWAP()
 }
 void finalizarUMC()
 {
-	log_trace(logger,"Se finaliza el UMC ");
+	log_trace(logger,"Nucleo desconectado se finaliza la UMC ");
 	free(memoriaPrincipal);
 	list_destroy(TLB);
 	list_destroy(tablasDePaginas);
+	abort();
+	return;
 }
 void inicializarEstructuras()
 {
@@ -62,6 +64,7 @@ void inicializarEstructuras()
 	logger1 = log_create("UMC_CONSOLA.txt","UMC",1,LOG_LEVEL_TRACE);
 	loggerTLB  = log_create("UMC_TLB.txt","UMC",0,LOG_LEVEL_TRACE);
 	loggerClock = log_create("UMC_CLOCK.txt","UMC",0,LOG_LEVEL_TRACE);
+	clienteNucleo = 10;
 	memoriaPrincipal = malloc(infoMemoria.marcos * infoMemoria.tamanioDeMarcos);
 	TLB = list_create();
 	tablasDePaginas  = list_create();
@@ -73,11 +76,14 @@ void inicializarEstructuras()
 
 void clienteDesconectado(int clienteUMC)
 {
-
 	pthread_mutex_lock(&mutexClientes);
 	FD_CLR(clienteUMC, &master);
 	pthread_mutex_unlock(&mutexClientes);
 
+	if(clienteUMC == clienteNucleo){
+		close(clienteUMC);
+		finalizarUMC();
+	}
 	close(clienteUMC);
 	pthread_exit(NULL);
 	//pthreadexit fijate!
@@ -141,7 +147,7 @@ void enviarSuficienteEspacio(int clienteUMC, int codigo)
 unsigned enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,unsigned pid,unsigned tamanioCodigo,int clienteUMC)
 {
 	log_trace(logger,"Entro a la funcion enviarCodigoAlSwap");
-	t_mensaje respuesta;
+	t_mensaje respuesta,respuestaSaveProgram;
 
 	pthread_mutex_lock(&mutexClientes);
 	//Reservar espacio en el SWAP
@@ -163,6 +169,7 @@ unsigned enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,uns
 	//Enviar programa al SWAP
 	log_trace(logger,"Hay suficiente espacio, se envia el programa al SWAP");
 	enviarProgramaAlSWAP(pid, paginasSolicitadas, tamanioCodigo, codigoPrograma);
+	recibirMensaje(clienteSWAP,&respuestaSaveProgram);
 	pthread_mutex_unlock(&mutexClientes);
 	enviarSuficienteEspacio(clienteUMC,ALMACENAR_OK);
 	log_trace(logger,"Salio de la funcion enviarCodigoAlSwap");
@@ -234,6 +241,13 @@ void borrarEntradasTLBSegun(unsigned pidActivo)
 	log_trace(loggerTLB,"Se borran las entradas del pid:%d",pidActivo);
 	while(list_size(TLB) != 0)
 	{
+		if(entrada == list_size(TLB))
+		{
+			pthread_mutex_unlock(&mutexTLB);
+			mostrarTLB();
+			return;
+		}
+
 		entradaTLB = list_get(TLB,entrada);
 		if(entradaTLB->pid == pidActivo)
 			list_remove(TLB,entrada);
@@ -246,15 +260,20 @@ void borrarEntradasTLBSegun(unsigned pidActivo)
 }
 t_tablaDePaginas* buscarTablaSegun(unsigned pidActivo,unsigned *indice)
 {
+	pthread_mutex_lock(&mutexTablaPaginas);
 	t_tablaDePaginas *tablaBuscada = NULL;
 	for(*indice = 0; *indice < list_size(tablasDePaginas); *indice = *indice+1)
 	{
 		tablaBuscada = list_get(tablasDePaginas,*indice);
 		if(tablaBuscada->pid==pidActivo)
 		{
+			pthread_mutex_unlock(&mutexTablaPaginas);
 			return tablaBuscada;
 		}
 	}
+	pthread_mutex_unlock(&mutexTablaPaginas);
+	log_trace(logger,"Se aborto un proceso, borrar hilo");
+	pthread_exit(NULL);
 	return tablaBuscada;
 
 }
@@ -307,20 +326,12 @@ void eliminarDeMemoria(unsigned pid)
 	t_tablaDePaginas *buscador;
 	int index;
 
-	//tabla de paginas
-
+	buscador = buscarTablaSegun(pid,&index);
 	pthread_mutex_lock(&mutexTablaPaginas);
-	for(index=0;index < list_size(tablasDePaginas); index++ )
-	{
-		buscador = list_get(tablasDePaginas,index);
-		liberarMarcos(buscador);
-		if(buscador->pid == pid)
-		{
-			list_remove(tablasDePaginas,index);
-			pthread_mutex_unlock(&mutexTablaPaginas);
-			return;
-		}
-	}
+	liberarMarcos(buscador);
+	list_remove(tablasDePaginas,index);
+	pthread_mutex_unlock(&mutexTablaPaginas);
+
 	return;
 }
 
@@ -543,9 +554,9 @@ int buscarMarcoDisponible()
 
 void actualizarTablaDePaginas(t_tablaDePaginas*procesoActivo)
 {
-	pthread_mutex_lock(&mutexTablaPaginas);
 	unsigned indice;
 	buscarTablaSegun(procesoActivo->pid,&indice);
+	pthread_mutex_lock(&mutexTablaPaginas);
 	list_replace(tablasDePaginas,indice,procesoActivo);
 	pthread_mutex_unlock(&mutexTablaPaginas);
 	return;
@@ -668,11 +679,13 @@ void traerPaginaAMemoria(unsigned pagina,t_tablaDePaginas* procesoActivo,int cli
 	t_mensaje aRecibir;
 
 	//Pedimos pagina al SWAP
+	pthread_mutex_lock(&mutexClientes);
 	log_trace(logger,"pedimos la pagina:%d con pid:%d al SWAP",pagina,procesoActivo->pid);
 	pedirPagAlSWAP(pagina,procesoActivo->pid);
 
 	//Recibimos pagina del SWAP
 	recibirMensaje(clienteSWAP, &aRecibir);
+	pthread_mutex_unlock(&mutexClientes);
 	log_trace(logger,"Codigo recibido: %u", aRecibir.head.codigo);
 	log_trace(logger,"Mensaje_extra  :\n %s",aRecibir.mensaje_extra);
 	log_trace(logger,"Mensaje_extra_tam:%d",aRecibir.head.tam_extra);
@@ -1207,31 +1220,19 @@ int main(){
 
 	return 0;
 }
-
 /*
+
+
    //Pruebas commons
 	t_list *hola = list_create();
+
 	t_tablaDePaginas *tabla = malloc(sizeof(t_tablaDePaginas));
-	t_tablaDePaginas *tabla2 = malloc(sizeof(t_tablaDePaginas));
-	t_tablaDePaginas *tabla3 = malloc(sizeof(t_tablaDePaginas));
 	t_tablaDePaginas *aux;
-	tabla3->entradaTablaPaginas = calloc(2,sizeof(tabla->entradaTablaPaginas));
-	tabla3->pid = 4;
-	tabla2->pid = 3;
 	tabla->pid = 2;
 	list_add(hola,tabla);
-	list_add(hola,tabla2);
-	list_add(hola,tabla3);
-	list_remove(hola,1);
-	//printf("%d",list_size(hola));
-	aux = list_get(hola,0);
-	printf("%d",aux->pid);
-	aux = list_get(hola,1);
-	printf("%d",aux->pid);
-	unsigned cantidad = list_size(hola);
-	printf("%d",aux->pid);
-
-
+	aux = list_remove(hola,0);
+	free(aux);
+	printf("hola");
 
 	return 0;
 

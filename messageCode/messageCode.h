@@ -39,6 +39,7 @@
 #define SIGNAL 717
 #define STRUCT_PCB_IO 718
 #define STRUCT_PCB_WAIT 719
+#define STRUCT_PCB_ABORT_CONSOLA 722
 
 // NUCLEO -> CPU
 #define RETURN_OBTENER_COMPARTIDA 303
@@ -66,4 +67,5 @@
 // DESDE EL SWAP, LO QUE RECIBE LA UMC
 #define SWAP_SENDS_PAGE 930		// Parametros recibidos despues de la cabecera: pagina(char[TAMANIO_PAGINA])
 #define ENOUGH_SPACE 955		  // Parametros recibidos despues de la cabecera: pid(unsigned)
+#define FIN_SAVE_PROGRAM 965		// Parametros recibidos depues de la cabecera = int pid
 #endif /* MESSAGECODE_H_ */

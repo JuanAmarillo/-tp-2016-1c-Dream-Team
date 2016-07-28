@@ -59,6 +59,7 @@ void unSetPage(unsigned);
 void getPage(unsigned);
 void savePage(unsigned);
 int recibirCabecera();
+void enviarMensajeFinSaveProgram(int pid);
 void saveProgram();
 void returnPage();
 void endProgram();

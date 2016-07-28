@@ -46,8 +46,10 @@ int main(int argc, char** argv){
 	tamano_pagina_umc = obtenerTamanoPaginasUMC();
 
 	while(1){
+		// Sin ejecutar
+		enEjecucion = 0;
 
-
+		//
 		log_trace(logger, "================================");
 		log_trace(logger, "Esperando PCB");
 		log_trace(logger, "================================");
@@ -59,6 +61,9 @@ int main(int argc, char** argv){
 
 		// Recibo el PCB
 		recibirMensajeNucleo(&mensaje_recibido);
+
+		// Ejecucion = 1
+		enEjecucion = 1;
 
 		// Si no es el PCB, borro el mensaje
 		if(mensaje_recibido.head.codigo != STRUCT_PCB){
@@ -81,6 +86,8 @@ int main(int argc, char** argv){
 		// LOOP QUANTUM
 		for(i_quantum = 1; i_quantum <= quantum; i_quantum++){
 
+			// Hay mensaje del nucleo ?
+
 			// Obtener siguiente instruccion
 			char *instruccion = obtenerSiguienteIntruccion();
 
@@ -97,7 +104,6 @@ int main(int argc, char** argv){
 
 			// Sleep
 			usleep(quantum_sleep);
-			//getchar();
 
 			// Realizo acciones segun el estado de ejecucion
 			if((estado_ejecucion != 0) || (notificacion_signal_sigusr1 == 1)) break;
@@ -128,6 +134,10 @@ int main(int argc, char** argv){
 		      case 5:
 		    	  log_trace(logger, "PID: %u, Error: Variable compartida no encontrada.", pcb_global.pid);
 		    	  enviarPCBnucleo(STRUCT_PCB_WAIT);
+		    	break;
+		      case 6:
+		    	  log_trace(logger, "PID: %u, Abortado por Consola.", pcb_global.pid);
+		    	  enviarPCBnucleo(STRUCT_PCB_ABORT_CONSOLA);
 		    	break;
 		      default: // Otro error
 		    	break;
@@ -311,6 +321,10 @@ int crearConexion(const char *ip, const char *puerto) {
  */
 void signal_sigusr1(int signal){
   log_trace(logger, "signal_sigusr1();");
+  if(enEjecucion == 0){
+	close(socketUMC);
+	close(socketNucleo);
+  }
   notificacion_signal_sigusr1 = 1;
 }
 
@@ -1108,10 +1122,11 @@ void parser_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 	if(estado_ejecucion) return;
 	// Variables
 	t_mensaje mensaje;
-	unsigned parametros[1];
-	parametros[0] = tiempo;
+	unsigned parametros[2];
+	parametros[0] = pcb_global.pid;
+	parametros[1] = tiempo;
 	mensaje.head.codigo = ENTRADA_SALIDA;
-	mensaje.head.cantidad_parametros = 1;
+	mensaje.head.cantidad_parametros = 2;
 	mensaje.head.tam_extra = strlen(dispositivo) + 1;
 	mensaje.parametros = parametros;
 	mensaje.mensaje_extra = dispositivo;

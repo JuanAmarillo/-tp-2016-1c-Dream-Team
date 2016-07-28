@@ -71,6 +71,17 @@ int funcionamientoSWAP() {
 		return a;
 	}
 
+void enviarMensajeFinSaveProgram(int pid){
+	t_mensaje mensaje;
+	mensaje.head.codigo = FIN_SAVE_PROGRAM;
+	mensaje.head.cantidad_parametros = 0;
+	mensaje.head.tam_extra = 0;
+	mensaje.parametros = NULL;
+	mensaje.mensaje_extra = NULL;
+	enviarMensaje(socketCliente,mensaje);
+	log_trace(logger,"Se le aviso al UMC del fin de save");
+}
+
 void setNewPage(unsigned nroPag){
 	bitarray_set_bit(DISP_PAGINAS, nroPag);
 	msj_Set_Page(nroPag);
@@ -116,6 +127,7 @@ void saveProgram(){
 		savePage(pagInicial+cantidadGuardada);
 		cantidadGuardada++;
 	}
+	enviarMensajeFinSaveProgram(received.parametros[0]);
 	msj_Save_Program(received.parametros[0],pagInicial,espacio);
 }
 
