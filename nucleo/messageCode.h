@@ -5,16 +5,18 @@
  *      Author: utnso
  */
 
-#ifndef NUCLEO_13_MESSAGECODE_H_
-#define NUCLEO_13_MESSAGECODE_H_
+#ifndef MESSAGECODE_H_
+#define MESSAGECODE_H_
 
 //CONSOLA -> NUCLEO
 #define NUEVO_PROGRAMA 100
+#define ABORTAR_CONSOLA 005
 //NUCLEO -> CONSOLA
 #define IMPRIMIR_PROGRAMA 101
 #define IMPRIMIR_TEXTO_PROGRAMA 102
 #define EXIT_PROGRAMA 103
 #define ERROR_PROGRAMA 104
+#define RETURN_ABORTAR_CONSOLA 006
 
 // CPU -> UMC
 #define GET_TAM_PAGINA 700
@@ -23,10 +25,8 @@
 #define RECORD_DATA 703
 
 // UMC -> CPU
-#define RETURN_DATA 704
 #define RETURN_TAM_PAGINA 705
-#define RETURN_POS 706
-#define RETURN_RECORD_DATA 707
+#define RETURN_OK 707
 
 // NUCLEO <- CPU
 #define STRUCT_PCB 708
@@ -41,12 +41,15 @@
 #define SIGNAL 717
 #define STRUCT_PCB_IO 718
 #define STRUCT_PCB_WAIT 719
+#define STRUCT_PCB_ABORT_CONSOLA 722
+#define GET_ESTADO 723
 
 // NUCLEO -> CPU
 #define RETURN_OBTENER_COMPARTIDA 303
 #define QUANTUM 304
 #define CPU_WAIT 720
 #define RETURN_ASIGNAR_COMPARTIDA 721
+#define RETURN_GET_ESTADO 724
 
 //NUCLEO -> UMC
 #define INIT_PROG 300
@@ -68,4 +71,5 @@
 // DESDE EL SWAP, LO QUE RECIBE LA UMC
 #define SWAP_SENDS_PAGE 930		// Parametros recibidos despues de la cabecera: pagina(char[TAMANIO_PAGINA])
 #define ENOUGH_SPACE 955		  // Parametros recibidos despues de la cabecera: pid(unsigned)
-#endif /* NUCLEO_13_MESSAGECODE_H_ */
+#define FIN_SAVE_PROGRAM 965		// Parametros recibidos depues de la cabecera = int pid
+#endif /* MESSAGECODE_H_ */

@@ -705,55 +705,63 @@ void administrarConexiones(void)
 						}
 						else//No hubo error ni desconexion
 						{
-							escribirLog("Se ha recibido un programa de una Consola (fd[%d])\n", fd_explorer);
-
-							//Crear PCB
-							t_PCB *pcb = malloc(sizeof(t_PCB));
-							escribirLog("-------------------\n");
-							escribirLog("Tamaño recibido: %d\n", nbytes);
-							escribirLog("-------------------\n");
-
-							*pcb = crearPCB(mensajeConsola, ++max_proceso, tamPaginas);
-
-							escribirLog("--------------------------------\n");
-							escribirLog("Se creo el PCB de pid:%d\n", pcb->pid);
-							escribirLog("Cantidad de paginas que ocupa:%d\n", pcb->cantidadPaginas);
-							escribirLog("--------------------------------\n");
-
-							//Asociar el pcb a su consola
-							asociarPidConsola(pcb->pid, fd_explorer);
-							//Mostrar lista de pares por log
-							mostrarParesPorLog();
-
-
-							//Enviar a UMC: PID, Cant Paginas, codigo
-							char *code = strdup(mensajeConsola.mensaje_extra);
-							string_trim(&code);
-							enviarInfoUMC(pcb->pid, pcb->cantidadPaginas, code);
-							free(code);
-							//Verificar que se pudo guardar el programa
-							if(seAlmacenoElProceso())
+							if(mensajeConsola.head.codigo == NUEVO_PROGRAMA)
 							{
-								escribirLog("Se almaceno correctamente el proceso %d\n", pcb->pid);
+								escribirLog("Se ha recibido un programa de una Consola (fd[%d])\n", fd_explorer);
 
-								//Agregar el PCB a Lista Master
-								list_add(lista_master_procesos, pcb);
+								//Crear PCB
+								t_PCB *pcb = malloc(sizeof(t_PCB));
+								escribirLog("-------------------\n");
+								escribirLog("Tamaño recibido: %d\n", nbytes);
+								escribirLog("-------------------\n");
 
-								t_PCB *new_pcb = malloc(sizeof(t_PCB));
-								*new_pcb = mensaje_to_pcb(pcb_to_mensaje(*pcb, 0));
+								*pcb = crearPCB(mensajeConsola, ++max_proceso, tamPaginas);
 
-								//Agregar el PCB a Cola de Listos
-								ponerListo(new_pcb);
+								escribirLog("--------------------------------\n");
+								escribirLog("Se creo el PCB de pid:%d\n", pcb->pid);
+								escribirLog("Cantidad de paginas que ocupa:%d\n", pcb->cantidadPaginas);
+								escribirLog("--------------------------------\n");
 
-								mostrarListosPorLog();
+								//Asociar el pcb a su consola
+								asociarPidConsola(pcb->pid, fd_explorer);
+								//Mostrar lista de pares por log
+								mostrarParesPorLog();
+
+
+								//Enviar a UMC: PID, Cant Paginas, codigo
+								char *code = strdup(mensajeConsola.mensaje_extra);
+								string_trim(&code);
+								enviarInfoUMC(pcb->pid, pcb->cantidadPaginas, code);
+								free(code);
+								//Verificar que se pudo guardar el programa
+								if(seAlmacenoElProceso())
+								{
+									escribirLog("Se almaceno correctamente el proceso %d\n", pcb->pid);
+
+									//Agregar el PCB a Lista Master
+									list_add(lista_master_procesos, pcb);
+
+									t_PCB *new_pcb = malloc(sizeof(t_PCB));
+									*new_pcb = mensaje_to_pcb(pcb_to_mensaje(*pcb, 0));
+
+									//Agregar el PCB a Cola de Listos
+									ponerListo(new_pcb);
+
+									mostrarListosPorLog();
+								}
+								else
+								{
+									//freePCB(pcb); Revisar, da violacion de segmento
+									escribirLog("La umc no pudo almacenar el proceso, se abortara el mismo\n");
+									avisar_Consola_ProgramaNoAlmacenado(fd_explorer);
+								}
+								//	freeMensaje(&mensajeConsola);
 							}
-							else
+
+							if(ABORTAR_CONSOLA)
 							{
-								//freePCB(pcb); Revisar, da violacion de segmento
-								escribirLog("La umc no pudo almacenar el proceso, se abortara el mismo\n");
-								avisar_Consola_ProgramaNoAlmacenado(fd_explorer);
+
 							}
-						//	freeMensaje(&mensajeConsola);
 						}
 
 						continue;
@@ -1170,7 +1178,7 @@ void administrarConexiones(void)
 void* llamar_RoundRobin(void *data)
 {
 	unsigned short int quantum = (unsigned short int) atoi(infoConfig.quantum);
-	unsigned int quantumSleep = (unsigned short int) atoi(infoConfig.quantum_sleep);
+	unsigned int quantumSleep = (unsigned int) atoi(infoConfig.quantum_sleep);
 	roundRobin(quantum, quantumSleep, cola_listos, cola_bloqueados, NULL);
 	return NULL;
 }
