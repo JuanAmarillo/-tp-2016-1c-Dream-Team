@@ -5,8 +5,8 @@
  *      Author: utnso
  */
 
-#ifndef MESSAGECODE_H_
-#define MESSAGECODE_H_
+#ifndef NUCLEO_13_MESSAGECODE_H_
+#define NUCLEO_13_MESSAGECODE_H_
 
 //CONSOLA -> NUCLEO
 #define NUEVO_PROGRAMA 100
@@ -68,4 +68,4 @@
 // DESDE EL SWAP, LO QUE RECIBE LA UMC
 #define SWAP_SENDS_PAGE 930		// Parametros recibidos despues de la cabecera: pagina(char[TAMANIO_PAGINA])
 #define ENOUGH_SPACE 955		  // Parametros recibidos despues de la cabecera: pid(unsigned)
-#endif /* MESSAGECODE_H_ */
+#endif /* NUCLEO_13_MESSAGECODE_H_ */

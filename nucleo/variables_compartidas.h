@@ -5,8 +5,8 @@
  *      Author: utnso
  */
 
-#ifndef VARIABLES_COMPARTIDAS_H_
-#define VARIABLES_COMPARTIDAS_H_
+#ifndef NUCLEO_13_VARIABLES_COMPARTIDAS_H_
+#define NUCLEO_13_VARIABLES_COMPARTIDAS_H_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,4 +26,4 @@ int obtenerValorCompartida(const char *nombreVariable);
 int existeVariable(const char *nombreVariable);
 void asignarCompartida(const char *nombre, int nuevoValor);
 
-#endif /* VARIABLES_COMPARTIDAS_H_ */
+#endif /* NUCLEO_13_VARIABLES_COMPARTIDAS_H_ */

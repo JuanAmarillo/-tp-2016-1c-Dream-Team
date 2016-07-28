@@ -1,5 +1,5 @@
-#ifndef INTERFAZ_H_
-#define INTERFAZ_H_
+#ifndef NUCLEO_13_INTERFAZ_H_
+#define NUCLEO_13_INTERFAZ_H_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,4 +19,4 @@ void mostrarCompartidas(void);
 
 int cantidadDispositivos(void);
 
-#endif /* INTERFAZ_H_ */
+#endif /* NUCLEO_13_INTERFAZ_H_ */

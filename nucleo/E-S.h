@@ -5,8 +5,8 @@
  *      Author: utnso
  */
 
-#ifndef E_S_H_
-#define E_S_H_
+#ifndef NUCLEO_13_E_S_H_
+#define NUCLEO_13_E_S_H_
 
 #include "pcb.h"
 #include "conjuntos_procesos.h"
@@ -32,4 +32,4 @@ void* llamar_planificarDispositivo(void *data);
 
 void ponerListo(t_PCB *proceso);
 
-#endif /* E_S_H_ */
+#endif /* NUCLEO_13_E_S_H_ */

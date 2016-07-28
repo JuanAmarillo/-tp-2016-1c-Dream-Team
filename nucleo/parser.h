@@ -14,8 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PARSER_H_
-#define PARSER_H_
+#ifndef NUCLEO_13_PARSER_H_
+#define NUCLEO_13_PARSER_H_
 
 	#include "sintax.h"
 

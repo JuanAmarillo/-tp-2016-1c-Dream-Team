@@ -4,7 +4,7 @@ int imprimir_i = 1, vuelta = 0;
 void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_queue *listos, t_queue *bloqueados, t_queue *salida)
 {
 	t_PCB *proceso;
-	int cpu_explorer;
+	int cpu;
 	if(imprimir_i)
 	{
 		escribirLog("---------------------------\n");
@@ -20,38 +20,36 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 		//espera activa a que haya un primer proceso listo
 		esperaPorProcesos(listos);
 
-		//Espera activa por una CPU
-		for(cpu_explorer = 3; cpu_explorer <= max_cpu; ++cpu_explorer)
-		{
-			escribirLog("--------------------------------\n");
-			escribirLog("Se analiza fd[%d] -->", cpu_explorer);
-			if(estaLibre(cpu_explorer))
-			{
-				escribirLog("CPU Libre\n");
-				escribirLog("--------------------------------\n");
-				//Extraer proceso de la cola de listos
-				proceso = queue_pop(listos);
-				//Borrar del conjunto de procesos listos
-				FD_CLR(proceso->pid, &conjunto_procesos_listos);
-				//Colocar proceso en la lista Ejecutando
-				FD_SET(proceso->pid, &conjunto_procesos_ejecutando);
-				//Poner en estado ejecutando;
-				proceso->estado = 1;
-				//Establecer que la cpu ya no está libre
-				FD_CLR(cpu_explorer, &conjunto_cpus_libres);
-				//Ejecutar proceso
-				ejecutar(*proceso, quantum, quantumSleep, cpu_explorer);
+		//espera activa a que haya una cpu disponible
+		esperaPorCPUs();
 
-				break;
-			}
-			else
-			{
-				escribirLog("Nada\n");
-				escribirLog("--------------------------------\n");
-			}
-		}
-		escribirLog("vuelta: %d\n", ++vuelta);
-		sleep(3);
+		//tomar la primer cpu de la cola
+		int *data;
+		data = queue_pop(cola_cpus_disponibles);
+
+		cpu = *data;
+
+		free(data);
+
+		escribirLog("CPU fd[%d] Libre--->Ejecutar\n", cpu);
+
+		//Extraer proceso de la cola de listos
+		proceso = queue_pop(listos);
+
+		//Borrar del conjunto de procesos listos
+		FD_CLR(proceso->pid, &conjunto_procesos_listos);
+
+		//Colocar proceso en la lista Ejecutando
+		FD_SET(proceso->pid, &conjunto_procesos_ejecutando);
+
+		//Poner en estado ejecutando;
+		proceso->estado = 1;
+
+		//Ejecutar proceso
+		ejecutar(*proceso, quantum, quantumSleep, cpu);
+
+		sleep(2);
+
 	}
 
 	unsigned int i, nDisp = cantidadDispositivos();
@@ -66,6 +64,15 @@ void esperaPorProcesos(t_queue* cola)
 	//Espera activa
 	while(queue_is_empty(cola));
 }
+
+void esperaPorCPUs(void)
+{
+	//Si no hay cpus, informar
+	if(queue_is_empty(cola_cpus_disponibles)) escribirLog("Esperando por cpus...\n");
+	//Espera activa
+	while(queue_is_empty(cola_cpus_disponibles));
+}
+
 
 void ejecutar(t_PCB proceso, unsigned short int quantum, unsigned int qSleep, int cpu)
 {
@@ -83,6 +90,53 @@ void ejecutar(t_PCB proceso, unsigned short int quantum, unsigned int qSleep, in
 	escribirLog("Quantum:%d\n", quantum);
 	escribirLog("Quantum Sleep:%d\n", qSleep);
 	escribirLog("-----------------------------------------\n");
+}
+
+void habilitarCPU(int cpu)
+{
+	int *data = malloc(sizeof(int));
+	*data = cpu;
+	queue_push(cola_cpus_disponibles, data);
+}
+
+void eliminar_Int_de_Lista(int x, t_list *lista)
+{
+	if(lista->head == NULL) return;
+
+	t_link_element *aux, *auxAnt;
+
+	if( *((int*)(lista->head->data)) == x)
+	{
+		aux = lista->head;
+
+		lista->head = NULL;
+		lista->elements_count--;
+
+		free(aux);
+
+		return;
+	}
+
+	for(auxAnt = lista->head, aux = auxAnt->next; aux; aux = aux->next, auxAnt = auxAnt->next)
+	{
+		if( *((int*)(aux->data)) == x)
+		{
+			auxAnt->next = aux->next;
+			free(aux);
+		}
+	}
+
+
+}
+
+void eliminar_CPU_de_Cola(int cpu, t_queue *cola)
+{
+	eliminar_Int_de_Lista(cpu, cola_cpus_disponibles->elements);
+}
+
+void deshabilitarCPU(int cpu)
+{
+	eliminar_CPU_de_Cola(cpu, cola_cpus_disponibles);
 }
 
 t_mensaje quantum_to_mensaje(unsigned short int quantum, unsigned int qSleep)

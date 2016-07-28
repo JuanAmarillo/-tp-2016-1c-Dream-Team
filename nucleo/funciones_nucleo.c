@@ -555,6 +555,7 @@ void inicializarListas(void)
 	cola_bloqueados = queue_create();
 	cola_listos = queue_create();
 	lista_Pares = list_create();
+	cola_cpus_disponibles = queue_create();
 
 	vector_dispositivos = malloc(cantidadDispositivos() * sizeof(t_dispositivo));
 	int i;
@@ -649,7 +650,7 @@ void administrarConexiones(void)
 					{
 						FD_SET(fd_new, &conj_master);
 						FD_SET(fd_new, &conj_cpu);
-						FD_SET(fd_new, &conjunto_cpus_libres);
+						habilitarCPU(fd_new);
 						escribirLog("Se acaba de aceptar una conexion de una nueva CPU (fd[%d])\n", fd_new);
 						if(fd_new > max_cpu) max_cpu = fd_new;
 						if(fd_new > maxfd) maxfd = fd_new;
@@ -734,8 +735,10 @@ void administrarConexiones(void)
 								escribirLog("La umc no pudo almacenar el proceso, se abortara el mismo\n");
 								avisar_Consola_ProgramaNoAlmacenado(fd_explorer);
 							}
-							freeMensaje(&mensajeConsola);
+						//	freeMensaje(&mensajeConsola);
 						}
+
+						continue;
 					}
 
 					if(FD_ISSET(fd_explorer, &conj_cpu))//Los datos vienen de una CPU
@@ -758,7 +761,7 @@ void administrarConexiones(void)
 							{
 								FD_CLR(fd_explorer, &conj_master);
 								FD_CLR(fd_explorer, &conj_cpu);
-								FD_CLR(fd_explorer, &conjunto_cpus_libres);
+								deshabilitarCPU(fd_explorer);
 								close(fd_explorer);
 								escribirLog("Se ha desconectado una cpu (fd[%d])\n", fd_explorer);
 							}
@@ -780,7 +783,7 @@ void administrarConexiones(void)
 								FD_CLR(pcb->pid, &conjunto_procesos_ejecutando);
 								actualizarMaster();
 								//Poner a la cpu como libre
-								FD_SET(fd_explorer, &conjunto_cpus_libres);
+								habilitarCPU(fd_explorer);
 								freeMensaje(&mensajeCPU);
 								continue;
 							}
@@ -798,7 +801,7 @@ void administrarConexiones(void)
 
 								avisar_Consola_Fin_Programa(laConsola);
 
-								FD_SET(fd_explorer, &conjunto_cpus_libres);
+								habilitarCPU(fd_explorer);
 								freeMensaje(&mensajeCPU);
 								continue;
 							}
@@ -819,7 +822,7 @@ void administrarConexiones(void)
 
 								avisar_Consola_Fin_Programa(laConsola);
 
-								FD_SET(fd_explorer, &conjunto_cpus_libres);
+								habilitarCPU(fd_explorer);
 
 								freeMensaje(&mensajeCPU);
 
@@ -987,7 +990,7 @@ void administrarConexiones(void)
 
 									bloquear(pcb, nombreDispositivo, cantidadOperaciones);
 									actualizarMaster();
-									FD_SET(fd_explorer, &conjunto_cpus_libres);
+									habilitarCPU(fd_explorer);
 									freeMensaje(&mensajeCPU);
 									continue;
 								}
@@ -1064,7 +1067,7 @@ void administrarConexiones(void)
 											abortarProceso(pid);
 										}
 
-										FD_SET(fd_explorer, &conjunto_cpus_libres);
+										habilitarCPU(fd_explorer);
 
 									}
 

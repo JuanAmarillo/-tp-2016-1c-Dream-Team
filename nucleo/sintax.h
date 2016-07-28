@@ -14,8 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SINTAX_H_
-#define SINTAX_H_
+#ifndef NUCLEO_13_SINTAX_H_
+#define NUCLEO_13_SINTAX_H_
 
 	#define LINE_SIZE 100
 	#define PROGRAM_LINES 100

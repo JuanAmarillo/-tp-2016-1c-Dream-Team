@@ -1,5 +1,5 @@
-#ifndef PROTOCOLO_MENSAJE_H_
-#define PROTOCOLO_MENSAJE_H_
+#ifndef NUCLEO_13_PROTOCOLO_MENSAJE_H_
+#define NUCLEO_13_PROTOCOLO_MENSAJE_H_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,4 +34,4 @@ int recibirBytes(int, void *, unsigned);
 void testMensajeProtocolo();
 void freeMensaje(t_mensaje *mensaje);
 
-#endif /* PROTOCOLO_MENSAJE_H_ */
+#endif /* NUCLEO_13_PROTOCOLO_MENSAJE_H_ */
