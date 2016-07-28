@@ -267,6 +267,7 @@ t_tablaDePaginas* buscarTablaSegun(unsigned pidActivo,unsigned *indice)
 		tablaBuscada = list_get(tablasDePaginas,*indice);
 		if(tablaBuscada->pid==pidActivo)
 		{
+			pthread_mutex_unlock(&mutexTablaPaginas);
 			return tablaBuscada;
 		}
 	}
@@ -325,20 +326,12 @@ void eliminarDeMemoria(unsigned pid)
 	t_tablaDePaginas *buscador;
 	int index;
 
-	//tabla de paginas
-
+	buscador = buscarTablaSegun(pid,&index);
 	pthread_mutex_lock(&mutexTablaPaginas);
-	for(index=0;index < list_size(tablasDePaginas); index++ )
-	{
-		buscador = list_get(tablasDePaginas,index);
-		liberarMarcos(buscador);
-		if(buscador->pid == pid)
-		{
-			list_remove(tablasDePaginas,index);
-			pthread_mutex_unlock(&mutexTablaPaginas);
-			return;
-		}
-	}
+	liberarMarcos(buscador);
+	list_remove(tablasDePaginas,index);
+	pthread_mutex_unlock(&mutexTablaPaginas);
+
 	return;
 }
 
@@ -686,11 +679,13 @@ void traerPaginaAMemoria(unsigned pagina,t_tablaDePaginas* procesoActivo,int cli
 	t_mensaje aRecibir;
 
 	//Pedimos pagina al SWAP
+	pthread_mutex_lock(&mutexClientes);
 	log_trace(logger,"pedimos la pagina:%d con pid:%d al SWAP",pagina,procesoActivo->pid);
 	pedirPagAlSWAP(pagina,procesoActivo->pid);
 
 	//Recibimos pagina del SWAP
 	recibirMensaje(clienteSWAP, &aRecibir);
+	pthread_mutex_unlock(&mutexClientes);
 	log_trace(logger,"Codigo recibido: %u", aRecibir.head.codigo);
 	log_trace(logger,"Mensaje_extra  :\n %s",aRecibir.mensaje_extra);
 	log_trace(logger,"Mensaje_extra_tam:%d",aRecibir.head.tam_extra);
