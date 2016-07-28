@@ -99,4 +99,5 @@ void accionesDeFinalizacion() {
 	free(bufferPagina);
 	list_destroy_and_destroy_elements(INFO_PROG,(void*) infoProg_destroy);
 	config_destroy(config);
+	log_trace(logger,"-->Acciones de finalizacion. Gracias vuelva pronto");
 }
