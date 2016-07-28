@@ -87,7 +87,7 @@ int main(int argc, char** argv){
 		for(i_quantum = 1; i_quantum <= quantum; i_quantum++){
 
 			// Preguntar al nucleo sobre el estado de consola
-			if(consultarSiAborto()) break;
+			//if(consultarSiAborto()) break;
 
 
 			// Obtener siguiente instruccion
