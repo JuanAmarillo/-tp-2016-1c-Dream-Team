@@ -4,7 +4,7 @@
 
 void leerArchivoConfig()
 {
-
+	system("clear");
 	t_config *config = config_create("config.conf");
 
 	if (config == NULL) {
