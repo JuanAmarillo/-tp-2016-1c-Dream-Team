@@ -498,6 +498,13 @@ int cantidadDispositivos(void)
 	return i;
 }
 
+int cantidadSleeps(void)
+{
+	int i;
+	for(i = 0; infoConfig.array_io_sleeps[i]; ++i);
+	return i;
+}
+
 void init_cantidad_varsComp(void)
 {
 	int i;
@@ -559,9 +566,15 @@ void inicializarListas(void)
 	lista_Pares = list_create();
 	cola_cpus_disponibles = queue_create();
 
-	vector_dispositivos = malloc(cantidadDispositivos() * sizeof(t_dispositivo));
+	int nDisp = cantidadDispositivos();
+	if(nDisp != cantidadSleeps())
+	{
+		perror("Error Fatal: La cantidad de Dispositivos no coincide con la cantidad de IO_Sleeps");
+		abort();
+	}
+	vector_dispositivos = malloc(nDisp * sizeof(t_dispositivo));
 	int i;
-	for(i = 0; i < cantidadDispositivos(); ++i)
+	for(i = 0; i < nDisp; ++i)
 	{
 		vector_dispositivos[i].nombre = infoConfig.array_dispositivos[i];
 		vector_dispositivos[i].io_sleep = atoi(infoConfig.array_io_sleeps[i]);
