@@ -86,10 +86,10 @@ void pruebaConsistenciaDatos(){
 	strcpy(bufferPagina,"\0");
 	puts("Lee pagina vacia");
 	getPage(2);
-	printf("El contenido de la pagina es: %s .\n", bufferPagina);
+	printf("El contenido de la pagina es: %s .\n", (char*) bufferPagina);
 	puts("Lee pagina ocupada");
 	getPage(3);
-	printf("El contenido de la pagina es: %s .\n", bufferPagina);
+	printf("El contenido de la pagina es: %s .\n", (char*) bufferPagina);
 	log_trace(logger,bufferPagina);
 
 }

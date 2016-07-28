@@ -44,7 +44,7 @@ int socketCliente;
 FILE* SWAPFILE;
 t_bitarray* DISP_PAGINAS;
 t_list *INFO_PROG;
-char* bufferPagina;
+void* bufferPagina;
 t_mensaje received;
 t_log *logger, *logger1;
 t_config *config;

@@ -18,12 +18,9 @@
 
 int main(){
 	initialConf();
-	bufferPagina = malloc(TAMANIO_PAGINA);
 	socketConf();
 	while (funcionamientoSWAP()!=0);
-
 	accionesDeFinalizacion();
-	free(bufferPagina);
 	return 0;
 }
 
