@@ -16,8 +16,8 @@ void interfaz(void)
 
 		imprimirMaster();
 
-		sleep(1);
-	//	usleep(1000 * 500);//500 milisegundos (0,5 segundos)
+	//	sleep(1);
+		usleep(1000 * 500);//500 milisegundos (0,5 segundos)
 	}while(1);
 }
 
