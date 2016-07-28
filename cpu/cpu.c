@@ -508,7 +508,7 @@ int consultarSiAborto(){
 	mensaje.mensaje_extra = NULL;
 
 	// Envio al UMC la peticion
-	enviarMensajeUMC(mensaje);
+	enviarMensajeNucleo(mensaje);
 
 	// Recibo mensaje
 	recibirMensajeNucleo(&mensaje);
