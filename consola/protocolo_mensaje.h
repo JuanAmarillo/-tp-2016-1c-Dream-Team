@@ -1,11 +1,5 @@
-#ifndef NUCLEO_5_PROTOCOLO_MENSAJE_H_
-#define NUCLEO_5_PROTOCOLO_MENSAJE_H_
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <netdb.h>
+#ifndef PROTOCOLO_MENSAJE_H_
+#define PROTOCOLO_MENSAJE_H_
 
 /*
  * Estructuras de datos
@@ -34,4 +28,4 @@ int recibirBytes(int, void *, unsigned);
 void testMensajeProtocolo();
 void freeMensaje(t_mensaje *mensaje);
 
-#endif /* NUCLEO_5_PROTOCOLO_MENSAJE_H_ */
+#endif /* PROTOCOLO_MENSAJE_H_ */

@@ -1,4 +1,8 @@
 #include "protocolo_mensaje.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/socket.h>
 
 /*
  * Hipotesis: Al trabajar todos con la misma maquina virtual, no tenemos en cuenta la variacion de tamaño de los tipo de datos segun las arquitecturas.
@@ -29,12 +33,12 @@ void *empaquetar_mensaje(t_mensaje mensaje) {
 
 	// Copio los parametros
 	for (i_parametro = 0; i_parametro < mensaje.head.cantidad_parametros; i_parametro++){
-		memcpy(mensaje_empaquetado + desplazamiento, &mensaje.parametros[i_parametro], sizeof(unsigned));
-		desplazamiento += sizeof(unsigned);
+			memcpy(mensaje_empaquetado + desplazamiento, &mensaje.parametros[i_parametro], sizeof(unsigned));
+			desplazamiento += sizeof(unsigned);
 	}
 
 	// Copio el mensaje_extra
-	memcpy(mensaje_empaquetado + desplazamiento, mensaje.mensaje_extra, mensaje.head.tam_extra);
+	if(mensaje.mensaje_extra > 0) memcpy(mensaje_empaquetado + desplazamiento, mensaje.mensaje_extra, mensaje.head.tam_extra);
 
 	// Devuelvo
 	return mensaje_empaquetado;
@@ -92,7 +96,7 @@ t_mensaje desempaquetar_mensaje(const void *buffer) {
 
 	// Desempaqueto lo extra
 	mensaje_desempaquetado.mensaje_extra = malloc(mensaje_desempaquetado.head.tam_extra);
-	memcpy(mensaje_desempaquetado.mensaje_extra, buffer + desplazamiento, mensaje_desempaquetado.head.tam_extra);
+	if(mensaje_desempaquetado.head.tam_extra > 0) memcpy(mensaje_desempaquetado.mensaje_extra, buffer + desplazamiento, mensaje_desempaquetado.head.tam_extra);
 
 	return mensaje_desempaquetado;
 }
@@ -110,7 +114,7 @@ t_mensaje desempaquetar_mensaje(const void *buffer) {
 int enviarMensaje(int serverSocket, t_mensaje mensaje){
 
 	void *mensaje_empaquetado = empaquetar_mensaje(mensaje);
-	unsigned tamano_mensaje = sizeof(unsigned)*3 + sizeof(unsigned) * mensaje.head.cantidad_parametros + mensaje.head.tam_extra;
+	unsigned tamano_mensaje = sizeof(t_mensajeHead) + sizeof(unsigned) * mensaje.head.cantidad_parametros + mensaje.head.tam_extra;
 
 	int enviar = send(serverSocket, mensaje_empaquetado, tamano_mensaje, MSG_NOSIGNAL);
 
@@ -156,7 +160,7 @@ int recibirMensaje(int serverSocket, t_mensaje *mensaje){
 	memcpy(bufferTotal, buffer_head, sizeof(t_mensajeHead));
 
 	// Recibo el Payload
-	recibir += recibirBytes(serverSocket, bufferTotal + desplazamiento, faltan_recibir);
+	if(faltan_recibir > 0) recibir = recibirBytes(serverSocket, bufferTotal + desplazamiento, faltan_recibir);
 
 	// Desempaqueto el mensaje
 	*mensaje = desempaquetar_mensaje(bufferTotal);
