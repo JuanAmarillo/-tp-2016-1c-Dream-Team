@@ -181,7 +181,10 @@ void signal_funcion(int signal){
   printf("Abortando programa. \n");
   t_mensaje mensaje;
   mensaje.head.codigo = ABORTAR_CONSOLA;
-  mensaje.head.cantidad_parametros = 0;
-  mensaje.head.tam_extra = 0;
+  mensaje.head.cantidad_parametros = 1;
+  mensaje.head.tam_extra = 1;
+  mensaje.parametros = malloc(4);
+  mensaje.mensaje_extra = malloc(1);
   enviarMensaje(socketNucleo, mensaje);
+  freeMensaje(&mensaje);
 }
