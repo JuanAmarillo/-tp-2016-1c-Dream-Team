@@ -48,7 +48,7 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 		//Ejecutar proceso
 		ejecutar(*proceso, quantum, quantumSleep, cpu);
 
-		sleep(2);
+	//	sleep(2);
 
 	}
 
@@ -208,8 +208,8 @@ void terminar(t_PCB *proceso)
 	proceso->estado = 4;
 	actualizarMaster();
 	escribirLog("Termino el proceso %d\n", proceso->pid);
-	freePCB(proceso);
-	free(proceso);
+//	freePCB(proceso);
+//	free(proceso);
 }
 
 t_dispositivo *nombre_to_dispositivo(const char *dispositivo)

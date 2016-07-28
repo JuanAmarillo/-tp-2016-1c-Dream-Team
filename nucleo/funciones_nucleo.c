@@ -426,9 +426,11 @@ void avisar_Consola_Fin_Programa(int consola)
 		printf("Error al informar a la consola %d del fin del programa %d\n", consola, Consola_to_Pid(consola));
 		abort();
 	}
+
 	escribirLog("Se informo a la consola(fd:[%d]) del fin del proceso %d\n", consola, Consola_to_Pid(consola));
 
-	freeMensaje(&mensaje);
+	free(mensaje.parametros);
+	free(mensaje.mensaje_extra);
 }
 
 void abrirPuertos(void)
