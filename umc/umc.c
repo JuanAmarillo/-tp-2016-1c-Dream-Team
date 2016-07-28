@@ -234,6 +234,13 @@ void borrarEntradasTLBSegun(unsigned pidActivo)
 	log_trace(loggerTLB,"Se borran las entradas del pid:%d",pidActivo);
 	while(list_size(TLB) != 0)
 	{
+		if(entrada == list_size(TLB))
+		{
+			pthread_mutex_unlock(&mutexTLB);
+			mostrarTLB();
+			return;
+		}
+
 		entradaTLB = list_get(TLB,entrada);
 		if(entradaTLB->pid == pidActivo)
 			list_remove(TLB,entrada);
