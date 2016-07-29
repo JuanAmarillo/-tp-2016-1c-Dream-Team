@@ -850,7 +850,7 @@ void administrarConexiones(void)
 
 								terminar(pcb);
 
-								imprimirTexto("Programa abortado por Error", laConsola);
+								imprimirTexto("El programa finalizo por un Error", laConsola);
 
 								avisar_Consola_Fin_Programa(laConsola);
 
