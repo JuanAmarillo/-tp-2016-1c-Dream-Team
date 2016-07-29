@@ -87,11 +87,14 @@ int main(int argc, char** argv){
 		for(i_quantum = 1; i_quantum <= quantum; i_quantum++){
 
 			// Preguntar al nucleo sobre el estado de consola
-			if(consultarSiAborto()) break;
+			//if(consultarSiAborto()) break;
 
 
 			// Obtener siguiente instruccion
 			char *instruccion = obtenerSiguienteIntruccion();
+
+			// Realizo acciones segun el estado de ejecucion
+			if((estado_ejecucion != 0) || (notificacion_signal_sigusr1 == 1)) break;
 
 			log_trace(logger, "PID: %u; PC: %u; Quantum %u de %u -> '%s'", pcb_global.pid, pcb_global.pc, i_quantum, quantum, instruccion);
 
@@ -140,6 +143,10 @@ int main(int argc, char** argv){
 		      case 6:
 		    	  log_trace(logger, "PID: %u, Abortado por Consola.", pcb_global.pid);
 		    	  enviarPCBnucleo(STRUCT_PCB_ABORT_CONSOLA);
+		    	break;
+		      case 7:
+		    	  log_trace(logger, "PID: %u, Memoria sin espacio", pcb_global.pid);
+		    	  enviarPCBnucleo(STRUCT_PCB);
 		    	break;
 		      default: // Otro error
 		    	break;
@@ -387,6 +394,17 @@ char *obtenerSiguienteIntruccion(){
 		abort();
 	}
 
+	// Chequeo si hubo error
+	if(mensaje.parametros[0] != 1){
+		if(mensaje.parametros[0] == 2){
+			estado_ejecucion = 2;
+		} else if(mensaje.parametros[0] == 3){
+			estado_ejecucion = 7;
+		}
+		freeMensaje(&mensaje);
+		return NULL;
+	}
+
 	int i;
 	for(i=0; mensaje.mensaje_extra[i] != '\0'; i++){
 		if( mensaje.mensaje_extra[i] == '\n' ){
@@ -508,7 +526,7 @@ int consultarSiAborto(){
 	mensaje.mensaje_extra = NULL;
 
 	// Envio al UMC la peticion
-	enviarMensajeUMC(mensaje);
+	enviarMensajeNucleo(mensaje);
 
 	// Recibo mensaje
 	recibirMensajeNucleo(&mensaje);
@@ -886,8 +904,13 @@ t_valor_variable parser_dereferenciar(t_puntero direccion_variable_puntero) {
 		abort();
 	}
 
+	// Chequeo si hubo error
 	if(mensaje.parametros[0] != 1){
-		estado_ejecucion = 2; // Fuera de segmento
+		if(mensaje.parametros[0] == 2){
+			estado_ejecucion = 2;
+		} else if(mensaje.parametros[0] == 3){
+			estado_ejecucion = 7;
+		}
 		freeMensaje(&mensaje);
 		return 0;
 	}
@@ -928,8 +951,13 @@ void parser_asignar(t_puntero direccion_variable_puntero, t_valor_variable valor
 		abort();
 	}
 
+	// Chequeo si hubo error
 	if(mensaje.parametros[0] != 1){
-		estado_ejecucion = 2; // Fuera de segmento
+		if(mensaje.parametros[0] == 2){
+			estado_ejecucion = 2;
+		} else if(mensaje.parametros[0] == 3){
+			estado_ejecucion = 7;
+		}
 	}
 
 	// Libero memoria de mensaje
