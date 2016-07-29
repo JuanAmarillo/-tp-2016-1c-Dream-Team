@@ -178,7 +178,7 @@ t_mensaje codigo_to_mensaje(char* codigo){
 }
 
 void signal_funcion(int signal){
-  printf("Abortando programa. \n");
+  printf("\nAbortando programa. \n");
   t_mensaje mensaje;
   mensaje.head.codigo = ABORTAR_CONSOLA;
   mensaje.head.cantidad_parametros = 1;
