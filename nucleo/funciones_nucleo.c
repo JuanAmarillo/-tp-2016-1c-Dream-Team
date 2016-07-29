@@ -776,6 +776,24 @@ void administrarConexiones(void)
 								escribirLog("Se añade el pid %d al conjunto de procesos abortados\n", elPID);
 
 								FD_SET(elPID, &conjunto_pids_abortados);
+
+								if(!FD_ISSET(Consola_to_Pid(fd_explorer), &conjunto_procesos_ejecutando))
+								{
+									t_mensajeHead headParaConsola = {RETURN_ABORTAR_CONSOLA, 1, 1};
+									t_mensaje mensajeParaConsola;
+									mensajeParaConsola.head = headParaConsola;
+									mensajeParaConsola.parametros = malloc(sizeof(int));
+									mensajeParaConsola.parametros[0] = 1;//basura
+									mensajeParaConsola.mensaje_extra = malloc(1);
+									mensajeParaConsola.mensaje_extra[0] = '\0';
+
+									if( enviarMensaje(fd_explorer, mensajeParaConsola) <= 0 )
+									{
+										perror("Error al avisar a la consola que puede abortar\n");
+										abort();
+									}
+
+								}
 							}
 						}
 

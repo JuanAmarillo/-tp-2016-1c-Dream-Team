@@ -82,6 +82,8 @@ void ejecutar(t_PCB proceso, unsigned short int quantum, unsigned int qSleep, in
 
 	t_mensaje mensaje_quantum = quantum_to_mensaje(quantum, qSleep);
 
+//	asociarPidCPU();
+
 	enviarMensaje(cpu, mensaje_PCB);
 	freeMensaje(&mensaje_PCB);
 	enviarMensaje(cpu, mensaje_quantum);
