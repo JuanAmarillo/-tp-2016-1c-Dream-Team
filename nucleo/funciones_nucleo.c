@@ -36,6 +36,7 @@ void leerArchivoConfig(char *ruta)
 	infoConfig.array_variables_compartidas = config_get_array_value(config, "SHARED_VARS");
 	infoConfig.array_sem_id = config_get_array_value(config, "SEM_ID");
 	infoConfig.array_sem_init = config_get_array_value(config, "SEM_INIT");
+	infoConfig.stack_size = config_get_string_value(config, "STACK_SIZE");
 
 	// No uso config_destroy(config) porque bugea
 	free(config->path);
@@ -569,6 +570,8 @@ void inicializarListas(void)
 	lista_Pares = list_create();
 	cola_cpus_disponibles = queue_create();
 
+	stack_size = atoi(infoConfig.stack_size);
+
 	int nDisp = cantidadDispositivos();
 	if(nDisp != cantidadSleeps())
 	{
@@ -719,7 +722,7 @@ void administrarConexiones(void)
 								escribirLog("Tamaño recibido: %d\n", nbytes);
 								escribirLog("-------------------\n");
 
-								*pcb = crearPCB(mensajeConsola, ++max_proceso, tamPaginas);
+								*pcb = crearPCB(mensajeConsola, ++max_proceso, tamPaginas, stack_size);
 
 								escribirLog("--------------------------------\n");
 								escribirLog("Se creo el PCB de pid:%d\n", pcb->pid);

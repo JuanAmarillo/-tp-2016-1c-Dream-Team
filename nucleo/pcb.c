@@ -305,7 +305,7 @@ void freePCB(t_PCB *pcb){
 }
 
 
-t_PCB crearPCB(t_mensaje programa, unsigned int pid, unsigned int tamPag)
+t_PCB crearPCB(t_mensaje programa, unsigned int pid, unsigned int tamPag, unsigned int stackSize)
 {
 	t_PCB pcb;
 	unsigned int tamCod = programa.head.tam_extra;
@@ -317,7 +317,7 @@ t_PCB crearPCB(t_mensaje programa, unsigned int pid, unsigned int tamPag)
 	pcb.pid = pid;
 	pcb.pc = metadata->instruccion_inicio;
 	pcb.sp = 0;//Valor Provisorio necesita informacion de la UMC
-	pcb.cantidadPaginas = (tamCod/tamPag) + 1;
+	pcb.cantidadPaginas = (tamCod/tamPag) + 1 + stackSize;
 	pcb.estado = 0;//Nuevo
 	pcb.indiceEtiquetas = metadata->etiquetas;
 	pcb.tam_indiceEtiquetas = metadata->etiquetas_size;
