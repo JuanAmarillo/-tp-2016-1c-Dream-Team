@@ -769,7 +769,11 @@ void administrarConexiones(void)
 							{
 								escribirLog("La consola planea abortarse, iniciar procedimiento de preparación para aborto\n");
 
-								FD_CLR(Consola_to_Pid(fd_explorer), &conjunto_pids_abortados);
+								int elPID = Consola_to_Pid(fd_explorer);
+
+								escribirLog("Se añade el pid %d al conjunto de procesos abortados\n", elPID);
+
+								FD_SET(elPID, &conjunto_pids_abortados);
 							}
 						}
 
@@ -1173,7 +1177,7 @@ void administrarConexiones(void)
 
 							if(mensajeCPU.head.codigo == GET_ESTADO)
 							{
-								escribirLog("La cpu fd[%d] consulta por estado\n");
+								escribirLog("La cpu fd[%d] consulta por estado\n", fd_explorer);
 
 								int pid = mensajeCPU.parametros[0];
 								int retorno;
