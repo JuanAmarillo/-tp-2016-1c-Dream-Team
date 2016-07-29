@@ -29,6 +29,8 @@ int reconocerComando(char *comando) {
 		return 2;
 	if (!strcmp(accion, "flush"))
 		return 3;
+	if(!strcmp(accion,"help"))
+		return 4;
 	return 0; //Error de Comando
 }
 
@@ -56,7 +58,6 @@ void limpiarTLB() {
 }
 
 void flushDeConsola(char* parametroExtra) {
-	printf("La diferencia entre %s y %s", parametroExtra,"tlb");
 	if (!strcmp(parametroExtra, "tlb\n")) {
 		log_trace(logger, "Se limpia la TLB por comando de la consola");
 		log_trace(logger1, "Se va a proceder a limpiar la TLB");
@@ -67,8 +68,8 @@ void flushDeConsola(char* parametroExtra) {
 		log_trace(logger, "Se van a marcar todas las paginas como modificadas");
 		log_trace(logger1, "Se van a poner todas las paginas como modificadas");
 		limpiarPaginas();
-		log_trace(logger1, "Se limpiaron las paginas");
-		log_trace(logger, "Se limpiaron las paginas");
+		log_trace(logger1, "Se modificaron las paginas");
+		log_trace(logger, "Se modificaron las paginas");
 	}
 }
 
@@ -100,7 +101,7 @@ void mostrarContenidoDePaginas(t_tablaDePaginas* tl) {
 	log_trace(logger1, "El contenido de las paginas es:");
 	while (i < tl->cantidadEntradasTablaPagina)
 	{
-		if (tl->entradaTablaPaginas->estaEnMemoria)
+		if (tl->entradaTablaPaginas[i].estaEnMemoria)
 		{
 			log_trace(logger1,"El contenido de la pagina nro %i del proceso es:");
 			mostrarContenido(tl->entradaTablaPaginas[i].marco);
@@ -145,7 +146,7 @@ void mostrarUnoDeConsola(int pid) {
 	if(seEncontro == 1)
 		mostrar(tl);
 	else
-		log_trace(logger1,"El pid %d no es un proceso valido",pid);
+		log_trace(logger1,"El Pid %d no es un proceso valido",pid);
 }
 
 void ejecutarComando(char *parametroExtra, int accion) //Ejecuta lo retornado por "reconocerComando"
@@ -167,6 +168,9 @@ void ejecutarComando(char *parametroExtra, int accion) //Ejecuta lo retornado po
 		break;
 	case 3:
 		flushDeConsola(parametros[1]);
+		break;
+	case 4:
+		instrucciones();
 		break;
 	default:
 		log_trace(logger1, "La accion no es contemplada");
