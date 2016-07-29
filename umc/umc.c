@@ -340,7 +340,7 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 	return;
 
 }
-void liberarMarcos(t_tablaDePaginas *proceso)  //FALTA MUTEX MARCOS!
+void liberarMarcos(t_tablaDePaginas *proceso)
 {
 	int index;
 	for(index = 0; index < proceso->cantidadEntradasTablaPagina;index++)
@@ -461,12 +461,16 @@ int buscaNoPresenciaNoModificado(t_tablaDePaginas *procesoActivo,unsigned *punte
 {
 	unsigned paginaApuntada;
 	*paginaSiYaEstabaEnMemoria = paginaEnEntrada(pagina,procesoActivo);
+	int marco = buscarMarcoDisponible();
+
+	//No hay marcos disponibles
+	if(marco == -1)
+		return 0;
 
 	//La pagina a reemplazar ya estaba en la tabla de las paginas en memoria
 	if(*paginaSiYaEstabaEnMemoria != -1)
-	{
 		return 1;
-	}
+
 
 	for(pagina = 0 ; pagina  < procesoActivo->cantidadEntradasMemoria;pagina++ )
 	{
@@ -478,9 +482,8 @@ int buscaNoPresenciaNoModificado(t_tablaDePaginas *procesoActivo,unsigned *punte
 
 		//Busca una pagina que no fue modificada ni que este en memoria
 		if(procesoActivo->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 0)
-			if(procesoActivo->entradaTablaPaginas[paginaApuntada].fueModificado == 0){
-				return 1;
-			}
+			if(procesoActivo->entradaTablaPaginas[paginaApuntada].fueModificado == 0)
+					return 1;
 
 		*punteroClock = avanzaPunteroClock(procesoActivo,*punteroClock);
 	}
@@ -492,16 +495,19 @@ int buscaNoPresenciaSiModificado(t_tablaDePaginas *tablaBuscada,unsigned *punter
 {
 	unsigned paginaApuntada;
 	unsigned pagina;
+	int marco;
 
 	for(pagina = 0 ; pagina  < tablaBuscada->cantidadEntradasMemoria;pagina++ )
 	{
+		marco = marco = buscarMarcoDisponible();
 		paginaApuntada = tablaBuscada->paginasEnMemoria[*punteroClock];
 
 		//Busca si hay alguna pagina libre
 		if(tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 0)
 			if(tablaBuscada->entradaTablaPaginas[paginaApuntada].fueModificado == 1)
 			{
-				return 1;
+				if(marco != -1)
+					return 1;
 			}
 		//Si esta en memoria la libera
 		if(tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 1)
@@ -581,7 +587,7 @@ unsigned algoritmoclock(t_tablaDePaginas*procesoActivo,unsigned pagina,int *pagi
 	log_trace(loggerClock,"===========INICIO=CLOCK===================");
 	unsigned punteroClock = procesoActivo->punteroClock;
 	unsigned paginaApuntada;
-	 int marco = buscarMarcoDisponible();
+	int marco = buscarMarcoDisponible();
 	log_trace(loggerClock,"Puntero clock:%d PID:%d",punteroClock,procesoActivo->pid);
 
 	*paginaSiYaEstabaEnMemoria = paginaEnEntrada(pagina,procesoActivo);
