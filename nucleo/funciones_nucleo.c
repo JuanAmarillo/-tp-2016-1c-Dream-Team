@@ -560,6 +560,9 @@ void inicializarListas(void)
 	FD_ZERO(&conjunto_procesos_bloqueados);
 	FD_ZERO(&conjunto_procesos_ejecutando);
 	FD_ZERO(&conjunto_procesos_salida);
+	FD_ZERO(&conjunto_cpus_libres);
+	FD_ZERO(&conjunto_procesos_abortados);
+	FD_ZERO(&conjunto_pids_abortados);
 	lista_master_procesos = list_create();
 	cola_bloqueados = queue_create();
 	cola_listos = queue_create();
@@ -676,6 +679,7 @@ void administrarConexiones(void)
 					if(FD_ISSET(fd_explorer, &conj_consola))//Los datos vienen de una Consola
 					{
 						nbytes = recibirMensaje(fd_explorer, &mensajeConsola);//Recibir los datos en mensajeCOnsola
+
 						if(nbytes <= 0)//Hubo un error o se desconecto
 						{
 							if(nbytes < 0)//Error
@@ -758,9 +762,11 @@ void administrarConexiones(void)
 								//	freeMensaje(&mensajeConsola);
 							}
 
-							if(ABORTAR_CONSOLA)
+							if(mensajeConsola.head.codigo == ABORTAR_CONSOLA)
 							{
+								escribirLog("La consola planea abortarse, iniciar procedimiento de preparación para aborto\n");
 
+								FD_CLR(Consola_to_Pid(fd_explorer), &conjunto_pids_abortados);
 							}
 						}
 
@@ -1160,6 +1166,60 @@ void administrarConexiones(void)
 								free(nombre);
 								freeMensaje(&mensajeCPU);
 								continue;
+							}
+
+							if(mensajeCPU.head.codigo == GET_ESTADO)
+							{
+								int pid = mensajeCPU.parametros[0];
+								int retorno;
+
+								if( FD_ISSET(pid, &conjunto_pids_abortados) )
+								{
+									retorno = 1;
+								}
+								else
+								{
+									retorno = 0;
+								}
+
+								t_mensajeHead headRetorno = {RETURN_GET_ESTADO, 1, 1};
+								t_mensaje mensajeRetorno;
+
+								mensajeRetorno.head = headRetorno;
+								mensajeRetorno.parametros = malloc(sizeof(int));
+								mensajeRetorno.parametros[0] = retorno;
+								mensajeRetorno.mensaje_extra = malloc(1);
+								mensajeRetorno.mensaje_extra[0] = '\0';
+
+								if( enviarMensaje(fd_explorer, mensajeRetorno) <= 0 )
+								{
+									perror("Error al avisar a la cpu sobre el estado de la consola\n");
+									abort();
+								}
+
+								free(mensajeRetorno.parametros);
+								free(mensajeRetorno.mensaje_extra);
+							}
+
+							if(mensajeCPU.head.codigo == STRUCT_PCB_ABORT_CONSOLA)
+							{
+								t_PCB pcb = mensaje_to_pcb(mensajeCPU);
+
+								t_mensajeHead headParaConsola = {RETURN_ABORTAR_CONSOLA, 1, 1};
+								t_mensaje mensajeParaConsola;
+								mensajeParaConsola.head = headParaConsola;
+								mensajeParaConsola.parametros = malloc(sizeof(int));
+								mensajeParaConsola.parametros[0] = 1;//basura
+								mensajeParaConsola.mensaje_extra = malloc(1);
+								mensajeParaConsola.mensaje_extra[0] = '\0';
+
+								if( enviarMensaje(Pid_to_Consola(pcb.pid), mensajeParaConsola) <= 0 )
+								{
+									perror("Error al avisar a la consola que puede abortar\n");
+									abort();
+								}
+
+								habilitarCPU(fd_explorer);
 							}
 
 							freeMensaje(&mensajeCPU);

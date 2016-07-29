@@ -56,6 +56,8 @@ unsigned int tamPaginas;
 //buffers para datos recibidos de los clientes
 t_mensaje mensajeConsola, mensajeCPU;
 
+fd_set conjunto_pids_abortados;
+
 //FUNCIONES
 void estado_to_string(int estado, char *string);
 unsigned int mensaje_to_tamPag(t_mensaje*);
