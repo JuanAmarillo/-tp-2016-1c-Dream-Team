@@ -353,7 +353,25 @@ void finPrograma(t_mensaje finalizarProg)
 	enviarMensaje(clienteSWAP,finalizarProg);
 	return;
 }
+void borrarEntradaTLB(int marco)
+{
+	pthread_mutex_lock(&mutexTLB);
+	unsigned entrada;
+	t_entradaTLB* entradaTLB;
+	for(entrada = 0; entrada < list_size(TLB);entrada++)
+	{
+		entradaTLB = list_get(TLB,entrada);
+		if(entradaTLB->marco == marco)
+		{
+			log_trace(loggerTLB,"Se borra la entrada del marco:%d",marco);
+			list_remove(TLB,entrada);
+			pthread_mutex_unlock(&mutexTLB);
+			return;
+		}
 
+	}
+	pthread_mutex_unlock(&mutexTLB);
+}
 
 void falloPagina(t_tablaDePaginas* procesoActivo,unsigned paginaApuntada)
 {
@@ -365,6 +383,7 @@ void falloPagina(t_tablaDePaginas* procesoActivo,unsigned paginaApuntada)
 	//Actualizo estado
 	procesoActivo->entradaTablaPaginas[paginaApuntada].estaEnMemoria = 0;
 	marcoDisponible[marco] = 0;
+	borrarEntradaTLB(marco);
 	log_trace(logger,"Se actualizo la pagina:%d del proceso:%d",paginaApuntada,procesoActivo->pid);
 
 	//Copio el codigo del marco
