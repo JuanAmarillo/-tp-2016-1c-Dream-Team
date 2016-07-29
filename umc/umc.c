@@ -75,7 +75,7 @@ void inicializarMarcos()
 }
 void inicializarEstructuras()
 {
-	logger = log_create("UMC_TEST.txt", "UMC", 0, LOG_LEVEL_TRACE);
+	logger = log_create("UMC_TEST.txt", "UMC", 1, LOG_LEVEL_TRACE);
 	loggerVariables = log_create("UMC_VAR.txt","UMC",0,LOG_LEVEL_TRACE);
 	logger1 = log_create("UMC_CONSOLA.txt","UMC",1,LOG_LEVEL_TRACE);
 	loggerTLB  = log_create("UMC_TLB.txt","UMC",0,LOG_LEVEL_TRACE);
@@ -617,7 +617,7 @@ unsigned algoritmoclock(t_tablaDePaginas*procesoActivo,unsigned pagina,int *pagi
 				punteroClock = avanzaPunteroClock(procesoActivo,punteroClock);
 			}
 			else
-				if(marco != 0)
+				if(marco != -1)
 				{
 					log_trace(loggerClock,"==============FIN=CLOCK==================\n");
 					return punteroClock;

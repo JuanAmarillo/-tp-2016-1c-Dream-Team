@@ -219,7 +219,7 @@ int main(){
 	conectarAlSWAP();
 
 	//servidor
-	crearHiloInterprete();
+	//crearHiloInterprete();
 	gestionarConexiones();
 
 	return 0;
