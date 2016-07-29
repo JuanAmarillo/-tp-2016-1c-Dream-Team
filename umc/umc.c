@@ -508,44 +508,21 @@ void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo)
 	enviarMensaje(clienteSWAP,aEnviar);
 	return;
 }
-
-unsigned algoritmoclock(t_tablaDePaginas*procesoActivo,unsigned pagina,int *paginaSiYaEstabaEnMemoria)
+void abortarSiNoHayPaginasEnMemoria(t_tablaDePaginas* procesoActivo,int clienteUMC)
 {
-	log_trace(loggerClock,"===========INICIO=CLOCK===================");
-	unsigned punteroClock = procesoActivo->punteroClock;
-	unsigned paginaApuntada;
-	log_trace(loggerClock,"Puntero clock:%d PID:%d",punteroClock,procesoActivo->pid);
-
-	*paginaSiYaEstabaEnMemoria = paginaEnEntrada(pagina,procesoActivo);
-
-	//La pagina a reemplazar ya estaba en la tabla de las paginas en memoria
-	if(*paginaSiYaEstabaEnMemoria != -1)
+	unsigned pagina;
+	for(pagina=0;pagina < procesoActivo->cantidadEntradasMemoria ; pagina++)
 	{
-		log_trace(loggerClock,"==============FIN=CLOCK==================\n");
-		return punteroClock;
+		if(procesoActivo->paginasEnMemoria[pagina] != -1)
+			return;
 	}
-	while(1)
-	{
 
-		paginaApuntada = procesoActivo->paginasEnMemoria[punteroClock];
-		if(paginaApuntada == -1)
-		{
-			log_trace(loggerClock,"==============FIN=CLOCK==================\n");
-			return punteroClock;
-		}
-		if(procesoActivo->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 1)
-		{
-			falloPagina(procesoActivo,paginaApuntada);
-			punteroClock = avanzaPunteroClock(procesoActivo,punteroClock);
-		}
-		else
-		{
-			log_trace(loggerClock,"==============FIN=CLOCK==================\n");
-			return punteroClock;
-		}
-	}
-	log_trace(loggerClock,"==============FIN=CLOCK==================\n");
-	return punteroClock;
+	log_error(logger,"No hay marcos disponibles, se notifica al CPU");
+	enviarCodigoAlCPU(NULL,0,clienteUMC,3);
+	pthread_mutex_unlock(&mutexClock);
+	pthread_exit(NULL);
+	perror("No salio del hilo");
+
 }
 int buscarMarcoDisponible()
 {
@@ -554,11 +531,66 @@ int buscarMarcoDisponible()
 	{
 		if(marcoDisponible[marco] == 0)
 		{
-			marcoDisponible[marco] = 1;
 			return marco;
 		}
 	}
 	return -1;
+}
+
+
+unsigned algoritmoclock(t_tablaDePaginas*procesoActivo,unsigned pagina,int *paginaSiYaEstabaEnMemoria)
+{
+	log_trace(loggerClock,"===========INICIO=CLOCK===================");
+	unsigned punteroClock = procesoActivo->punteroClock;
+	unsigned paginaApuntada;
+	 int marco = buscarMarcoDisponible();
+	log_trace(loggerClock,"Puntero clock:%d PID:%d",punteroClock,procesoActivo->pid);
+
+	*paginaSiYaEstabaEnMemoria = paginaEnEntrada(pagina,procesoActivo);
+
+	//La pagina a reemplazar ya estaba en la tabla de las paginas en memoria
+	if(*paginaSiYaEstabaEnMemoria != -1 && marco != -1)
+	{
+		log_trace(loggerClock,"==============FIN=CLOCK==================\n");
+		return punteroClock;
+	}
+
+
+	while(1)
+	{
+
+		marco = buscarMarcoDisponible();
+		paginaApuntada = procesoActivo->paginasEnMemoria[punteroClock];
+		if(paginaApuntada == -1 )
+		{
+			if( marco != -1)
+			{
+			log_trace(loggerClock,"==============FIN=CLOCK==================\n");
+			return punteroClock;
+			}
+			else
+				punteroClock = avanzaPunteroClock(procesoActivo,punteroClock);
+		}
+		else
+		{
+			if(procesoActivo->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 1)
+			{
+				falloPagina(procesoActivo,paginaApuntada);
+				punteroClock = avanzaPunteroClock(procesoActivo,punteroClock);
+			}
+			else
+				if(marco != 0)
+				{
+					log_trace(loggerClock,"==============FIN=CLOCK==================\n");
+					return punteroClock;
+				}
+				else
+					punteroClock = avanzaPunteroClock(procesoActivo,punteroClock);
+		 }
+	}
+
+	log_trace(loggerClock,"==============FIN=CLOCK==================\n");
+	return punteroClock;
 }
 
 
@@ -572,20 +604,12 @@ void actualizarTablaDePaginas(t_tablaDePaginas*procesoActivo)
 	return;
 }
 
+
 unsigned actualizaPagina(unsigned pagina,t_tablaDePaginas* procesoActivo,int clienteUMC,int paginaEstabaEnMemoria)
 {
 	log_trace(logger,"Se actualiza la tabla de pagina del pid:%d",procesoActivo->pid);
 	unsigned punteroClock = procesoActivo->punteroClock;
-	int marcoDisponible = buscarMarcoDisponible();
-	if(marcoDisponible == -1)
-	{
-		log_error(logger,"No hay marcos disponibles, se notifica al CPU");
-		enviarCodigoAlCPU(NULL,0,clienteUMC,3);
-		pthread_mutex_unlock(&mutexTablaPaginas);
-		pthread_exit(NULL);
-		perror("No salio del hilo");
-	}
-
+	int marco = buscarMarcoDisponible();
 	if(paginaEstabaEnMemoria == -1)
 	{
 		//Se actualiza la nueva pagina a las entradas en memoria
@@ -604,7 +628,8 @@ unsigned actualizaPagina(unsigned pagina,t_tablaDePaginas* procesoActivo,int cli
 
 	//Actualizar la tabla de paginas
 	procesoActivo->entradaTablaPaginas[pagina].estaEnMemoria = 1;
-	procesoActivo->entradaTablaPaginas[pagina].marco = marcoDisponible;
+	procesoActivo->entradaTablaPaginas[pagina].marco = marco;
+	marcoDisponible[marco] = 1;
 	actualizarTablaDePaginas(procesoActivo);
 	log_trace(logger,"La tabla de pagina se actualizo correctamente");
 
@@ -650,6 +675,11 @@ void algoritmoDeReemplazo(void* codigoPrograma,unsigned tamanioPrograma,unsigned
 	pthread_mutex_lock(&mutexClock);
 	unsigned punteroClock = 0;
 	int paginaEstabaEnMemoria;
+	unsigned marco = buscarMarcoDisponible();
+
+	//Si no hay marcos disponibles y nunca se carga el proceso a memoria
+	if(marco == -1)
+		abortarSiNoHayPaginasEnMemoria(procesoActivo,clienteUMC);
 
 	//Eleccion entre Algoritmos
 	if(!strcmp("CLOCK",infoConfig.algoritmo))
@@ -659,6 +689,7 @@ void algoritmoDeReemplazo(void* codigoPrograma,unsigned tamanioPrograma,unsigned
 		punteroClock = algoritmoClockMejorado(procesoActivo,pagina,&paginaEstabaEnMemoria);
 
 	procesoActivo->punteroClock = punteroClock;
+
 
 	//Escribe en memoria la nueva pagina que mando el SWAP
 	escribirEnMemoria(codigoPrograma,tamanioPrograma,pagina,procesoActivo,clienteUMC,paginaEstabaEnMemoria);
