@@ -40,8 +40,8 @@ struct t_infoConfig
 	char **array_sem_id;
 	char **array_sem_init;
 	char *stack_size;
+	char* ip_umc;
 };
-
 
 /*Variables Globales*/
 /*----------------------------------------------------------*/

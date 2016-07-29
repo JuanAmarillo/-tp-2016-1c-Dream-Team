@@ -31,7 +31,15 @@ typedef struct
 	int fd_consola;
 }t_parPidConsola;
 
-t_list *lista_Pares;
+typedef struct
+{
+	int pid;
+	int fd_cpu;
+}t_parPidCPU;
+
+t_list *lista_Pares;//asocia cada pid con su consola
+
+t_list *lista_CPUS_PIDS; // Asocia a cada cpu con el pid que esta ejecutando
 
 int max_cpu, max_proceso;
 t_PCB PCB_actualizado;

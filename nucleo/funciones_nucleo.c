@@ -37,6 +37,7 @@ void leerArchivoConfig(char *ruta)
 	infoConfig.array_sem_id = config_get_array_value(config, "SEM_ID");
 	infoConfig.array_sem_init = config_get_array_value(config, "SEM_INIT");
 	infoConfig.stack_size = config_get_string_value(config, "STACK_SIZE");
+	infoConfig.ip_umc = config_get_string_value(config, "IP_UMC");
 
 	// No uso config_destroy(config) porque bugea
 	free(config->path);
@@ -58,7 +59,7 @@ void inicializarDirecciones(void)
 
 	direccionUMC.sin_family = AF_INET;
 	direccionUMC.sin_port = htons(atoi(infoConfig.puerto_umc));
-	direccionUMC.sin_addr.s_addr = INADDR_ANY;
+	direccionUMC.sin_addr.s_addr = inet_addr(infoConfig.ip_umc);
 	memset(direccionUMC.sin_zero, '\0', sizeof(direccionUMC.sin_zero));
 
 }
@@ -231,12 +232,12 @@ void avisar_Consola_ProgramaNoAlmacenado(int fd)
 
 void asociarPidConsola(int pid, int consola)
 {
-	escribirLog("Se intentara asociar el pid %d con al consola fd:%d\n", pid, consola);
+	escribirLog("Se intentara asociar el pid %d con la consola fd:%d\n", pid, consola);
 	t_parPidConsola *par = malloc(sizeof(t_parPidConsola));
 	par->pid = pid;
 	par->fd_consola = consola;
 	list_add(lista_Pares, par);
-	escribirLog("Asociar ok\n");
+	escribirLog("Asociar pid a consola ok\n");
 }
 
 void desasociarPidConsola(int pid)
@@ -255,7 +256,7 @@ void desasociarPidConsola(int pid)
 		lista_Pares->head = lista_Pares->head->next;
 		lista_Pares->elements_count --;
 		free(aux);
-		escribirLog("Desasociar ok\n");
+		escribirLog("Desasociar pid de consola ok\n");
 		return;
 	}
 
@@ -266,7 +267,7 @@ void desasociarPidConsola(int pid)
 		aux->next = aux2->next;
 		lista_Pares->elements_count --;
 		free(aux2);
-		escribirLog("Desasociar ok\n");
+		escribirLog("Desasociar pid de consola ok\n");
 	}
 	else
 	{
@@ -569,6 +570,7 @@ void inicializarListas(void)
 	cola_listos = queue_create();
 	lista_Pares = list_create();
 	cola_cpus_disponibles = queue_create();
+	lista_CPUS_PIDS = list_create();
 
 	stack_size = atoi(infoConfig.stack_size);
 
