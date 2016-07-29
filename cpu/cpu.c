@@ -34,7 +34,6 @@ int main(int argc, char** argv){
 
 	// Asigno una funcion a la señal SIGUSR1
 	signal(SIGUSR1, signal_sigusr1);
-	signal(SIGINT, signal_sigusr1);
 
 	// Me conecto a la UMC
 	socketUMC = conectarseUMC();
@@ -87,7 +86,7 @@ int main(int argc, char** argv){
 		for(i_quantum = 1; i_quantum <= quantum; i_quantum++){
 
 			// Preguntar al nucleo sobre el estado de consola
-			//if(consultarSiAborto()) break;
+			if(consultarSiAborto()) break;
 
 
 			// Obtener siguiente instruccion
