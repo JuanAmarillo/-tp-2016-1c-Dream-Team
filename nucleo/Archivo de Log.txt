@@ -1,0 +1,446 @@
+Se recibio el tamaño de paginas: 50
+Variables compartidas: [!Global = 0, !UnaVar = 0, !tiempo3 = 0]
+Semaforos: [SEM1 = 0, SEM2 = 0, SEM3 = 5]
+---------------------------
+Ha iniciado el planificador
+---------------------------
+La cola de Listos está vacía...
+Se comienza a administrar el dispositivo: Disco
+Se comienza a administrar el dispositivo: Impresora
+Se comienza a administrar el dispositivo: Scanner
+Se acaba de aceptar una conexion de una nueva CPU (fd[6])
+Se acaba de aceptar una conexion de una nueva Consola (fd[7])
+Se ha recibido un programa de una Consola (fd[7])
+-------------------
+Tamaño recibido: 253
+-------------------
+--------------------------------
+Se creo el PCB de pid:1
+Cantidad de paginas que ocupa:8
+--------------------------------
+Se intentara asociar el pid 1 con al consola fd:7
+Asociar ok
+----------------------
+Lista de pares actual:
+Pid: 1, Consola: 7
+----------------------
+almacenar ok
+Se almaceno correctamente el proceso 1
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 1 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 2 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+Esperando por cpus...
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+Esperando por cpus...
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 3 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 4 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 5 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 6 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 7 para imprimir
+La consola planea abortarse, iniciar procedimiento de preparación para aborto
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 8 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 9 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 10 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 11 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 12 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 13 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 14 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 15 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 16 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 17 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+Esperando por cpus...
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 18 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 19 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+Esperando por cpus...
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Se recibio el numero 20 para imprimir
+----------------------------------------------------
+Se recibio el proceso 1 por finalización de quantum
+----------------------------------------------------
+----------------------
+Cola de Listos actual:
+1
+----------------------
+CPU fd[6] Libre--->Ejecutar
+-----------------------------------------
+Se ejecutó el proceso 1 en la cpu:fd[6]
+Quantum:3
+Quantum Sleep:500
+-----------------------------------------
+La cola de Listos está vacía...
+Termino el proceso 1
+Se informo a la consola(fd:[7]) del fin del proceso 1
+Se ha desconectado una consola (fd[7])
+Desasociar ok

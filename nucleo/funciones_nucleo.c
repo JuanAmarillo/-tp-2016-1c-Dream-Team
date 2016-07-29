@@ -1178,6 +1178,7 @@ void administrarConexiones(void)
 
 								if( FD_ISSET(pid, &conjunto_pids_abortados) )
 								{
+									escribirLog("Se avisará a la cpu que la consola planea abortar\n");
 									retorno = 1;
 								}
 								else
@@ -1206,6 +1207,8 @@ void administrarConexiones(void)
 
 							if(mensajeCPU.head.codigo == STRUCT_PCB_ABORT_CONSOLA)
 							{
+								escribirLog("Se recibio el pcb de la consola que abortará\n");
+
 								t_PCB pcb = mensaje_to_pcb(mensajeCPU);
 
 								t_mensajeHead headParaConsola = {RETURN_ABORTAR_CONSOLA, 1, 1};
@@ -1223,6 +1226,7 @@ void administrarConexiones(void)
 								}
 
 								habilitarCPU(fd_explorer);
+								escribirLog("Se habilitó nuevamente la cpu fd[%d]", fd_explorer);
 							}
 
 							freeMensaje(&mensajeCPU);
