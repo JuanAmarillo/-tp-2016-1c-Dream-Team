@@ -4,7 +4,7 @@
 #include <commons/string.h>
 #include <commons/collections/list.h>
 #include "umc.h"
-/*
+
 int reconocerComando(char *comando);
 void limpiarPaginas();
 void limpiarTLB();
@@ -33,21 +33,26 @@ int reconocerComando(char *comando) {
 }
 
 void limpiarPaginas() {
-	int cantidadEntradas = list_size(tablasDePaginas);
-	t_tablaDePaginas* t;
-	int i = 0, j;
-	for (i = 0; i < cantidadEntradas; i++) {
-		j = 0;
-		t = (t_tablaDePaginas*) list_get(tablasDePaginas, i);
-		while (j < t->cantidadEntradasTablaPagina) {
-			t->entradaTablaPaginas->fueModificado = 1;
-			j++;
+	pthread_mutex_lock(&mutexTablaPaginas);
+	int cantidadDeTablas = list_size(tablasDePaginas);
+	t_tablaDePaginas* tablaPagina;
+	int indice,entrada;
+	for (indice = 0; indice < cantidadDeTablas; indice++)
+	{
+
+		tablaPagina = list_get(tablasDePaginas, indice);
+		for(entrada=0 ; entrada < tablaPagina->cantidadEntradasTablaPagina;entrada++)
+		{
+			tablaPagina->entradaTablaPaginas[entrada].fueModificado = 1;
 		}
 	}
+	pthread_mutex_unlock(&mutexTablaPaginas);
 }
 
 void limpiarTLB() {
+	pthread_mutex_lock(&mutexTLB);
 	list_clean(TLB);
+	pthread_mutex_unlock(&mutexTLB);
 }
 
 void flushDeConsola(char* parametroExtra) {
@@ -76,15 +81,16 @@ void retardoDeConsola(char* parametroExtra) {
 
 void mostrarProceso(t_tablaDePaginas* tabla) {
 	unsigned pagina;
-	log_trace(logger, "============================");
-	log_trace(logger, "Procesos en Tablas ");
-	log_trace(logger,"Proceso pid: %d, paginas:%d, estan en memoria:%d", tabla->pid, tabla->cantidadEntradasTablaPagina);
-	log_trace(logger, "Paginas en memoria:");
+	log_trace(logger1, "==============Tabla De Paginas PID:%d===============================",tabla->pid);
 	for (pagina = 0; pagina < tabla->cantidadEntradasTablaPagina; pagina++) {
 		if (tabla->entradaTablaPaginas[pagina].estaEnMemoria == 1)
-			log_trace(logger, "Pagina:%d -> Marco:%d\n", pagina,tabla->entradaTablaPaginas[pagina].marco);
+			log_trace(logger1,"Pagina:%d EstaEnMemoria:%d FueModificado:%d -> Marco:%d",
+					pagina,tabla->entradaTablaPaginas[pagina].estaEnMemoria,tabla->entradaTablaPaginas[pagina].fueModificado,tabla->entradaTablaPaginas[pagina].marco);
+		else
+			log_trace(logger1,"Pagina:%d EstaEnMemoria:%d FueModificado:%d -> Marco:NULL",
+								pagina,tabla->entradaTablaPaginas[pagina].estaEnMemoria,tabla->entradaTablaPaginas[pagina].fueModificado,tabla->entradaTablaPaginas[pagina].marco);
 	}
-	log_trace(logger, "============================");
+	log_trace(logger1, "===================================================================");
 	return;
 }
 
@@ -92,22 +98,24 @@ void mostrarContenidoDePaginas(t_tablaDePaginas* tl) {
 	int i = 0;
 	log_trace(logger1, "Proceso N° %u", tl->pid);
 	log_trace(logger1, "El contenido de las paginas es:");
-	while (i < tl->cantidadEntradasTablaPagina) {
-		if (tl->entradaTablaPaginas->estaEnMemoria) {
+	while (i < tl->cantidadEntradasTablaPagina)
+	{
+		if (tl->entradaTablaPaginas->estaEnMemoria)
+		{
 			log_trace(logger1,"El contenido de la pagina nro %i del proceso es:");
-			mostrarContenido(tl->entradaTablaPaginas->marco);
-		} else {
-			log_trace(logger1,
-					"La pagina nro %u del proceso no esta en memoria", i);
+			mostrarContenido(tl->entradaTablaPaginas[i].marco);
 		}
 		i++;
 	}
+	log_trace(logger1, "============================");
 }
 
 void mostrarContenido(int marco) {
-	char* contenido = malloc(infoMemoria.tamanioDeMarcos);
-	contenido = string_substring((char*) memoriaPrincipal, marco*infoMemoria.tamanioDeMarcos, infoMemoria.tamanioDeMarcos);
-	log_trace(logger1, "%s", *contenido);
+	void* contenido = malloc(infoMemoria.tamanioDeMarcos);
+	pthread_mutex_lock(&mutexMemoria);
+	memcpy(contenido,memoriaPrincipal+marco*infoMemoria.tamanioDeMarcos,infoMemoria.tamanioDeMarcos);
+	pthread_mutex_unlock(&mutexMemoria);
+	log_trace(logger1, "%s", contenido);
 	free(contenido);
 }
 
@@ -117,6 +125,7 @@ void mostrar(t_tablaDePaginas* tl) {
 }
 
 void mostrarTodoDeConsola() {
+	pthread_mutex_lock(&mutexTablaPaginas);
 	int tamanioLista = list_size(tablasDePaginas);
 	int i = 0;
 	t_tablaDePaginas* tl;
@@ -125,14 +134,18 @@ void mostrarTodoDeConsola() {
 		mostrar(tl);
 		i++;
 	}
+	pthread_mutex_unlock(&mutexTablaPaginas);
 }
 
 void mostrarUnoDeConsola(int pid) {
-	unsigned* indice = malloc(sizeof(unsigned));
-	*indice = 0;
-	puts("Despues del indice");
-	t_tablaDePaginas* tl = buscarTablaSegun(pid, indice);
-	mostrar(tl);
+	t_tablaDePaginas* tl = NULL;
+	unsigned indice;
+	unsigned seEncontro;
+	tl= buscarTabla(pid,&indice,&seEncontro);
+	if(seEncontro == 1)
+		mostrar(tl);
+	else
+		log_trace(logger1,"El pid %d no es un proceso valido",pid);
 }
 
 void ejecutarComando(char *parametroExtra, int accion) //Ejecuta lo retornado por "reconocerComando"
@@ -185,22 +198,26 @@ void accion(){
 		instruccion = NULL;
 	}
 }
-/*
-int main(){
-	leerArchivoConfig();
-	inicializarEstructuras();
-	crearTablaDePaginas(1,2);
-	crearTablaDePaginas(2,2);
-	char* contenido = malloc(5);
-	strcpy(memoriaPrincipal,"abcdefghijklmnopqrstuvwxyz");
-	puts("strcpy");
-	contenido = string_substring((char*) memoriaPrincipal, 10, 5);
-	puts("substring");
-	printf("Substring: %s", contenido);
-	accion();
-
-	return 0;
-
+void crearHiloInterprete()
+{
+	pthread_t interprete;
+	pthread_create(&interprete, NULL, (void *)accion,NULL);
+	return;
 }
 
-*/
+
+int main(){
+
+
+	//Config
+	leerArchivoConfig();
+	inicializarEstructuras();
+	conectarAlSWAP();
+
+	//servidor
+	crearHiloInterprete();
+	gestionarConexiones();
+
+	return 0;
+}
+
