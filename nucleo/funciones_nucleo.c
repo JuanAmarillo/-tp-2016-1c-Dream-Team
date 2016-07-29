@@ -1173,6 +1173,8 @@ void administrarConexiones(void)
 
 							if(mensajeCPU.head.codigo == GET_ESTADO)
 							{
+								escribirLog("La cpu fd[%d] consulta por estado\n");
+
 								int pid = mensajeCPU.parametros[0];
 								int retorno;
 
@@ -1183,6 +1185,7 @@ void administrarConexiones(void)
 								}
 								else
 								{
+									escribirLog("EStado ok\n");
 									retorno = 0;
 								}
 
