@@ -208,7 +208,7 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 		tablaPaginas->paginasEnMemoria = calloc(paginasSolicitadas,sizeof(int));
 		tablaPaginas->cantidadEntradasMemoria = paginasSolicitadas;
 		for(pagina=0;pagina < paginasSolicitadas;pagina++)
-			tablaPaginas->paginasEnMemoria[pagina] = pagina;
+			tablaPaginas->paginasEnMemoria[pagina] = -1;
 
 	}
 	for(pagina=0;pagina < paginasSolicitadas; pagina++)
@@ -334,7 +334,7 @@ void liberarMarcos(t_tablaDePaginas *proceso)  //FALTA MUTEX MARCOS!
 void eliminarDeMemoria(unsigned pid)
 {
 	t_tablaDePaginas *buscador;
-	int index;
+	unsigned index;
 
 	buscador = buscarTablaSegun(pid,&index);
 	pthread_mutex_lock(&mutexTablaPaginas);
