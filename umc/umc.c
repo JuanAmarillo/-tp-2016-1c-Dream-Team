@@ -374,7 +374,6 @@ void eliminarDeMemoria(unsigned pid,unsigned* huboFallo)
 	t_tablaDePaginas *buscador;
 	unsigned index;
 	unsigned seEncontro;
-	log_trace(logger,"Rompe buscando tablas");
 	buscador = buscarTabla(pid,&index,&seEncontro);
 	if(seEncontro == 1)
 	{
@@ -385,7 +384,7 @@ void eliminarDeMemoria(unsigned pid,unsigned* huboFallo)
 	}
 	else
 	{
-		log_error(logger,"El nucleo envio un PID ya eliminado,esperar 15 segundos");
+		log_error(logger,"El nucleo envio un PID ya eliminado");
 		*huboFallo = 1;
 	}
 	return;
@@ -406,19 +405,20 @@ void borrarEntradaTLB(int marco)
 	pthread_mutex_lock(&mutexTLB);
 	unsigned entrada;
 	t_entradaTLB* entradaTLB;
-	for(entrada = 0; entrada < list_size(TLB);entrada++)
+	for(entrada = 0 ; entrada < list_size(TLB); entrada++)
 	{
 		entradaTLB = list_get(TLB,entrada);
 		if(entradaTLB->marco == marco)
 		{
 			log_trace(loggerTLB,"Se borra la entrada del marco:%d",marco);
-			list_remove(TLB,entrada);
+			list_remove_and_destroy_element(TLB,entrada,(void*)destruirTLB);
 			pthread_mutex_unlock(&mutexTLB);
 			return;
 		}
 
 	}
 	pthread_mutex_unlock(&mutexTLB);
+	return;
 }
 
 void falloPagina(t_tablaDePaginas* procesoActivo,unsigned paginaApuntada)
@@ -594,7 +594,7 @@ void enviarPaginaAlSWAP(unsigned pagina,void* codigoDelMarco,unsigned pidActivo)
 	enviarMensaje(clienteSWAP,aEnviar);
 	return;
 }
-void abortarSiNoHayPaginasEnMemoria(t_tablaDePaginas* procesoActivo,int clienteUMC)
+void abortarSiNoHayPaginasEnMemoria(t_tablaDePaginas* procesoActivo,int clienteUMC,int* noHayMarcos)
 {
 	unsigned pagina;
 	for(pagina=0;pagina < procesoActivo->cantidadEntradasMemoria ; pagina++)
@@ -604,10 +604,8 @@ void abortarSiNoHayPaginasEnMemoria(t_tablaDePaginas* procesoActivo,int clienteU
 	}
 
 	log_error(logger,"No hay marcos disponibles, se notifica al CPU");
-	enviarCodigoAlCPU(NULL,0,clienteUMC,3);
 	pthread_mutex_unlock(&mutexClock);
-	pthread_exit(NULL);
-	perror("No salio del hilo");
+	*noHayMarcos = 1;
 
 }
 
@@ -744,16 +742,26 @@ void mostrarTablaDePaginas(t_tablaDePaginas* procesoActivo)
 	return;
 }
 
-void algoritmoDeReemplazo(void* codigoPrograma,unsigned tamanioPrograma,unsigned pagina,t_tablaDePaginas* procesoActivo,int clienteUMC)
+void algoritmoDeReemplazo(void* codigoPrograma,unsigned tamanioPrograma,unsigned pagina,t_tablaDePaginas* procesoActivo,int clienteUMC,int*noHayMarcos)
 {
 	pthread_mutex_lock(&mutexClock);
 	unsigned punteroClock = 0;
 	int paginaEstabaEnMemoria;
 	unsigned marco = buscarMarcoDisponible();
 
-	//Si no hay marcos disponibles y nunca se carga el proceso a memoria
+	//Si no hay marcos disponibles
 	if(marco == -1)
-		abortarSiNoHayPaginasEnMemoria(procesoActivo,clienteUMC);
+	{
+		abortarSiNoHayPaginasEnMemoria(procesoActivo,clienteUMC,noHayMarcos);
+
+		//nunca se carga el proceso a memoria
+		if(*noHayMarcos == 1)
+		{
+			free(codigoPrograma);
+			return;
+		}
+	}
+
 
 	//Eleccion entre Algoritmos
 	if(!strcmp("CLOCK",infoConfig.algoritmo))
@@ -789,7 +797,7 @@ void pedirPagAlSWAP(unsigned pagina,unsigned pidActual) {
 	log_trace(logger,"fin -> pedirPagAlSWAP()");
 }
 
-void traerPaginaAMemoria(unsigned pagina,t_tablaDePaginas* procesoActivo,int clienteUMC)
+void traerPaginaAMemoria(unsigned pagina,t_tablaDePaginas* procesoActivo,int clienteUMC,int* noHayMarcos)
 {
 	t_mensaje aRecibir;
 
@@ -818,7 +826,7 @@ void traerPaginaAMemoria(unsigned pagina,t_tablaDePaginas* procesoActivo,int cli
 	}
 	//--
 
-	algoritmoDeReemplazo(aRecibir.mensaje_extra,aRecibir.head.tam_extra,pagina,procesoActivo,clienteUMC);
+	algoritmoDeReemplazo(aRecibir.mensaje_extra,aRecibir.head.tam_extra,pagina,procesoActivo,clienteUMC,noHayMarcos);
 	log_trace(logger,"pase algoritmoDeReemplazo");
 
 	return;
@@ -832,7 +840,7 @@ void algoritmoLRU(t_entradaTLB *entradaTLB)
 	if(tamanioTLB == tamanioMaximoTLB)
 	{
 		list_add_in_index(TLB,0,entradaTLB);
-		list_remove(TLB,tamanioMaximoTLB);
+		list_remove_and_destroy_element(TLB,tamanioMaximoTLB,(void*)destruirTLB);
 	}
 	else
 		list_add_in_index(TLB,0,entradaTLB);
@@ -868,11 +876,14 @@ int buscarEnTLB(unsigned paginaBuscada,unsigned pidActual)
 	int indice;
 	int marco;
 	t_entradaTLB *entradaTLB;
+	if(list_size(TLB)==0)
+		return -1;
+
 	for(indice=0;indice < list_size(TLB);indice++)
 	{
 		entradaTLB = list_get(TLB,indice);
 		if(entradaTLB[indice].pid == pidActual && entradaTLB[indice].pagina == paginaBuscada)
-		  {
+		{
 			marco = entradaTLB[indice].marco;
 			log_trace(loggerTLB,"Se accedio a al indice: %d",indice);
 			//Sacar la entrada y ponerla inicio de la lista
@@ -881,13 +892,15 @@ int buscarEnTLB(unsigned paginaBuscada,unsigned pidActual)
 			pthread_mutex_unlock(&mutexTLB);
 			mostrarTLB();
 			return marco;
-		  }
+		}
 	}
+
+	log_trace(logger,"TLB: miss");
 	pthread_mutex_unlock(&mutexTLB);
 	return -1;
 }
 
-void traducirPaginaAMarco(unsigned pagina,int *marco,t_tablaDePaginas*procesoActivo,int clienteUMC)
+void traducirPaginaAMarco(unsigned pagina,int *marco,t_tablaDePaginas*procesoActivo,int clienteUMC,int* noHayMarcos)
 {
 	//Buscar en TLB
 	*marco = buscarEnTLB(pagina,procesoActivo->pid);
@@ -896,7 +909,6 @@ void traducirPaginaAMarco(unsigned pagina,int *marco,t_tablaDePaginas*procesoAct
 		log_trace(logger,"TLB: hit -> Marco: %d",*marco);
 		return;
 	}
-	log_trace(logger,"TLB: miss");
 
 	//Buscar en tabla de paginas
 	usleep(infoMemoria.retardo);
@@ -913,7 +925,7 @@ void traducirPaginaAMarco(unsigned pagina,int *marco,t_tablaDePaginas*procesoAct
 		{	// Buscar en swap
 			log_trace(logger,"Pagina en Memoria: NO");
 			log_trace(logger,"Se procede a traer la pagina del SWAP");
-			traerPaginaAMemoria(pagina,procesoActivo,clienteUMC);
+			traerPaginaAMemoria(pagina,procesoActivo,clienteUMC,noHayMarcos);
 			*marco = procesoActivo->entradaTablaPaginas[pagina].marco;
 			log_trace(logger,"El marco correspondiente: %d", *marco);
 			return;
@@ -986,6 +998,7 @@ unsigned copiarCodigo(unsigned paginaDondeEmpieza,unsigned paginasALeer,t_tablaD
 	unsigned offsetTest = offset; //TEST
 	unsigned paginaATraducir;
 	int marco;
+	int noHayMarcos = 0;
 	unsigned tamanioACopiar;
 	if(paginasALeer == 1)
 		tamanioACopiar = tamanio;
@@ -1002,8 +1015,9 @@ unsigned copiarCodigo(unsigned paginaDondeEmpieza,unsigned paginasALeer,t_tablaD
 		{
 
 			log_trace(logger,"Se traduce la pagina: %d con pid:%d al marco correspondiente \n" ,paginaDondeEmpieza+paginaATraducir,procesoActivo->pid);
-			traducirPaginaAMarco(paginaDondeEmpieza+paginaATraducir,&marco,procesoActivo,clienteUMC);
-
+			traducirPaginaAMarco(paginaDondeEmpieza+paginaATraducir,&marco,procesoActivo,clienteUMC,&noHayMarcos);
+			if(noHayMarcos == 1)
+				return 3;
 			log_trace(logger,"Se copia el contenido de la pagina:%d pid:%d marco:%d tamaño:%d",paginaDondeEmpieza+paginaATraducir,procesoActivo->pid,marco,tamanioACopiar);
 			log_trace(logger,"Vars aux: seLeyo %d, offset %d",seLeyo,offset);
 			pthread_mutex_lock(&mutexMemoria);
@@ -1047,6 +1061,7 @@ unsigned guardarCodigo(unsigned paginaDondeEmpieza,unsigned paginasALeer,t_tabla
 	unsigned offsetTest = offset; //TEST
 	unsigned paginaATraducir;
 	int marco;
+	int noHayMarcos=0;
 	unsigned tamanioACopiar;
 	unsigned seLeyo = 0;
 	if(paginasALeer == 1)
@@ -1063,8 +1078,9 @@ unsigned guardarCodigo(unsigned paginaDondeEmpieza,unsigned paginasALeer,t_tabla
 		{
 
 			log_trace(logger,"Se traduce la pagina: %d con pid:%d al marco correspondiente \n" ,paginaDondeEmpieza+paginaATraducir,procesoActivo->pid);
-			traducirPaginaAMarco(paginaDondeEmpieza+paginaATraducir,&marco,procesoActivo,clienteUMC);
-
+			traducirPaginaAMarco(paginaDondeEmpieza+paginaATraducir,&marco,procesoActivo,clienteUMC,&noHayMarcos);
+			if(noHayMarcos == 1)
+				return 3;
 			log_trace(logger,"Se copia el contenido de la pagina:%d pid:%d marco:%d",paginaDondeEmpieza+paginaATraducir,procesoActivo->pid,marco);
 			pthread_mutex_lock(&mutexMemoria);
 			memcpy(memoriaPrincipal+infoMemoria.tamanioDeMarcos*marco+offset,codigoAGuardar+seLeyo,tamanioACopiar);
@@ -1096,7 +1112,7 @@ unsigned guardarCodigo(unsigned paginaDondeEmpieza,unsigned paginasALeer,t_tabla
 	}
 	else
 	{
-		log_error(logger,"Paginas fuera de segmento, se notifica al CPU");
+		log_error(logger,"Paginas fuera del stack, se notifica al CPU");
 		return 2;
 	}
 }
