@@ -48,6 +48,16 @@ struct sockaddr_in setDireccionSWAP()
 
 	return direccion;
 }
+void destruirTLB(t_entradaTLB* entradaTLB)
+{
+	free(entradaTLB);
+}
+void destruirTablaPaginas(t_tablaDePaginas* entradaTablaPagina)
+{
+	free(entradaTablaPagina->entradaTablaPaginas);
+	free(entradaTablaPagina->paginasEnMemoria);
+	free(entradaTablaPagina);
+}
 void finalizarUMC()
 {
 	pthread_mutex_lock(&mutexClientes);
@@ -58,8 +68,8 @@ void finalizarUMC()
 
 	log_trace(logger,"Nucleo desconectado se finaliza la UMC ");
 	free(memoriaPrincipal);
-	list_destroy(TLB);
-	list_destroy(tablasDePaginas);
+	list_destroy_and_destroy_elements(TLB,(void*)destruirTLB);
+	list_destroy_and_destroy_elements(tablasDePaginas,(void*)destruirTablaPaginas);
 	abort();
 
 	return;
@@ -101,6 +111,7 @@ void clienteDesconectado(int clienteUMC)
 		close(clienteUMC);
 		finalizarUMC();
 	}
+	log_trace(logger,"CPU desconectado,Se borra el hilo");
 	close(clienteUMC);
 	pthread_exit(NULL);
 	//pthreadexit fijate!
@@ -167,28 +178,38 @@ unsigned enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,uns
 	t_mensaje respuesta,respuestaSaveProgram;
 
 	pthread_mutex_lock(&mutexClientes);
+
 	//Reservar espacio en el SWAP
 	log_trace(logger,"Pide espacio para reservar el programa al SWAP");
 	pedirReservaDeEspacio(pid, paginasSolicitadas);
 
 	//fijarse si pudo reservar
-	log_trace(logger,"esperando respuesta del swap");
 	recibirMensaje(clienteSWAP,&respuesta);
-	log_trace(logger,"La cabecera recibida es: %d",respuesta.head.codigo);
 
 	if(respuesta.head.codigo == NOT_ENOUGH_SPACE)
 	{
 		log_trace(logger,"No hay suficiente espacio para almacenar el programa");
 		pthread_mutex_unlock(&mutexClientes);
 		enviarSuficienteEspacio(clienteUMC,ALMACENAR_FAILED);
+
+		free(codigoPrograma);
+		freeMensaje(&respuesta);
 		return 0;
 	}
+
 	//Enviar programa al SWAP
 	log_trace(logger,"Hay suficiente espacio, se envia el programa al SWAP");
 	enviarProgramaAlSWAP(pid, paginasSolicitadas, tamanioCodigo, codigoPrograma);
 	recibirMensaje(clienteSWAP,&respuestaSaveProgram);
 	pthread_mutex_unlock(&mutexClientes);
+
+	//Enviar al Nucleo Que logro la reserva
 	enviarSuficienteEspacio(clienteUMC,ALMACENAR_OK);
+
+	free(codigoPrograma);
+	freeMensaje(&respuesta);
+	freeMensaje(&respuestaSaveProgram);
+
 	log_trace(logger,"Salio de la funcion enviarCodigoAlSwap");
 	return 1;
 }
@@ -198,6 +219,8 @@ void crearTablaDePaginas(unsigned pid,unsigned paginasSolicitadas)
 	log_trace(logger,"Entro a la funcion crearTablaDePaginas");
 	log_trace(logger,"Se procede a crear una tabla de paginas para el proceso %d, con %d paginas\n",pid,paginasSolicitadas);
 	int pagina;
+
+	usleep(infoMemoria.retardo);
 	t_tablaDePaginas *tablaPaginas = malloc(sizeof(t_tablaDePaginas));
 	t_entradaTablaPaginas *entradaTablaPaginas = calloc(paginasSolicitadas,sizeof(t_entradaTablaPaginas));
 	tablaPaginas->pid = pid;
@@ -290,7 +313,7 @@ t_tablaDePaginas* buscarTabla(unsigned pidActivo,unsigned *indice,unsigned *seEn
 		}
 	}
 	pthread_mutex_unlock(&mutexTablaPaginas);
-	seEncontro = 0;
+	*seEncontro = 0;
 	return tablaBuscada;
 }
 t_tablaDePaginas* buscarTablaSegun(unsigned pidActivo,unsigned *indice)
@@ -329,12 +352,8 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 	unsigned tamanioCodigo=mensaje.head.tam_extra ;
 
 	log_trace(logger,"Se Incializa el Programa:%d",pid);
-	usleep(infoMemoria.retardo);
 	if(enviarCodigoAlSwap(paginasSolicitadas,codigoPrograma,pid,tamanioCodigo,clienteUMC) == 1)
 		crearTablaDePaginas(pid,paginasSolicitadas);
-
- 	free(codigoPrograma);
- 	free(mensaje.mensaje_extra);
 
  	log_trace(logger,"Fin Inicializar Programa");
 	return;
@@ -350,26 +369,36 @@ void liberarMarcos(t_tablaDePaginas *proceso)
 	}
 	return;
 }
-void eliminarDeMemoria(unsigned pid)
+void eliminarDeMemoria(unsigned pid,unsigned* huboFallo)
 {
 	t_tablaDePaginas *buscador;
 	unsigned index;
-
-	buscador = buscarTablaSegun(pid,&index);
-	pthread_mutex_lock(&mutexTablaPaginas);
-	liberarMarcos(buscador);
-	list_remove(tablasDePaginas,index);
-	pthread_mutex_unlock(&mutexTablaPaginas);
-
+	unsigned seEncontro;
+	log_trace(logger,"Rompe buscando tablas");
+	buscador = buscarTabla(pid,&index,&seEncontro);
+	if(seEncontro == 1)
+	{
+		pthread_mutex_lock(&mutexTablaPaginas);
+		liberarMarcos(buscador);
+		list_remove_and_destroy_element(tablasDePaginas,index,(void*)destruirTablaPaginas);
+		pthread_mutex_unlock(&mutexTablaPaginas);
+	}
+	else
+	{
+		log_error(logger,"El nucleo envio un PID ya eliminado,esperar 15 segundos");
+		*huboFallo = 1;
+	}
 	return;
 }
 
 void finPrograma(t_mensaje finalizarProg)
 {
+	unsigned huboFallo = 0;
 	unsigned pid = finalizarProg.parametros[0];
 	log_trace(logger,"Se finaliza el programa con pid:%d ",pid);
-	eliminarDeMemoria(pid);
-	enviarMensaje(clienteSWAP,finalizarProg);
+	eliminarDeMemoria(pid,&huboFallo);
+	if(huboFallo == 0)
+		enviarMensaje(clienteSWAP,finalizarProg);
 	return;
 }
 void borrarEntradaTLB(int marco)
@@ -456,6 +485,19 @@ unsigned avanzaPunteroClock(t_tablaDePaginas *tablaPaginas, unsigned punteroCloc
 	return punteroClock;
 }
 
+int buscarMarcoDisponible()
+{
+	int marco;
+	for(marco = 0 ; marco < infoMemoria.marcos; marco++)
+	{
+		if(marcoDisponible[marco] == 0)
+		{
+			return marco;
+		}
+	}
+	return -1;
+}
+
 //Busca Bit presencia = 0 && bit Modificado = 0
 int buscaNoPresenciaNoModificado(t_tablaDePaginas *procesoActivo,unsigned *punteroClock,unsigned pagina,int *paginaSiYaEstabaEnMemoria)
 {
@@ -499,7 +541,7 @@ int buscaNoPresenciaSiModificado(t_tablaDePaginas *tablaBuscada,unsigned *punter
 
 	for(pagina = 0 ; pagina  < tablaBuscada->cantidadEntradasMemoria;pagina++ )
 	{
-		marco = marco = buscarMarcoDisponible();
+		marco = buscarMarcoDisponible();
 		paginaApuntada = tablaBuscada->paginasEnMemoria[*punteroClock];
 
 		//Busca si hay alguna pagina libre
@@ -567,18 +609,6 @@ void abortarSiNoHayPaginasEnMemoria(t_tablaDePaginas* procesoActivo,int clienteU
 	pthread_exit(NULL);
 	perror("No salio del hilo");
 
-}
-int buscarMarcoDisponible()
-{
-	int marco;
-	for(marco = 0 ; marco < infoMemoria.marcos; marco++)
-	{
-		if(marcoDisponible[marco] == 0)
-		{
-			return marco;
-		}
-	}
-	return -1;
 }
 
 
@@ -1104,7 +1134,6 @@ void enviarBytesDeUnaPagina(t_mensaje mensaje,int clienteUMC,t_tablaDePaginas* p
 	unsigned pagina  = mensaje.parametros[0];
 	unsigned offset  = mensaje.parametros[1];
 	unsigned tamanio = mensaje.parametros[2];
-	log_trace(logger,"Pagina:%d \n Offset:%d \n Tamaño:%d",pagina,offset,tamanio);
 	unsigned paginasALeer = paginasARecorrer(offset,tamanio);
 	void* codigoAEnviar = malloc(tamanio);
 
@@ -1149,9 +1178,9 @@ void accionSegunCabecera(int clienteUMC)
 	//	procesosEnTabla();
 		if(recibirMensaje(clienteUMC,&mensaje) <= 0){
 			clienteDesconectado(clienteUMC);
+			freeMensaje(&mensaje);
 		}
 		cabeceraDelMensaje = mensaje.head.codigo;
-		log_trace(logger,"Codigo Recibido: %u", cabeceraDelMensaje);
 		switch(cabeceraDelMensaje){
 			case INIT_PROG: inicializarPrograma(mensaje,clienteUMC);
 				break;
@@ -1169,6 +1198,7 @@ void accionSegunCabecera(int clienteUMC)
 				almacenarBytesEnPagina(mensaje,procesoActivo, clienteUMC);
 				break;
 		}
+		freeMensaje(&mensaje);
 	}
 	return;
 }
@@ -1274,8 +1304,6 @@ void gestionarConexiones()
 					FD_SET(clienteUMC, &master);
 					if(clienteUMC > maximoFD) //Actualzar el maximo fd
 						maximoFD = clienteUMC;
-					log_trace(logger,"ID Hilo: %i", clienteUMC);
-					log_trace(logger,"Se crea un hilo");
 					pthread_create(&cliente, NULL, (void *)accionSegunCabecera, (void *) clienteUMC);
 				} 
 				else //Se recibieron datos de otro tipo
