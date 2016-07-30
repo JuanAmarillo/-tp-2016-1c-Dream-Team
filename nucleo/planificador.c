@@ -211,7 +211,11 @@ void* actualizar_si_corresponde(void *pcb)
 
 void actualizarMaster(void)
 {
+	pthread_mutex_lock(&mutex_lista_master_procesos);
+
 	list_map(lista_master_procesos, actualizar_si_corresponde);
+
+	pthread_mutex_unlock(&mutex_lista_master_procesos);
 }
 
 void ponerListo(t_PCB *proceso)
