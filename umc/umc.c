@@ -205,9 +205,6 @@ unsigned enviarCodigoAlSwap(unsigned paginasSolicitadas,char* codigoPrograma,uns
 	recibirMensaje(clienteSWAP,&respuestaSaveProgram);
 	pthread_mutex_unlock(&mutexClientes);
 
-	//Enviar al Nucleo Que logro la reserva
-	enviarSuficienteEspacio(clienteUMC,ALMACENAR_OK);
-
 	free(codigoPrograma);
 	freeMensaje(&respuesta);
 	freeMensaje(&respuestaSaveProgram);
@@ -354,8 +351,10 @@ void inicializarPrograma(t_mensaje mensaje,int clienteUMC)
 	unsigned tamanioCodigo=mensaje.head.tam_extra ;
 
 	log_trace(logger,"Se Incializa el Programa:%d",pid);
-	if(enviarCodigoAlSwap(paginasSolicitadas,codigoPrograma,pid,tamanioCodigo,clienteUMC) == 1)
+	if(enviarCodigoAlSwap(paginasSolicitadas,codigoPrograma,pid,tamanioCodigo,clienteUMC) == 1){
 		crearTablaDePaginas(pid,paginasSolicitadas);
+		enviarSuficienteEspacio(clienteUMC,ALMACENAR_OK);
+	}
 
  	log_trace(logger,"Fin Inicializar Programa");
 	return;
