@@ -649,7 +649,7 @@ unsigned algoritmoclock(t_tablaDePaginas*procesoActivo,unsigned pagina,int *pagi
 			{
 				log_trace(loggerClock,"Pagina A SACAR :%d",paginaApuntada);
 				procesoActivo->entradaTablaPaginas[paginaApuntada].estaEnMemoria = 0;
-				//borrarEntradaTLB(marco);
+				borrarEntradaTLB(marco);
 				punteroClock = avanzaPunteroClock(procesoActivo,punteroClock);
 			}
 			else
