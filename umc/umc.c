@@ -885,9 +885,9 @@ int buscarEnTLB(unsigned paginaBuscada,unsigned pidActual)
 	for(indice=0;indice < list_size(TLB);indice++)
 	{
 		entradaTLB = list_get(TLB,indice);
-		if(entradaTLB[indice].pid == pidActual && entradaTLB[indice].pagina == paginaBuscada)
+		if(entradaTLB->pid == pidActual && entradaTLB->pagina == paginaBuscada)
 		{
-			marco = entradaTLB[indice].marco;
+			marco = entradaTLB->marco;
 			log_trace(loggerTLB,"Se accedio a al indice: %d",indice);
 			//Sacar la entrada y ponerla inicio de la lista
 			list_remove(TLB,indice);
