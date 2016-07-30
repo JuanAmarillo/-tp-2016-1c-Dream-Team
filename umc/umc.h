@@ -76,6 +76,7 @@ typedef struct{
  * Variables Globales
  */
 int* marcoDisponible;
+int* marcoAsignadoA;
 t_log* logger;
 t_log* logger1;
 t_log* loggerTLB;
