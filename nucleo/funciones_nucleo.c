@@ -230,6 +230,29 @@ void avisar_Consola_ProgramaNoAlmacenado(int fd)
 	freeMensaje(&mensajeExit);
 }
 
+void avisar_Consola_DesconexionCPU(int fd)
+{
+	//Avisar a la consola que no fue posible almacenar el proceso
+	const char aviso[] = "Error: La cpu que procesaba su programa se ha desconecado de forma insegura\nAbortado\n";
+	t_mensajeHead head = {IMPRIMIR_TEXTO_PROGRAMA, 1, strlen(aviso) + 1};
+	t_mensaje mensaje;
+	mensaje.head = head;
+	mensaje.parametros = malloc(4);
+	mensaje.mensaje_extra = strdup(aviso);
+
+	enviarMensaje(fd, mensaje);
+
+	freeMensaje(&mensaje);
+
+	//Avisar que aborte
+	t_mensajeHead headExit = {EXIT_PROGRAMA, 1, 1};
+	t_mensaje mensajeExit = {headExit, malloc(4), malloc(1)};
+
+	enviarMensaje(fd, mensajeExit);
+
+	freeMensaje(&mensajeExit);
+}
+
 void asociarPidConsola(int pid, int consola)
 {
 	escribirLog("Se intentara asociar el pid %d con la consola fd:%d\n", pid, consola);
@@ -808,7 +831,7 @@ void administrarConexiones(void)
 
 						if(nbytes <= 0)//Hubo un error o se desconecto
 						{
-							if(nbytes < 0)
+							if(nbytes < 0)//Error de recepción
 							{
 								FD_CLR(fd_explorer, &conj_master);
 								FD_CLR(fd_explorer, &conj_cpu);
@@ -816,13 +839,23 @@ void administrarConexiones(void)
 								escribirLog("Error de recepción en una cpu (fd[%d])\n", fd_explorer);
 								continue;
 							}
-							if(nbytes == 0)
+							if(nbytes == 0)//Desconexión
 							{
 								FD_CLR(fd_explorer, &conj_master);
 								FD_CLR(fd_explorer, &conj_cpu);
 								deshabilitarCPU(fd_explorer);
 								close(fd_explorer);
 								escribirLog("Se ha desconectado una cpu (fd[%d])\n", fd_explorer);
+
+								if(FD_ISSET(CPU_to_Pid(fd_explorer), &conjunto_procesos_ejecutando))
+								{
+									//El cpu se desconecto de forma insegura, abortar
+									avisar_UMC_FIN_PROG(CPU_to_Pid(fd_explorer));
+
+									avisar_Consola_DesconexionCPU(Pid_to_Consola( CPU_to_Pid(fd_explorer) ));
+
+									desasociarPidCPU(fd_explorer);
+								}
 							}
 						}
 						else//No hubo error ni desconexion
@@ -835,6 +868,8 @@ void administrarConexiones(void)
 								escribirLog("----------------------------------------------------\n");
 								escribirLog("Se recibio el proceso %d por finalización de quantum\n", pcb->pid);
 								escribirLog("----------------------------------------------------\n");
+
+								desasociarPidCPU(pcb->pid);
 
 								ponerListo(pcb);
 
@@ -850,6 +885,8 @@ void administrarConexiones(void)
 							{
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
+
+								desasociarPidCPU(pcb->pid);
 
 								int laConsola = Pid_to_Consola(pcb->pid);
 
@@ -869,6 +906,8 @@ void administrarConexiones(void)
 							{
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
+
+								desasociarPidCPU(pcb->pid);
 
 								int laConsola = Pid_to_Consola(pcb->pid);
 
@@ -1047,6 +1086,8 @@ void administrarConexiones(void)
 									t_PCB *pcb = malloc(sizeof(t_PCB));
 									*pcb = mensaje_to_pcb(mensajeCPU);
 
+									desasociarPidCPU(pcb->pid);
+
 									bloquear(pcb, nombreDispositivo, cantidadOperaciones);
 									actualizarMaster();
 									habilitarCPU(fd_explorer);
@@ -1105,6 +1146,7 @@ void administrarConexiones(void)
 										t_PCB *pcb_wait = malloc(sizeof(t_PCB));
 										*pcb_wait = mensaje_to_pcb(mensajeCPU);
 
+										desasociarPidCPU(pcb_wait->pid);
 
 										if(pid != pcb_wait->pid)
 										{
@@ -1237,6 +1279,8 @@ void administrarConexiones(void)
 								escribirLog("Se recibio el pcb de la consola que abortará\n");
 
 								t_PCB pcb = mensaje_to_pcb(mensajeCPU);
+
+								desasociarPidCPU(pcb.pid);
 
 								t_mensajeHead headParaConsola = {RETURN_ABORTAR_CONSOLA, 1, 1};
 								t_mensaje mensajeParaConsola;

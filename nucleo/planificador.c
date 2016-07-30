@@ -82,7 +82,7 @@ void ejecutar(t_PCB proceso, unsigned short int quantum, unsigned int qSleep, in
 
 	t_mensaje mensaje_quantum = quantum_to_mensaje(quantum, qSleep);
 
-//	asociarPidCPU();
+	asociarPidCPU(proceso.pid, cpu);
 
 	enviarMensaje(cpu, mensaje_PCB);
 	freeMensaje(&mensaje_PCB);
@@ -338,4 +338,24 @@ void desasociarPidCPU(int pid)
 		perror("desasociarPidCPU: No se encontro el pid a desasociar");
 		escribirLog("desasociarPidCPU: No se encontro el pid a desasociar\n");
 	}
+}
+
+int CPU_to_Pid(int cpu)
+{
+	t_link_element *aux;
+	for(aux = lista_CPUS_PIDS->head; aux; aux = aux->next)
+		if( ((t_parPidCPU*)(aux->data))->fd_cpu == cpu )
+			return ((t_parPidCPU*)(aux->data))->pid;
+
+	return -1;
+}
+
+int Pid_to_CPU(int pid)
+{
+	t_link_element *aux;
+		for(aux = lista_CPUS_PIDS->head; aux; aux = aux->next)
+			if( ((t_parPidCPU*)(aux->data))->pid == pid )
+				return ((t_parPidCPU*)(aux->data))->fd_cpu;
+
+		return -1;
 }

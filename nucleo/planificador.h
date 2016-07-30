@@ -63,6 +63,11 @@ void deshabilitarCPU(int);
 int cantidadDispositivos(void);
 void abortarProceso(int pid);
 
+void asociarPidCPU(int pid, int cpu);
+void desasociarPidCPU(int pid);
+int CPU_to_Pid(int cpu);
+int Pid_to_CPU(int pid);
+
 int es_el_PCB_a_actualizar(t_PCB pcb);
 t_mensaje quantum_to_mensaje(unsigned short int quantum, unsigned int quantumSleep);
 
