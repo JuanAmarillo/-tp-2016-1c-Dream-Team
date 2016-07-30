@@ -16,6 +16,7 @@ typedef struct{
  */
 t_infoConfig infoConfig;
 int socketNucleo;
+int senial = 0;
 
 
 /*

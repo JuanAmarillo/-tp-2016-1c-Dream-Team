@@ -178,13 +178,18 @@ t_mensaje codigo_to_mensaje(char* codigo){
 }
 
 void signal_funcion(int signal){
-  printf("\nAbortando programa. \n");
-  t_mensaje mensaje;
-  mensaje.head.codigo = ABORTAR_CONSOLA;
-  mensaje.head.cantidad_parametros = 1;
-  mensaje.head.tam_extra = 1;
-  mensaje.parametros = malloc(4);
-  mensaje.mensaje_extra = malloc(1);
-  enviarMensaje(socketNucleo, mensaje);
-  freeMensaje(&mensaje);
+  if(senial == 0){
+	  printf("\nAbortando programa. \n");
+	  t_mensaje mensaje;
+	  mensaje.head.codigo = ABORTAR_CONSOLA;
+	  mensaje.head.cantidad_parametros = 1;
+	  mensaje.head.tam_extra = 1;
+	  mensaje.parametros = malloc(4);
+	  mensaje.mensaje_extra = malloc(1);
+	  enviarMensaje(socketNucleo, mensaje);
+	  freeMensaje(&mensaje);
+  } else {
+	  if(senial == 3) abort();
+	  senial++;
+  }
 }
