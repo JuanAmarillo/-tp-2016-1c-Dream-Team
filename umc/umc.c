@@ -647,13 +647,16 @@ unsigned algoritmoclock(t_tablaDePaginas*procesoActivo,unsigned pagina,int *pagi
 		{
 			if(procesoActivo->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 1)
 			{
+				log_trace(loggerClock,"Pagina A SACAR :%d",paginaApuntada);
 				procesoActivo->entradaTablaPaginas[paginaApuntada].estaEnMemoria = 0;
-				borrarEntradaTLB(marco);
+				//borrarEntradaTLB(marco);
 				punteroClock = avanzaPunteroClock(procesoActivo,punteroClock);
 			}
 			else
+			{
 				log_trace(loggerClock,"==============FIN=CLOCK==================\n");
 				return punteroClock;
+			}
 
 		 }
 	}
@@ -701,10 +704,10 @@ unsigned actualizaPagina(unsigned pagina,t_tablaDePaginas* procesoActivo,int cli
 		procesoActivo->entradaTablaPaginas[pagina].estaEnMemoria = 1;
 		procesoActivo->punteroClock = avanzaPunteroClock(procesoActivo,punteroClock);
 
-		log_trace(logger,"El puntero clock luego del algortimo:%d",procesoActivo->punteroClock);
+		log_trace(loggerClock,"El puntero clock luego del algortimo:%d",procesoActivo->punteroClock);
 	}
 	else
-		procesoActivo->entradaTablaPaginas[paginaEstabaEnMemoria].estaEnMemoria = 1;
+		procesoActivo->entradaTablaPaginas[pagina].estaEnMemoria = 1;
 
 	//Actualizar la tabla de paginas
 	actualizarTablaDePaginas(procesoActivo);
