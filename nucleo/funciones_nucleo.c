@@ -704,9 +704,21 @@ void administrarConexiones(void)
 				}
 				else//Hay datos entrantes
 				{
+					if(fd_explorer == fd_umc)//Los Datos vienen de la umc, solo se va a manejar la desconexion
+					{
+						nbytes = recibirMensaje(fd_explorer, &mensajeUMC);//Recibir los datos en mensajeUMC
+
+						if(nbytes == 0)
+						{
+							escribirLog("Se desconecto la UMC\n");
+							perror("Se desconecto la UMC\n");
+							abort();
+						}
+					}
+
 					if(FD_ISSET(fd_explorer, &conj_consola))//Los datos vienen de una Consola
 					{
-						nbytes = recibirMensaje(fd_explorer, &mensajeConsola);//Recibir los datos en mensajeCOnsola
+						nbytes = recibirMensaje(fd_explorer, &mensajeConsola);//Recibir los datos en mensajeConsola
 
 						if(nbytes <= 0)//Hubo un error o se desconecto
 						{

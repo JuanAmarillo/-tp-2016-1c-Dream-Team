@@ -56,7 +56,7 @@ unsigned int tamPaginas;
 unsigned int stack_size;
 
 //buffers para datos recibidos de los clientes
-t_mensaje mensajeConsola, mensajeCPU;
+t_mensaje mensajeConsola, mensajeCPU, mensajeUMC;
 
 fd_set conjunto_pids_abortados;
 
