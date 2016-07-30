@@ -505,9 +505,6 @@ int buscaNoPresenciaNoModificado(t_tablaDePaginas *procesoActivo,unsigned *punte
 	*paginaSiYaEstabaEnMemoria = paginaEnEntrada(pagina,procesoActivo);
 	int marco = buscarMarcoDisponible();
 
-	//No hay marcos disponibles
-	if(marco == -1)
-		return 0;
 
 	//La pagina a reemplazar ya estaba en la tabla de las paginas en memoria
 	if(*paginaSiYaEstabaEnMemoria != -1)
@@ -518,16 +515,26 @@ int buscaNoPresenciaNoModificado(t_tablaDePaginas *procesoActivo,unsigned *punte
 	{
 		//No hay pagina cargada => no hay reemplazo
 		paginaApuntada = procesoActivo->paginasEnMemoria[*punteroClock];
-		if(paginaApuntada == -1){
-			return 1;
+		if(paginaApuntada == -1)
+		{
+			if(marco != -1)
+			{
+				return 1;
+			}
+			else
+			{
+				*punteroClock = avanzaPunteroClock(procesoActivo,*punteroClock);
+			}
 		}
-
-		//Busca una pagina que no fue modificada ni que este en memoria
-		if(procesoActivo->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 0)
-			if(procesoActivo->entradaTablaPaginas[paginaApuntada].fueModificado == 0)
+		else
+		{
+			//Busca una pagina que no fue modificada ni que este en memoria
+			if(procesoActivo->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 0)
+				if(procesoActivo->entradaTablaPaginas[paginaApuntada].fueModificado == 0)
 					return 1;
 
-		*punteroClock = avanzaPunteroClock(procesoActivo,*punteroClock);
+			*punteroClock = avanzaPunteroClock(procesoActivo,*punteroClock);
+		}
 	}
 	return 0 ;
 }
@@ -548,12 +555,14 @@ int buscaNoPresenciaSiModificado(t_tablaDePaginas *tablaBuscada,unsigned *punter
 		if(tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 0)
 			if(tablaBuscada->entradaTablaPaginas[paginaApuntada].fueModificado == 1)
 			{
-				if(marco != -1)
 					return 1;
 			}
 		//Si esta en memoria la libera
 		if(tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria == 1)
-			falloPagina(tablaBuscada,paginaApuntada);
+		{
+			tablaBuscada->entradaTablaPaginas[paginaApuntada].estaEnMemoria = 0;
+			borrarEntradaTLB(tablaBuscada->entradaTablaPaginas[paginaApuntada].marco);
+		}
 
 		*punteroClock = avanzaPunteroClock(tablaBuscada,*punteroClock);
 	}
