@@ -112,12 +112,12 @@ void msj_Unset_Page(int pagina){
 	log_trace(logger, "Se desocupo la pagina %d", pagina);
 }
 
-void msj_Get_Page(int pagina){
-	log_trace(logger, "Se leyo la pagina %d", pagina);
+void msj_Get_Page(int pagina, int pid){
+	log_trace(logger, "Se leyo la pagina %d (Perteneciente al proceso %d) del archivo SWAP", pagina, pid);
 }
 
-void msj_Save_Page(int pagina){
-	log_trace(logger, "Se guardo la pagina %d", pagina);
+void msj_Save_Page(int pagina, int pid){
+	log_trace(logger, "Se guardo la pagina %d (Perteneciente al proceso %d) del archivo SWAP", pagina, pid);
 }
 
 void msj_Save_Program(int pid,int pagInicial,int espacio){

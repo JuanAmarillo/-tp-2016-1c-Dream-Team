@@ -46,7 +46,6 @@ void limpiarMensaje(){
 
 int funcionamientoSWAP() {
 		int a = recibirMensaje(socketCliente, &received);
-		log_trace(logger,"La cabecera recibida es %d", received.head.codigo);
 		if(a!=0){
 			switch (received.head.codigo) {
 				case RESERVE_SPACE:
@@ -79,7 +78,6 @@ void enviarMensajeFinSaveProgram(int pid){
 	mensaje.parametros = NULL;
 	mensaje.mensaje_extra = NULL;
 	enviarMensaje(socketCliente,mensaje);
-	log_trace(logger,"Se le aviso al UMC del fin de save");
 }
 
 void setNewPage(unsigned nroPag){
@@ -94,17 +92,14 @@ void unSetPage(unsigned nroPag){
 
 void getPage(unsigned nroPag){
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
-	usleep(RETARDO_ACCESO);
 	fread(bufferPagina,1,TAMANIO_PAGINA,SWAPFILE);
-	msj_Get_Page(nroPag);
-
+	usleep(RETARDO_ACCESO);
 }
 
 void savePage(unsigned nroPag){
 	fseek(SWAPFILE,nroPag*TAMANIO_PAGINA,SEEK_SET);
-	usleep(RETARDO_ACCESO);
 	fwrite(bufferPagina,1,TAMANIO_PAGINA,SWAPFILE);
-	msj_Save_Page(nroPag);
+	usleep(RETARDO_ACCESO);
 }
 
 void saveProgram(){
@@ -112,7 +107,6 @@ void saveProgram(){
 
 	espacio = buscarLongPrograma(received.parametros[0]);
 	pagInicial = buscarPagInicial(received.parametros[0]);
-
 	log_trace(logger,"El codigo de la pagina es:\n");
 	log_trace(logger,received.mensaje_extra);
 	int tam_a_copiar;
@@ -132,7 +126,6 @@ void saveProgram(){
 }
 
 void returnPage(){
-	log_trace(logger,"--> returnPage(); ");
 	t_mensaje aEnviar;
 	aEnviar.head.codigo = SWAP_SENDS_PAGE;
 	aEnviar.head.cantidad_parametros = 0;
@@ -140,6 +133,7 @@ void returnPage(){
 	aEnviar.mensaje_extra = malloc(TAMANIO_PAGINA);
 	aEnviar.parametros = NULL;
 	getPage(buscarPagInicial(received.parametros[0])+received.parametros[1]);
+	msj_Get_Page(buscarPagInicial(received.parametros[0])+received.parametros[1], received.parametros[0]);
 	memcpy(aEnviar.mensaje_extra, bufferPagina, TAMANIO_PAGINA);
 	enviarMensaje(socketCliente, aEnviar);
 	free(aEnviar.mensaje_extra);
@@ -162,11 +156,11 @@ void saveNewPage(){
 	int pagInicial = buscarPagInicial(received.parametros[0]);
 	memcpy(bufferPagina, received.mensaje_extra, TAMANIO_PAGINA);
 	savePage(pagInicial+nroPagDentroProg);
+	msj_Save_Page(pagInicial+nroPagDentroProg, received.parametros[0]);
 }
 
 void replacePages(int longitudPrograma, int inicioProg,int inicioEspacioBlanco) {
 	int contador=0;
-
 	while (contador < longitudPrograma) {
 		getPage(inicioProg + contador);
 		unSetPage(inicioProg + contador);
