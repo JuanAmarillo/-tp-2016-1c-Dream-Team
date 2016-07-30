@@ -137,7 +137,7 @@ int main(int argc, char** argv){
 		    	break;
 		      case 5:
 		    	  log_trace(logger, "PID: %u, Error: Variable compartida no encontrada.", pcb_global.pid);
-		    	  enviarPCBnucleo(STRUCT_PCB_WAIT);
+		    	  enviarPCBnucleo(STRUCT_PCB_FIN_ERROR);
 		    	break;
 		      case 6:
 		    	  log_trace(logger, "PID: %u, Abortado por Consola.", pcb_global.pid);
@@ -145,10 +145,14 @@ int main(int argc, char** argv){
 		    	break;
 		      case 7:
 		    	  log_trace(logger, "PID: %u, Memoria sin espacio", pcb_global.pid);
-		    	  enviarPCBnucleo(STRUCT_PCB);
+		    	  enviarPCBnucleo(STRUCT_PCB_FIN_ERROR);
 		    	break;
 		      case 8:
 		    	  log_trace(logger, "PID: %u, StackOverflow", pcb_global.pid);
+		    	  enviarPCBnucleo(STRUCT_PCB_FIN_ERROR);
+		    	break;
+		      case 9:
+		    	  log_trace(logger, "PID: %u, Error generico", pcb_global.pid);
 		    	  enviarPCBnucleo(STRUCT_PCB_FIN_ERROR);
 		    	break;
 		      default: // Otro error
@@ -875,6 +879,11 @@ t_puntero parser_obtenerPosicionVariable(t_nombre_variable identificador_variabl
 	// Ingresar al ultimo indice stack
 	aux_stack = list_get(pcb_global.indiceStack, pcb_global.sp);
 	aux_vars = list_find(aux_stack->vars, (void*) _is_variableX);
+
+	if(aux_vars == NULL){
+		estado_ejecucion = 9;
+		return -1;
+	}
 
 	puntero_variable = aux_vars->posicionMemoria;
 	log_trace(logger, "----> Return: %c: (%u,%u,%u)", identificador_variable, puntero_variable.numeroPagina, puntero_variable.offset, puntero_variable.size);
