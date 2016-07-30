@@ -160,17 +160,24 @@ int enviarInfoUMC(unsigned int pid, unsigned int cantidadPaginas, const char *co
 
 void avisar_UMC_FIN_PROG(int pid)
 {
-	t_mensajeHead head = {FIN_PROG, 1, 0};
+	t_mensajeHead head = {FIN_PROG, 1, 1};
 	t_mensaje mensaje;
 	mensaje.head = head;
+	mensaje.parametros = malloc(sizeof(int));
 	mensaje.parametros[0] = pid;
-	mensaje.mensaje_extra = NULL;
+	mensaje.mensaje_extra = malloc(sizeof(char));
+	mensaje.mensaje_extra[0] = '\0';
 
 	if(enviarMensaje(fd_umc, mensaje) == -1)
 	{
 		escribirLog("Error al informar a la umc que termino el proceso %d\n", pid);
 		abort();
 	}
+
+	free(mensaje.parametros);
+	free(mensaje.mensaje_extra);
+
+	escribirLog("Se informo a la UMC que terminó el proceso %d\n", pid);
 }
 
 int seAlmacenoElProceso(void)
@@ -919,12 +926,15 @@ void administrarConexiones(void)
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
 
-								desasociarPidCPU(pcb->pid);
+								int elPID = pcb->pid;
 
-								int laConsola = Pid_to_Consola(pcb->pid);
+								desasociarPidCPU(elPID);
 
-								avisar_UMC_FIN_PROG(pcb->pid);
-								FD_CLR(pcb->pid, &conjunto_procesos_ejecutando);
+								int laConsola = Pid_to_Consola(elPID);
+
+								avisar_UMC_FIN_PROG(elPID);
+
+								FD_CLR(elPID, &conjunto_procesos_ejecutando);
 
 								terminar(pcb);
 
