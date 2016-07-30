@@ -63,7 +63,7 @@ t_PCB mensaje_to_pcb(t_mensaje);
 //static void args_destroy(t_posicionDeMemoria *);
 //static void vars_destroy(t_variable *);
 //static void stack_destroy(t_indiceStack *);
-t_PCB crearPCB(t_mensaje programa, unsigned int pid, unsigned int tamPag, unsigned int stackSize);
+t_PCB crearPCB(t_mensaje programa, unsigned int pid, unsigned int tamPag);
 void freePCB(t_PCB *);
 void testCrearPCB();
 

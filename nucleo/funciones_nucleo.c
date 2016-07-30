@@ -759,7 +759,7 @@ void administrarConexiones(void)
 								escribirLog("Tamaño recibido: %d\n", nbytes);
 								escribirLog("-------------------\n");
 
-								*pcb = crearPCB(mensajeConsola, ++max_proceso, tamPaginas, stack_size);
+								*pcb = crearPCB(mensajeConsola, ++max_proceso, tamPaginas);
 
 								escribirLog("--------------------------------\n");
 								escribirLog("Se creo el PCB de pid:%d\n", pcb->pid);
@@ -775,7 +775,7 @@ void administrarConexiones(void)
 								//Enviar a UMC: PID, Cant Paginas, codigo
 								char *code = strdup(mensajeConsola.mensaje_extra);
 								string_trim(&code);
-								enviarInfoUMC(pcb->pid, pcb->cantidadPaginas, code);
+								enviarInfoUMC(pcb->pid, pcb->cantidadPaginas + stack_size, code);
 								free(code);
 								//Verificar que se pudo guardar el programa
 								if(seAlmacenoElProceso())
