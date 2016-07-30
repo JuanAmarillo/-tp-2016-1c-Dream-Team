@@ -21,7 +21,10 @@ t_list *lista_master_procesos;
 pthread_mutex_t mutex_lista_master_procesos;
 
 t_queue *cola_listos;
+pthread_mutex_t mutex_cola_listos;
+
 t_queue *cola_bloqueados;
+pthread_mutex_t mutex_cola_bloqueados;
 
 t_dispositivo *vector_dispositivos;
 

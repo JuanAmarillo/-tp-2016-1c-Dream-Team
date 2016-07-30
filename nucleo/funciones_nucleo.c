@@ -459,7 +459,12 @@ void abortarProceso(int pid)
 
 		pthread_mutex_unlock(&mutex_conjunto_procesos_listos);
 
+
+		pthread_mutex_lock(&mutex_cola_listos);
+
 		eliminarProcesoSegunPID(cola_listos->elements, pid);
+
+		pthread_mutex_unlock(&mutex_cola_listos);
 	}
 
 	FD_SET(pid, &conjunto_procesos_abortados);escribirLog("Se seteo en el conj abort\n");

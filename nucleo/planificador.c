@@ -41,7 +41,13 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 		escribirLog("CPU fd[%d] Libre--->Ejecutar\n", cpu);
 
 		//Extraer proceso de la cola de listos
+
+		pthread_mutex_lock(&mutex_cola_listos);
+
 		proceso = queue_pop(listos);
+
+		pthread_mutex_unlock(&mutex_cola_listos);
+
 
 		//Borrar del conjunto de procesos listos
 		pthread_mutex_lock(&mutex_conjunto_procesos_listos);
@@ -228,7 +234,13 @@ void ponerListo(t_PCB *proceso)
 {
 	FD_CLR(proceso->pid, &conjunto_procesos_bloqueados);
 	proceso->estado = 1;
+
+	pthread_mutex_lock(&mutex_cola_listos);
+
 	queue_push(cola_listos, proceso);
+
+	pthread_mutex_unlock(&mutex_cola_listos);
+
 
 	pthread_mutex_lock(&mutex_conjunto_procesos_listos);
 
