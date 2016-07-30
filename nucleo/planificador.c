@@ -46,7 +46,8 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 		proceso->estado = 1;
 
 		//Ejecutar proceso
-		ejecutar(*proceso, quantum, quantumSleep, cpu);
+
+		ejecutar(*proceso, releerQuantum(), releerQuantumSleep(), cpu);
 
 		free(proceso);
 

@@ -47,6 +47,8 @@ struct t_infoConfig
 /*----------------------------------------------------------*/
 t_infoConfig infoConfig; //archivo de configuración
 
+char rutaArchivoConfig[100];
+
 struct sockaddr_in direccionParaConsola, direccionParaCPU, direccionUMC; //Direcciones propia
 struct sockaddr_in direccionCliente;//direccion de cualquier cliente que se conecte
 

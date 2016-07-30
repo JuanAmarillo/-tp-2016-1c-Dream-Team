@@ -25,6 +25,9 @@ void leerArchivoConfig(char *ruta)
 		free(ruta_aux);
 		abort();
 	}
+
+	strcpy(rutaArchivoConfig, ruta_aux);
+
 	// Guardo los datos en una variable global
 	infoConfig.puerto_prog = config_get_string_value(config, "PUERTO_PROG");
 	infoConfig.puerto_cpu = config_get_string_value(config, "PUERTO_CPU");
@@ -43,6 +46,42 @@ void leerArchivoConfig(char *ruta)
 	free(config->path);
 	free(config);
 	free(ruta_aux);
+}
+
+int releerQuantum(void)
+{
+	t_config *config = config_create(rutaArchivoConfig);
+
+	if (config == NULL)
+	{
+		free(config);
+		abort();
+	}
+
+	int ret = atoi(config_get_string_value(config, "QUANTUM"));
+
+	free(config->path);
+	free(config);
+
+	return ret;
+}
+
+int releerQuantumSleep(void)
+{
+	t_config *config = config_create(rutaArchivoConfig);
+
+	if (config == NULL)
+	{
+		free(config);
+		abort();
+	}
+
+	int ret = atoi(config_get_string_value(config, "QUANTUM_SLEEP"));
+
+	free(config->path);
+	free(config);
+
+	return ret;
 }
 
 void inicializarDirecciones(void)

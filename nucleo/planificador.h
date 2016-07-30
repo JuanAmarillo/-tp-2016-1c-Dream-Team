@@ -68,6 +68,9 @@ void desasociarPidCPU(int pid);
 int CPU_to_Pid(int cpu);
 int Pid_to_CPU(int pid);
 
+int releerQuantum(void);
+int releerQuantumSleep(void);
+
 int es_el_PCB_a_actualizar(t_PCB pcb);
 t_mensaje quantum_to_mensaje(unsigned short int quantum, unsigned int quantumSleep);
 
