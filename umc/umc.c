@@ -876,9 +876,12 @@ int buscarEnTLB(unsigned paginaBuscada,unsigned pidActual)
 	int indice;
 	int marco;
 	t_entradaTLB *entradaTLB;
-	if(list_size(TLB)==0)
-		return -1;
 
+	if(list_size(TLB)==0)
+	{
+		pthread_mutex_unlock(&mutexTLB);
+		return -1;
+	}
 	for(indice=0;indice < list_size(TLB);indice++)
 	{
 		entradaTLB = list_get(TLB,indice);
@@ -909,11 +912,11 @@ void traducirPaginaAMarco(unsigned pagina,int *marco,t_tablaDePaginas*procesoAct
 		log_trace(logger,"TLB: hit -> Marco: %d",*marco);
 		return;
 	}
-
 	//Buscar en tabla de paginas
 	usleep(infoMemoria.retardo);
 	if(procesoActivo->entradaTablaPaginas[pagina].estaEnMemoria == 1)
 		{
+		log_trace(logger,"Busca en memoria");
 			//Esta en memoria se copia el marco
 			*marco = procesoActivo->entradaTablaPaginas[pagina].marco;
 			log_trace(logger,"Pagina en Memoria:SI -> Marco:%d", *marco);
@@ -922,7 +925,9 @@ void traducirPaginaAMarco(unsigned pagina,int *marco,t_tablaDePaginas*procesoAct
 			return;
 		}
 		else
-		{	// Buscar en swap
+		{	log_trace(logger,"Busca en swap");
+
+			// Buscar en swap
 			log_trace(logger,"Pagina en Memoria: NO");
 			log_trace(logger,"Se procede a traer la pagina del SWAP");
 			traerPaginaAMemoria(pagina,procesoActivo,clienteUMC,noHayMarcos);
