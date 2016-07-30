@@ -147,6 +147,10 @@ int main(int argc, char** argv){
 		    	  log_trace(logger, "PID: %u, Memoria sin espacio", pcb_global.pid);
 		    	  enviarPCBnucleo(STRUCT_PCB);
 		    	break;
+		      case 8:
+		    	  log_trace(logger, "PID: %u, StackOverflow", pcb_global.pid);
+		    	  enviarPCBnucleo(STRUCT_PCB_FIN_ERROR);
+		    	break;
 		      default: // Otro error
 		    	break;
 		}
@@ -822,8 +826,11 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 			cantidad_vars = list_size(aux_stack->vars);
 			if(cantidad_vars == 0){
 				aux_vars = malloc(sizeof(t_variable));
-				//int num_pagina =  pcb_global.cantidadPaginas-1;
-				int num_pagina = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_inicio/tamano_pagina_umc;
+
+				// Si quiero escribir las variables en una pagina nueva
+				int num_pagina =  pcb_global.cantidadPaginas;
+				// Si las quiero escribir a continuacion del codigo
+				//int num_pagina = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_inicio/tamano_pagina_umc;
 				aux_vars->posicionMemoria.numeroPagina = num_pagina;
 				aux_vars->posicionMemoria.offset = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_inicio - tamano_pagina_umc * num_pagina;
 				aux_vars->posicionMemoria.size = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_fin;
@@ -953,7 +960,7 @@ void parser_asignar(t_puntero direccion_variable_puntero, t_valor_variable valor
 	// Chequeo si hubo error
 	if(mensaje.parametros[0] != 1){
 		if(mensaje.parametros[0] == 2){
-			estado_ejecucion = 2;
+			estado_ejecucion = 8;
 		} else if(mensaje.parametros[0] == 3){
 			estado_ejecucion = 7;
 		}
