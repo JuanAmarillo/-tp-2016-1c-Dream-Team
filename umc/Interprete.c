@@ -53,8 +53,10 @@ void limpiarPaginas() {
 
 void limpiarTLB() {
 	pthread_mutex_lock(&mutexTLB);
+	int i = list_size(TLB);
 	list_clean(TLB);
 	pthread_mutex_unlock(&mutexTLB);
+	log_trace(logger1,"Se limpiaron %u paginas de la TLB", i);
 }
 
 void flushDeConsola(char* parametroExtra) {
@@ -63,7 +65,6 @@ void flushDeConsola(char* parametroExtra) {
 		log_trace(logger1, "Se va a proceder a limpiar la TLB");
 		limpiarTLB();
 		log_trace(logger, "Se limpio la TLB");
-		log_trace(logger1, "Se limpio la TLB");
 	} else {
 		log_trace(logger, "Se van a marcar todas las paginas como modificadas");
 		log_trace(logger1, "Se van a poner todas las paginas como modificadas");
@@ -83,12 +84,15 @@ void retardoDeConsola(char* parametroExtra) {
 void mostrarProceso(t_tablaDePaginas* tabla) {
 	unsigned pagina;
 	log_trace(logger1, "==============Tabla De Paginas PID:%d===============================",tabla->pid);
+	log_trace(logger1,"|    NRO  | PRESENCIA   |  ESTA       | MARCO");
+	log_trace(logger1,"|  PAGINA | EN MEMORIA  | MODIFICADA  |  NRO");
 	for (pagina = 0; pagina < tabla->cantidadEntradasTablaPagina; pagina++) {
+
 		if (tabla->entradaTablaPaginas[pagina].estaEnMemoria == 1)
-			log_trace(logger1,"Pagina:%d EstaEnMemoria:%d FueModificado:%d -> Marco:%d",
+		log_trace(logger1,"|   %03d   |     %03d     |     %03d     |  %03d",
 					pagina,tabla->entradaTablaPaginas[pagina].estaEnMemoria,tabla->entradaTablaPaginas[pagina].fueModificado,tabla->entradaTablaPaginas[pagina].marco);
 		else
-			log_trace(logger1,"Pagina:%d EstaEnMemoria:%d FueModificado:%d -> Marco:NULL",
+		log_trace(logger1,"|  %03d    |    %03d      |     %03d     | NULL",
 								pagina,tabla->entradaTablaPaginas[pagina].estaEnMemoria,tabla->entradaTablaPaginas[pagina].fueModificado,tabla->entradaTablaPaginas[pagina].marco);
 	}
 	log_trace(logger1, "===================================================================");
@@ -103,7 +107,7 @@ void mostrarContenidoDePaginas(t_tablaDePaginas* tl) {
 	{
 		if (tl->entradaTablaPaginas[i].estaEnMemoria)
 		{
-			log_trace(logger1,"El contenido de la pagina nro %i del proceso es:");
+			log_trace(logger1,"El contenido de la pagina nro %i del proceso %i es:", i, tl->pid);
 			mostrarContenido(tl->entradaTablaPaginas[i].marco);
 		}
 		i++;
@@ -219,7 +223,7 @@ int main(){
 	conectarAlSWAP();
 
 	//servidor
-	//crearHiloInterprete();
+	crearHiloInterprete();
 	gestionarConexiones();
 
 	return 0;
