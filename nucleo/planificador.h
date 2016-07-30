@@ -79,4 +79,7 @@ t_mensaje quantum_to_mensaje(unsigned short int quantum, unsigned int quantumSle
 
 pthread_t* comenzar_Planificador_EntradaSalida(void);
 
+void avisar_Consola_Error(int fd, const char* aviso);
+int Pid_to_Consola(int pid);
+
 #endif /* NUCLEO_5_PLANIFICADOR_H_ */

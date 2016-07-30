@@ -299,6 +299,29 @@ void avisar_Consola_DesconexionCPU(int fd)
 	freeMensaje(&mensajeExit);
 }
 
+void avisar_Consola_Error(int fd, const char* aviso)
+{
+	//Avisar a la consola que no fue posible almacenar el proceso
+
+	t_mensajeHead head = {IMPRIMIR_TEXTO_PROGRAMA, 1, strlen(aviso) + 1};
+	t_mensaje mensaje;
+	mensaje.head = head;
+	mensaje.parametros = malloc(4);
+	mensaje.mensaje_extra = strdup(aviso);
+
+	enviarMensaje(fd, mensaje);
+
+	freeMensaje(&mensaje);
+
+	//Avisar que aborte
+	t_mensajeHead headExit = {EXIT_PROGRAMA, 1, 1};
+	t_mensaje mensajeExit = {headExit, malloc(4), malloc(1)};
+
+	enviarMensaje(fd, mensajeExit);
+
+	freeMensaje(&mensajeExit);
+}
+
 void asociarPidConsola(int pid, int consola)
 {
 	escribirLog("Se intentara asociar el pid %d con la consola fd:%d\n", pid, consola);
@@ -430,7 +453,12 @@ void abortarProceso(int pid)
 	}
 	if(FD_ISSET(pid, &conjunto_procesos_listos))
 	{
+		pthread_mutex_lock(&mutex_conjunto_procesos_listos);
+
 		FD_CLR(pid, &conjunto_procesos_listos);
+
+		pthread_mutex_unlock(&mutex_conjunto_procesos_listos);
+
 		eliminarProcesoSegunPID(cola_listos->elements, pid);
 	}
 

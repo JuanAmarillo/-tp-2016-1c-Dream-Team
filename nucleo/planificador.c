@@ -44,7 +44,11 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 		proceso = queue_pop(listos);
 
 		//Borrar del conjunto de procesos listos
+		pthread_mutex_lock(&mutex_conjunto_procesos_listos);
+
 		FD_CLR(proceso->pid, &conjunto_procesos_listos);
+
+		pthread_mutex_unlock(&mutex_conjunto_procesos_listos);
 
 		//Colocar proceso en la lista Ejecutando
 		FD_SET(proceso->pid, &conjunto_procesos_ejecutando);
@@ -141,10 +145,11 @@ void eliminar_Int_de_Lista(int x, t_list *lista)
 		{
 			auxAnt->next = aux->next;
 			free(aux);
+			lista->elements_count--;
 		}
 	}
 
-	lista->elements_count--;
+
 
 }
 
@@ -224,7 +229,13 @@ void ponerListo(t_PCB *proceso)
 	FD_CLR(proceso->pid, &conjunto_procesos_bloqueados);
 	proceso->estado = 1;
 	queue_push(cola_listos, proceso);
+
+	pthread_mutex_lock(&mutex_conjunto_procesos_listos);
+
 	FD_SET(proceso->pid, &conjunto_procesos_listos);
+
+	pthread_mutex_unlock(&mutex_conjunto_procesos_listos);
+
 	actualizarMaster();
 }
 
@@ -287,7 +298,7 @@ void bloquear(t_PCB *proceso, const char *dispositivo, unsigned int cantOp)
 	else
 	{
 		escribirLog("El proceso solicito I/O de un dispositivo inexistente\n");
-		abortarProceso(proceso->pid);
+		avisar_Consola_Error(Pid_to_Consola(proceso->pid), "El proceso solicito I/O de un dispositivo inexistente, abortar");
 	}
 
 	actualizarMaster();
