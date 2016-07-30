@@ -24,6 +24,7 @@ t_queue *cola_bloqueados;
 t_dispositivo *vector_dispositivos;
 
 t_queue *cola_cpus_disponibles;
+pthread_mutex_t mutex_cola_cpus_disponibles;
 
 typedef struct
 {
