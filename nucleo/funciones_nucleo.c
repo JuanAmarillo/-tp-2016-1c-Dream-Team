@@ -279,7 +279,7 @@ void avisar_Consola_ProgramaNoAlmacenado(int fd)
 void avisar_Consola_DesconexionCPU(int fd)
 {
 	//Avisar a la consola que no fue posible almacenar el proceso
-	const char aviso[] = "Error: La cpu que procesaba su programa se ha desconecado de forma insegura\nAbortado\n";
+	const char aviso[] = "Error: La cpu que procesaba su programa se ha desconectado de forma insegura\nAbortado\n";
 	t_mensajeHead head = {IMPRIMIR_TEXTO_PROGRAMA, 1, strlen(aviso) + 1};
 	t_mensaje mensaje;
 	mensaje.head = head;

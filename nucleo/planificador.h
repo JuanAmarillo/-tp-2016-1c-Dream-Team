@@ -18,12 +18,15 @@
 #include "conjuntos_procesos.h"
 
 t_list *lista_master_procesos;
+pthread_mutex_t mutex_lista_master_procesos;
+
 t_queue *cola_listos;
 t_queue *cola_bloqueados;
 
 t_dispositivo *vector_dispositivos;
 
 t_queue *cola_cpus_disponibles;
+pthread_mutex_t mutex_cola_cpus_disponibles;
 
 typedef struct
 {

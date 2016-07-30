@@ -25,7 +25,14 @@ void roundRobin(const unsigned short int quantum, unsigned int quantumSleep, t_q
 
 		//tomar la primer cpu de la cola
 		int *data;
+
+
+		pthread_mutex_lock(&mutex_cola_cpus_disponibles);
+
 		data = queue_pop(cola_cpus_disponibles);
+
+		pthread_mutex_unlock(&mutex_cola_cpus_disponibles);
+
 
 		cpu = *data;
 
@@ -101,7 +108,13 @@ void habilitarCPU(int cpu)
 {
 	int *data = malloc(sizeof(int));
 	*data = cpu;
+
+
+	pthread_mutex_lock(&mutex_cola_cpus_disponibles);
+
 	queue_push(cola_cpus_disponibles, data);
+
+	pthread_mutex_unlock(&mutex_cola_cpus_disponibles);
 }
 
 void eliminar_Int_de_Lista(int x, t_list *lista)
@@ -141,7 +154,11 @@ void eliminar_CPU_de_Cola(int cpu, t_queue *cola)
 
 void deshabilitarCPU(int cpu)
 {
+	pthread_mutex_lock(&mutex_cola_cpus_disponibles);
+
 	eliminar_CPU_de_Cola(cpu, cola_cpus_disponibles);
+
+	pthread_mutex_lock(&mutex_cola_cpus_disponibles);
 }
 
 t_mensaje quantum_to_mensaje(unsigned short int quantum, unsigned int qSleep)
@@ -194,7 +211,11 @@ void* actualizar_si_corresponde(void *pcb)
 
 void actualizarMaster(void)
 {
+	pthread_mutex_lock(&mutex_lista_master_procesos);
+
 	list_map(lista_master_procesos, actualizar_si_corresponde);
+
+	pthread_mutex_unlock(&mutex_lista_master_procesos);
 }
 
 void ponerListo(t_PCB *proceso)
