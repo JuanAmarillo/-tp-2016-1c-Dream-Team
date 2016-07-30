@@ -82,6 +82,8 @@ void ejecutar(t_PCB proceso, unsigned short int quantum, unsigned int qSleep, in
 
 	t_mensaje mensaje_quantum = quantum_to_mensaje(quantum, qSleep);
 
+	asociarPidCPU(proceso.pid, cpu);
+
 	enviarMensaje(cpu, mensaje_PCB);
 	freeMensaje(&mensaje_PCB);
 	enviarMensaje(cpu, mensaje_quantum);
@@ -291,4 +293,69 @@ pthread_t* comenzar_Planificador_EntradaSalida(void)
 	}
 
 	return hilos_por_dispositivo;
+}
+
+void asociarPidCPU(int pid, int cpu)
+{
+	escribirLog("Se intentara asociar el pid %d con la cpu fd:%d\n", pid, cpu);
+	t_parPidCPU *par = malloc(sizeof(t_parPidCPU));
+	par->pid = pid;
+	par->fd_cpu= cpu;
+	list_add(lista_CPUS_PIDS, par);
+	escribirLog("Asociar pid a cpu ok\n");
+}
+
+void desasociarPidCPU(int pid)
+{
+	t_link_element *aux = lista_CPUS_PIDS->head, *aux2;
+
+	if(aux == NULL)
+	{
+		escribirLog("Se intento desasociar un pid de una cpu, estando la lista de pares vacía\n");
+		return;
+	}
+
+	if(((t_parPidCPU*)(aux->data))->pid == pid)
+	{
+		lista_CPUS_PIDS->head = lista_CPUS_PIDS->head->next;
+		lista_CPUS_PIDS->elements_count --;
+		free(aux);
+		escribirLog("Desasociar pid de cpu ok\n");
+		return;
+	}
+
+	for(aux = lista_CPUS_PIDS->head; aux->next && ((t_parPidCPU*)(aux->next->data))->pid != pid ; aux = aux->next);
+	if(aux->next)
+	{
+		aux2 = aux->next;
+		aux->next = aux2->next;
+		lista_CPUS_PIDS->elements_count --;
+		free(aux2);
+		escribirLog("Desasociar pid de cpu ok\n");
+	}
+	else
+	{
+		perror("desasociarPidCPU: No se encontro el pid a desasociar");
+		escribirLog("desasociarPidCPU: No se encontro el pid a desasociar\n");
+	}
+}
+
+int CPU_to_Pid(int cpu)
+{
+	t_link_element *aux;
+	for(aux = lista_CPUS_PIDS->head; aux; aux = aux->next)
+		if( ((t_parPidCPU*)(aux->data))->fd_cpu == cpu )
+			return ((t_parPidCPU*)(aux->data))->pid;
+
+	return -1;
+}
+
+int Pid_to_CPU(int pid)
+{
+	t_link_element *aux;
+		for(aux = lista_CPUS_PIDS->head; aux; aux = aux->next)
+			if( ((t_parPidCPU*)(aux->data))->pid == pid )
+				return ((t_parPidCPU*)(aux->data))->fd_cpu;
+
+		return -1;
 }

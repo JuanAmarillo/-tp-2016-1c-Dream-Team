@@ -36,6 +36,8 @@ void leerArchivoConfig(char *ruta)
 	infoConfig.array_variables_compartidas = config_get_array_value(config, "SHARED_VARS");
 	infoConfig.array_sem_id = config_get_array_value(config, "SEM_ID");
 	infoConfig.array_sem_init = config_get_array_value(config, "SEM_INIT");
+	infoConfig.stack_size = config_get_string_value(config, "STACK_SIZE");
+	infoConfig.ip_umc = config_get_string_value(config, "IP_UMC");
 
 	// No uso config_destroy(config) porque bugea
 	free(config->path);
@@ -57,7 +59,7 @@ void inicializarDirecciones(void)
 
 	direccionUMC.sin_family = AF_INET;
 	direccionUMC.sin_port = htons(atoi(infoConfig.puerto_umc));
-	direccionUMC.sin_addr.s_addr = INADDR_ANY;
+	direccionUMC.sin_addr.s_addr = inet_addr(infoConfig.ip_umc);
 	memset(direccionUMC.sin_zero, '\0', sizeof(direccionUMC.sin_zero));
 
 }
@@ -228,14 +230,37 @@ void avisar_Consola_ProgramaNoAlmacenado(int fd)
 	freeMensaje(&mensajeExit);
 }
 
+void avisar_Consola_DesconexionCPU(int fd)
+{
+	//Avisar a la consola que no fue posible almacenar el proceso
+	const char aviso[] = "Error: La cpu que procesaba su programa se ha desconecado de forma insegura\nAbortado\n";
+	t_mensajeHead head = {IMPRIMIR_TEXTO_PROGRAMA, 1, strlen(aviso) + 1};
+	t_mensaje mensaje;
+	mensaje.head = head;
+	mensaje.parametros = malloc(4);
+	mensaje.mensaje_extra = strdup(aviso);
+
+	enviarMensaje(fd, mensaje);
+
+	freeMensaje(&mensaje);
+
+	//Avisar que aborte
+	t_mensajeHead headExit = {EXIT_PROGRAMA, 1, 1};
+	t_mensaje mensajeExit = {headExit, malloc(4), malloc(1)};
+
+	enviarMensaje(fd, mensajeExit);
+
+	freeMensaje(&mensajeExit);
+}
+
 void asociarPidConsola(int pid, int consola)
 {
-	escribirLog("Se intentara asociar el pid %d con al consola fd:%d\n", pid, consola);
+	escribirLog("Se intentara asociar el pid %d con la consola fd:%d\n", pid, consola);
 	t_parPidConsola *par = malloc(sizeof(t_parPidConsola));
 	par->pid = pid;
 	par->fd_consola = consola;
 	list_add(lista_Pares, par);
-	escribirLog("Asociar ok\n");
+	escribirLog("Asociar pid a consola ok\n");
 }
 
 void desasociarPidConsola(int pid)
@@ -254,7 +279,7 @@ void desasociarPidConsola(int pid)
 		lista_Pares->head = lista_Pares->head->next;
 		lista_Pares->elements_count --;
 		free(aux);
-		escribirLog("Desasociar ok\n");
+		escribirLog("Desasociar pid de consola ok\n");
 		return;
 	}
 
@@ -265,7 +290,7 @@ void desasociarPidConsola(int pid)
 		aux->next = aux2->next;
 		lista_Pares->elements_count --;
 		free(aux2);
-		escribirLog("Desasociar ok\n");
+		escribirLog("Desasociar pid de consola ok\n");
 	}
 	else
 	{
@@ -568,6 +593,9 @@ void inicializarListas(void)
 	cola_listos = queue_create();
 	lista_Pares = list_create();
 	cola_cpus_disponibles = queue_create();
+	lista_CPUS_PIDS = list_create();
+
+	stack_size = atoi(infoConfig.stack_size);
 
 	int nDisp = cantidadDispositivos();
 	if(nDisp != cantidadSleeps())
@@ -676,9 +704,21 @@ void administrarConexiones(void)
 				}
 				else//Hay datos entrantes
 				{
+					if(fd_explorer == fd_umc)//Los Datos vienen de la umc, solo se va a manejar la desconexion
+					{
+						nbytes = recibirMensaje(fd_explorer, &mensajeUMC);//Recibir los datos en mensajeUMC
+
+						if(nbytes == 0)
+						{
+							escribirLog("Se desconecto la UMC\n");
+							perror("Se desconecto la UMC\n");
+							abort();
+						}
+					}
+
 					if(FD_ISSET(fd_explorer, &conj_consola))//Los datos vienen de una Consola
 					{
-						nbytes = recibirMensaje(fd_explorer, &mensajeConsola);//Recibir los datos en mensajeCOnsola
+						nbytes = recibirMensaje(fd_explorer, &mensajeConsola);//Recibir los datos en mensajeConsola
 
 						if(nbytes <= 0)//Hubo un error o se desconecto
 						{
@@ -735,7 +775,7 @@ void administrarConexiones(void)
 								//Enviar a UMC: PID, Cant Paginas, codigo
 								char *code = strdup(mensajeConsola.mensaje_extra);
 								string_trim(&code);
-								enviarInfoUMC(pcb->pid, pcb->cantidadPaginas, code);
+								enviarInfoUMC(pcb->pid, pcb->cantidadPaginas + stack_size, code);
 								free(code);
 								//Verificar que se pudo guardar el programa
 								if(seAlmacenoElProceso())
@@ -766,7 +806,29 @@ void administrarConexiones(void)
 							{
 								escribirLog("La consola planea abortarse, iniciar procedimiento de preparación para aborto\n");
 
-								FD_CLR(Consola_to_Pid(fd_explorer), &conjunto_pids_abortados);
+								int elPID = Consola_to_Pid(fd_explorer);
+
+								escribirLog("Se añade el pid %d al conjunto de procesos abortados\n", elPID);
+
+								FD_SET(elPID, &conjunto_pids_abortados);
+
+								if(!FD_ISSET(Consola_to_Pid(fd_explorer), &conjunto_procesos_ejecutando))
+								{
+									t_mensajeHead headParaConsola = {RETURN_ABORTAR_CONSOLA, 1, 1};
+									t_mensaje mensajeParaConsola;
+									mensajeParaConsola.head = headParaConsola;
+									mensajeParaConsola.parametros = malloc(sizeof(int));
+									mensajeParaConsola.parametros[0] = 1;//basura
+									mensajeParaConsola.mensaje_extra = malloc(1);
+									mensajeParaConsola.mensaje_extra[0] = '\0';
+
+									if( enviarMensaje(fd_explorer, mensajeParaConsola) <= 0 )
+									{
+										perror("Error al avisar a la consola que puede abortar\n");
+										abort();
+									}
+
+								}
 							}
 						}
 
@@ -781,7 +843,7 @@ void administrarConexiones(void)
 
 						if(nbytes <= 0)//Hubo un error o se desconecto
 						{
-							if(nbytes < 0)
+							if(nbytes < 0)//Error de recepción
 							{
 								FD_CLR(fd_explorer, &conj_master);
 								FD_CLR(fd_explorer, &conj_cpu);
@@ -789,13 +851,23 @@ void administrarConexiones(void)
 								escribirLog("Error de recepción en una cpu (fd[%d])\n", fd_explorer);
 								continue;
 							}
-							if(nbytes == 0)
+							if(nbytes == 0)//Desconexión
 							{
 								FD_CLR(fd_explorer, &conj_master);
 								FD_CLR(fd_explorer, &conj_cpu);
 								deshabilitarCPU(fd_explorer);
 								close(fd_explorer);
 								escribirLog("Se ha desconectado una cpu (fd[%d])\n", fd_explorer);
+
+								if(FD_ISSET(CPU_to_Pid(fd_explorer), &conjunto_procesos_ejecutando))
+								{
+									//El cpu se desconecto de forma insegura, abortar
+									avisar_UMC_FIN_PROG(CPU_to_Pid(fd_explorer));
+
+									avisar_Consola_DesconexionCPU(Pid_to_Consola( CPU_to_Pid(fd_explorer) ));
+
+									desasociarPidCPU(fd_explorer);
+								}
 							}
 						}
 						else//No hubo error ni desconexion
@@ -808,6 +880,8 @@ void administrarConexiones(void)
 								escribirLog("----------------------------------------------------\n");
 								escribirLog("Se recibio el proceso %d por finalización de quantum\n", pcb->pid);
 								escribirLog("----------------------------------------------------\n");
+
+								desasociarPidCPU(pcb->pid);
 
 								ponerListo(pcb);
 
@@ -823,6 +897,8 @@ void administrarConexiones(void)
 							{
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
+
+								desasociarPidCPU(pcb->pid);
 
 								int laConsola = Pid_to_Consola(pcb->pid);
 
@@ -842,6 +918,8 @@ void administrarConexiones(void)
 							{
 								t_PCB *pcb = malloc(sizeof(t_PCB));
 								*pcb = mensaje_to_pcb(mensajeCPU);
+
+								desasociarPidCPU(pcb->pid);
 
 								int laConsola = Pid_to_Consola(pcb->pid);
 
@@ -1020,6 +1098,8 @@ void administrarConexiones(void)
 									t_PCB *pcb = malloc(sizeof(t_PCB));
 									*pcb = mensaje_to_pcb(mensajeCPU);
 
+									desasociarPidCPU(pcb->pid);
+
 									bloquear(pcb, nombreDispositivo, cantidadOperaciones);
 									actualizarMaster();
 									habilitarCPU(fd_explorer);
@@ -1078,6 +1158,7 @@ void administrarConexiones(void)
 										t_PCB *pcb_wait = malloc(sizeof(t_PCB));
 										*pcb_wait = mensaje_to_pcb(mensajeCPU);
 
+										desasociarPidCPU(pcb_wait->pid);
 
 										if(pid != pcb_wait->pid)
 										{
@@ -1170,15 +1251,19 @@ void administrarConexiones(void)
 
 							if(mensajeCPU.head.codigo == GET_ESTADO)
 							{
+								escribirLog("La cpu fd[%d] consulta por estado\n", fd_explorer);
+
 								int pid = mensajeCPU.parametros[0];
 								int retorno;
 
 								if( FD_ISSET(pid, &conjunto_pids_abortados) )
 								{
+									escribirLog("Se avisará a la cpu que la consola planea abortar\n");
 									retorno = 1;
 								}
 								else
 								{
+									escribirLog("EStado ok\n");
 									retorno = 0;
 								}
 
@@ -1203,7 +1288,11 @@ void administrarConexiones(void)
 
 							if(mensajeCPU.head.codigo == STRUCT_PCB_ABORT_CONSOLA)
 							{
+								escribirLog("Se recibio el pcb de la consola que abortará\n");
+
 								t_PCB pcb = mensaje_to_pcb(mensajeCPU);
+
+								desasociarPidCPU(pcb.pid);
 
 								t_mensajeHead headParaConsola = {RETURN_ABORTAR_CONSOLA, 1, 1};
 								t_mensaje mensajeParaConsola;
@@ -1220,6 +1309,7 @@ void administrarConexiones(void)
 								}
 
 								habilitarCPU(fd_explorer);
+								escribirLog("Se habilitó nuevamente la cpu fd[%d]", fd_explorer);
 							}
 
 							freeMensaje(&mensajeCPU);

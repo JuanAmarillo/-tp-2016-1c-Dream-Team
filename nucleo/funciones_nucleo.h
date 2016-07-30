@@ -39,8 +39,9 @@ struct t_infoConfig
 	char **array_variables_compartidas;
 	char **array_sem_id;
 	char **array_sem_init;
+	char *stack_size;
+	char* ip_umc;
 };
-
 
 /*Variables Globales*/
 /*----------------------------------------------------------*/
@@ -52,9 +53,10 @@ struct sockaddr_in direccionCliente;//direccion de cualquier cliente que se cone
 //file descriptor para escuchar (listener), para una nueva conexión (new) y para explorar conexiones (explorer)
 int fd_umc, fd_listener_consola, fd_listener_cpu, fd_new, fd_explorer;
 unsigned int tamPaginas;
+unsigned int stack_size;
 
 //buffers para datos recibidos de los clientes
-t_mensaje mensajeConsola, mensajeCPU;
+t_mensaje mensajeConsola, mensajeCPU, mensajeUMC;
 
 fd_set conjunto_pids_abortados;
 

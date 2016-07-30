@@ -31,7 +31,15 @@ typedef struct
 	int fd_consola;
 }t_parPidConsola;
 
-t_list *lista_Pares;
+typedef struct
+{
+	int pid;
+	int fd_cpu;
+}t_parPidCPU;
+
+t_list *lista_Pares;//asocia cada pid con su consola
+
+t_list *lista_CPUS_PIDS; // Asocia a cada cpu con el pid que esta ejecutando
 
 int max_cpu, max_proceso;
 t_PCB PCB_actualizado;
@@ -54,6 +62,11 @@ void deshabilitarCPU(int);
 
 int cantidadDispositivos(void);
 void abortarProceso(int pid);
+
+void asociarPidCPU(int pid, int cpu);
+void desasociarPidCPU(int pid);
+int CPU_to_Pid(int cpu);
+int Pid_to_CPU(int pid);
 
 int es_el_PCB_a_actualizar(t_PCB pcb);
 t_mensaje quantum_to_mensaje(unsigned short int quantum, unsigned int quantumSleep);
