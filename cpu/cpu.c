@@ -73,7 +73,7 @@ int main(int argc, char** argv){
 
 		// Recibir Quantum
 		recibirQuantum(&quantum, &quantum_sleep);
-		log_trace(logger, "Se recibio quantum: %u ; quantum_sleep: %u", quantum, quantum_sleep);
+		log_trace(logger, "Se recibio quantum: %u ; quantum_sleep: %u ms", quantum, quantum_sleep);
 
 		// Convierto el mensaje en un PCB, y borro el mensaje
 		pcb_global = mensaje_to_pcb(mensaje_recibido);
@@ -107,7 +107,7 @@ int main(int argc, char** argv){
 			free(instruccion);
 
 			// Sleep
-			usleep(quantum_sleep);
+			usleep(quantum_sleep*1000);
 
 			// Realizo acciones segun el estado de ejecucion
 			if((estado_ejecucion != 0) || (notificacion_signal_sigusr1 == 1)) break;
@@ -836,8 +836,10 @@ t_puntero parser_definirVariable(t_nombre_variable identificador_variable) {
 				// Si las quiero escribir a continuacion del codigo
 				//int num_pagina = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_inicio/tamano_pagina_umc;
 				aux_vars->posicionMemoria.numeroPagina = num_pagina;
-				aux_vars->posicionMemoria.offset = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_inicio - tamano_pagina_umc * num_pagina;
-				aux_vars->posicionMemoria.size = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_fin;
+				aux_vars->posicionMemoria.offset = 0;
+				aux_vars->posicionMemoria.size = 0;
+				//aux_vars->posicionMemoria.offset = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_inicio - tamano_pagina_umc * num_pagina;
+				//aux_vars->posicionMemoria.size = pcb_global.indiceCodigo[pcb_global.total_instrucciones-1].offset_fin;
 			} else {
 				aux_vars = list_get(aux_stack->vars, cantidad_vars-1);
 			}
